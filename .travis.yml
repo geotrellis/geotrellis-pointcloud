@@ -4,6 +4,8 @@ addons:
   hostname: localhost
 services:
   - docker
+before_script:
+  - .travis/geotrellis-publish.sh
 jdk:
   - oraclejdk8
 scala:
