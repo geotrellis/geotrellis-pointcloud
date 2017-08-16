@@ -1,14 +1,13 @@
 import Dependencies._
 import sbt.Keys._
-import de.heikoseeberger.sbtheader.license.Apache2_0
 
 name := "geotrellis-pointcloud"
-version := Version.geotrellis
+version := Version.geotrellisPointCloud
 scalaVersion := Version.scala
-description := Info.description
-organization := "org.locationtech.geotrellis"
+description := "GeoTrellis PointCloud library"
+organization := "com.azavea.geotrellis"
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
-homepage := Some(url(Info.url))
+homepage := Some(url("http://geotrellis.github.io"))
 scalacOptions ++= Seq(
   "-deprecation",
   "-unchecked",
@@ -24,6 +23,9 @@ scalacOptions ++= Seq(
 publishMavenStyle := true
 publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
+bintrayRepository := "maven"
+bintrayOrganization := None
+bintrayPackageLabels := Seq("geotrellis", "maps", "gis", "geographic", "data", "raster", "processing", "pdal", "pointcloud")
 
 addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
 addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
@@ -53,11 +55,14 @@ pomExtra := (
 )
 
 shellPrompt := { s => Project.extract(s).currentProject.id + " > " }
-dependencyUpdatesExclusions := moduleFilter(organization = "org.scala-lang")
+headerLicense := Some(HeaderLicense.ALv2("2017", "Azavea"))
+
+sources in (Compile, doc) ~= (_ filterNot (_.getAbsolutePath contains "geotrellis/vector"))
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
-  Resolver.sonatypeRepo("snapshots")
+  Resolver.sonatypeRepo("snapshots"),
+  "LocationTech GeoTrellis Snapshots" at "https://repo.locationtech.org/content/repositories/geotrellis-snapshots"
 )
 
 libraryDependencies ++= Seq(

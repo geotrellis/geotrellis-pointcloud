@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Azavea.
+ * Copyright (c) 2017 Azavea.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ object Environment {
   def either(environmentVariable: String, default: String): String =
     Properties.envOrElse(environmentVariable, default)
 
-  lazy val hadoopVersion  = either("SPARK_HADOOP_VERSION", "2.8.0")
-  lazy val sparkVersion   = either("SPARK_VERSION", "2.1.1")
-  lazy val versionSuffix  = either("GEOTRELLIS_VERSION_SUFFIX", "-SNAPSHOT")
-  lazy val ldLibraryPath  = either("LD_LIBRARY_PATH", "/usr/local/lib")
+  lazy val hadoopVersion            = either("SPARK_HADOOP_VERSION", "2.8.0")
+  lazy val sparkVersion             = either("SPARK_VERSION", "2.2.0")
+  lazy val versionSuffix            = either("VERSION_SUFFIX", "-SNAPSHOT")
+  lazy val ldLibraryPath            = either("LD_LIBRARY_PATH", "/usr/local/lib")
 }

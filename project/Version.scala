@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Azavea.
+ * Copyright (c) 2017 Azavea.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 
 object Version {
-  val geotrellis  = "1.2.0" + Environment.versionSuffix
-  val scala       = "2.11.11"
-  lazy val hadoop = Environment.hadoopVersion
-  lazy val spark  = Environment.sparkVersion
+  val geotrellisPointCloud = "0.1" + Environment.versionSuffix
+  val geotrellis           = "1.2.0-SNAPSHOT"
+  val scala                = "2.11.11"
+  lazy val hadoop          = Environment.hadoopVersion
+  lazy val spark           = Environment.sparkVersion
 }
