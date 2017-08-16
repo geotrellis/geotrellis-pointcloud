@@ -60,9 +60,9 @@ headerLicense := Some(HeaderLicense.ALv2("2017", "Azavea"))
 sources in (Compile, doc) ~= (_ filterNot (_.getAbsolutePath contains "geotrellis/vector"))
 
 resolvers ++= Seq(
-  Resolver.sonatypeRepo("releases"),
+  Resolver.sonatypeRepo("releases")/*,
   Resolver.sonatypeRepo("snapshots"),
-  "LocationTech GeoTrellis Snapshots" at "https://repo.locationtech.org/content/repositories/geotrellis-snapshots"
+  "LocationTech GeoTrellis Snapshots" at "https://repo.locationtech.org/content/repositories/geotrellis-snapshots"*/
 )
 
 libraryDependencies ++= Seq(
