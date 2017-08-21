@@ -1,6 +1,6 @@
 # GeoTrellis PointCloud
 
-[![Build Status](https://travis-ci.org/pomadchin/geotrellis-pointcloud.svg?branch=master)](https://travis-ci.org/pomadchin/geotrellis-pointcloud)
+[![Build Status](https://travis-ci.org/geotrellis/geotrellis-pointcloud.svg?branch=master)](https://travis-ci.org/geotrellis/geotrellis-pointcloud)
 
 GeoTrellis PointCloud uses PDAL bindings to work with PointCloud data.
 
