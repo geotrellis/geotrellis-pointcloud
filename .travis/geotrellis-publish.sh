@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-git clone https://github.com/pomadchin/geotrellis
+git clone https://github.com/locationtech/geotrellis
 cd geotrellis
-git checkout feature/delaunay-public
 ./scripts/publish-local.sh
