@@ -40,7 +40,7 @@ object TinToDem {
     def DEFAULT = Options()
   }
 
-  def apply(rdd: RDD[(SpatialKey, Array[Coordinate])], layoutDefinition: LayoutDefinition, extent: Extent, options: Options = Options.DEFAULT): RDD[(SpatialKey, Tile)] =
+  def apply(rdd: RDD[(SpatialKey, Array[Coordinate])], layoutDefinition: LayoutDefinition, options: Options = Options.DEFAULT): RDD[(SpatialKey, Tile)] =
     rdd
       .collectNeighbors
       .mapPartitions({ partition =>
@@ -108,7 +108,7 @@ object TinToDem {
         }
       }, preservesPartitioning = true)
 
-  def boundaryStitch(rdd: RDD[(SpatialKey, Array[Coordinate])], layoutDefinition: LayoutDefinition, extent: Extent, options: Options = Options.DEFAULT): RDD[(SpatialKey, Tile)] = {
+  def boundaryStitch(rdd: RDD[(SpatialKey, Array[Coordinate])], layoutDefinition: LayoutDefinition, options: Options = Options.DEFAULT): RDD[(SpatialKey, Tile)] = {
 
     // Assumes that a partitioner has already been set
 
@@ -165,7 +165,7 @@ object TinToDem {
       }, preservesPartitioning = true)
   }
 
-  def allStitch(rdd: RDD[(SpatialKey, Array[Coordinate])], layoutDefinition: LayoutDefinition, extent: Extent, options: Options = Options.DEFAULT): RDD[(SpatialKey, Tile)] = {
+  def allStitch(rdd: RDD[(SpatialKey, Array[Coordinate])], layoutDefinition: LayoutDefinition, options: Options = Options.DEFAULT): RDD[(SpatialKey, Tile)] = {
 
     // Assumes that a partitioner has already been set
 
