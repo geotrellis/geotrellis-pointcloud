@@ -20,7 +20,7 @@ object Dependencies {
   val scalatest    = "org.scalatest"    %%  "scalatest"      % "3.0.4"
   val sparkCore    = "org.apache.spark" %% "spark-core" % Version.spark
   val hadoopClient = "org.apache.hadoop" % "hadoop-client" % Version.hadoop
-  val pdalScala    = "io.pdal" %% "pdal-scala" % "1.5.0"
+  val pdalScala    = "io.pdal" %% "pdal-scala" % "1.6.0"
   
   val geotrellisSparkTestkit = "org.locationtech.geotrellis" %% "geotrellis-spark-testkit" % Version.geotrellis
   val geotrellisSpark        = "org.locationtech.geotrellis" %% "geotrellis-spark" % Version.geotrellis
