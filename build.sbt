@@ -67,7 +67,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   geotrellisSpark % Provided, 
-  geotrellisRaster, 
+  geotrellisRaster % Provided, 
   geotrellisS3 % Provided, 
   geotrellisSparkTestkit % Test, 
   geotrellisS3Testkit % Test,
