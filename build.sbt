@@ -62,14 +62,15 @@ sources in (Compile, doc) ~= (_ filterNot (_.getAbsolutePath contains "geotrelli
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots"),
-  "LocationTech GeoTrellis Snapshots" at "https://repo.locationtech.org/content/repositories/geotrellis-snapshots"
+  "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
+  "locationtech-snapshots" at "https://repo.locationtech.org/content/groups/snapshots"
 )
 
 libraryDependencies ++= Seq(
-  geotrellisSpark % Provided, 
-  geotrellisRaster % Provided, 
-  geotrellisS3 % Provided, 
-  geotrellisSparkTestkit % Test, 
+  geotrellisSpark % Provided,
+  geotrellisRaster % Provided,
+  geotrellisS3 % Provided,
+  geotrellisSparkTestkit % Test,
   geotrellisS3Testkit % Test,
   pdalScala,
   sparkCore % Provided,
