@@ -23,7 +23,7 @@ scalacOptions ++= Seq(
 publishMavenStyle := true
 publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
-bintrayRepository := "maven"
+bintrayRepository := "geotrellis"
 bintrayOrganization := None
 bintrayPackageLabels := Seq("geotrellis", "maps", "gis", "geographic", "data", "raster", "processing", "pdal", "pointcloud")
 

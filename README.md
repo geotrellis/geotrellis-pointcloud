@@ -24,7 +24,7 @@ libraryDependencies ++= Seq(
 )
 
 resolvers ++= Seq(
-  "DauunC Bintray Repository" at "http://dl.bintray.com/daunnc/maven/"
+  "GeoTrellis Bintray Repository" at "http://dl.bintray.com/azavea/geotrellis/"
 )
 ```
 
