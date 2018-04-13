@@ -29,4 +29,4 @@ resolvers ++= Seq(
 ```
 
 NOTE: Using GeoTrellis PointCloud requires a working installation of
-[PDAL's java bindings](https://github.com/PDAL/PDAL/tree/master/java).
+[PDAL's java bindings](https://github.com/PDAL/java).
