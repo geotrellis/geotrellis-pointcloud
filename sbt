@@ -2,6 +2,7 @@
 #
 # A more capable sbt runner, coincidentally also called sbt.
 # Author: Paul Phillips <paulp@improving.org>
+# https://github.com/paulp/sbt-extras
 
 set -o pipefail
 
@@ -9,9 +10,9 @@ declare -r sbt_release_version="0.13.16"
 declare -r sbt_unreleased_version="0.13.16"
 
 declare -r latest_213="2.13.0-M2"
-declare -r latest_212="2.12.3"
-declare -r latest_211="2.11.11"
-declare -r latest_210="2.10.6"
+declare -r latest_212="2.12.4"
+declare -r latest_211="2.11.12"
+declare -r latest_210="2.10.7"
 declare -r latest_29="2.9.3"
 declare -r latest_28="2.8.2"
 
@@ -259,9 +260,9 @@ download_url () {
   echoerr "    To  $jar"
 
   mkdir -p "${jar%/*}" && {
-    if which curl >/dev/null; then
+    if command -v curl > /dev/null 2>&1; then
       curl --fail --silent --location "$url" --output "$jar"
-    elif which wget >/dev/null; then
+    elif command -v wget > /dev/null 2>&1; then
       wget -q -O "$jar" "$url"
     fi
   } && [[ -r "$jar" ]]

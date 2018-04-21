@@ -20,8 +20,8 @@ object Environment {
   def either(environmentVariable: String, default: String): String =
     Properties.envOrElse(environmentVariable, default)
 
-  lazy val hadoopVersion            = either("SPARK_HADOOP_VERSION", "2.8.1")
-  lazy val sparkVersion             = either("SPARK_VERSION", "2.2.0")
+  lazy val hadoopVersion            = either("SPARK_HADOOP_VERSION", "2.8.3")
+  lazy val sparkVersion             = either("SPARK_VERSION", "2.2.1")
   lazy val versionSuffix            = either("VERSION_SUFFIX", "-SNAPSHOT")
   lazy val ldLibraryPath            = either("LD_LIBRARY_PATH", "/usr/local/lib")
 }

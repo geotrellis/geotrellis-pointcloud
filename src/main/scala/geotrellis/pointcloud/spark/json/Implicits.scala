@@ -33,7 +33,7 @@ trait Implicits {
         .all.flatMap(s => md.downField(s.toString).focus)
         .headOption
         .map(_.hcursor)
-        .getOrElse(throw new Exception(s"Unsupported reader driver: ${md.fields.getOrElse(Nil)}"))
+        .getOrElse(throw new Exception(s"Unsupported reader driver: ${md.keys.getOrElse(Nil)}"))
 
     EitherMethods.sequence(
       driver.downField("minx").as[Double] ::
@@ -54,7 +54,7 @@ trait Implicits {
         .all.flatMap(s => md.downField(s.toString).focus)
         .headOption
         .map(_.hcursor)
-        .getOrElse(throw new Exception(s"Unsupported reader driver: ${md.fields.getOrElse(Nil)}"))
+        .getOrElse(throw new Exception(s"Unsupported reader driver: ${md.keys.getOrElse(Nil)}"))
 
     val crs =
       CRS.fromString(driver.downField("srs").downField("proj4").as[String] match {
