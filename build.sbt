@@ -27,7 +27,7 @@ bintrayRepository := "geotrellis"
 bintrayOrganization := None
 bintrayPackageLabels := Seq("geotrellis", "maps", "gis", "geographic", "data", "raster", "processing", "pdal", "pointcloud")
 
-addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
+addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.6" cross CrossVersion.binary)
 addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.full)
 
 pomExtra := (
@@ -62,8 +62,8 @@ sources in (Compile, doc) ~= (_ filterNot (_.getAbsolutePath contains "geotrelli
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots"),
-  "locationtech-releases" at "https://repo.locationtech.org/content/groups/releases",
-  "locationtech-snapshots" at "https://repo.locationtech.org/content/groups/snapshots"
+  "Locationtech Releases" at "https://repo.locationtech.org/content/groups/releases",
+  "Locationtech Snapshots" at "https://repo.locationtech.org/content/groups/snapshots"
 )
 
 libraryDependencies ++= Seq(
@@ -73,6 +73,7 @@ libraryDependencies ++= Seq(
   geotrellisSparkTestkit % Test,
   geotrellisS3Testkit % Test,
   pdalScala,
+  pdalNative,
   sparkCore % Provided,
   hadoopClient % Provided,
   scalatest % Test
@@ -81,5 +82,3 @@ libraryDependencies ++= Seq(
 fork in Test := true
 parallelExecution in Test := false
 connectInput in Test := true
-
-javaOptions += s"-Djava.library.path=${Environment.ldLibraryPath}"

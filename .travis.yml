@@ -4,18 +4,18 @@ addons:
   hostname: localhost
 services:
   - docker
-before_script:
-  - .travis/geotrellis-publish.sh
 jdk:
   - oraclejdk8
 scala:
-  - 2.11.11
+  - 2.11.12
+before_install:
+  - docker pull daunnc/pdal-debian:1.7.1
 cache:
   directories:
    - $HOME/.ivy2
    - $HOME/.sbt
 script:
-  - docker run -it --net=host -v $HOME/.ivy2:/root/.ivy2 -v $HOME/.sbt:/root/.sbt -v $TRAVIS_BUILD_DIR:/geotrellis-pointcloud -e TRAVIS_SCALA_VERSION=$TRAVIS_SCALA_VERSION -e TRAVIS_COMMIT=$TRAVIS_COMMIT -e TRAVIS_JDK_VERSION=$TRAVIS_JDK_VERSION daunnc/geotrellis-dependencies:latest /bin/bash -c "cd /geotrellis-pointcloud; .travis/build-and-test.sh"
+  - .travis/run.sh
 notifications:
   email:
     recipients:
@@ -29,12 +29,12 @@ before_deploy:
   - export VERSION_SUFFIX="-${TRAVIS_COMMIT:0:7}"
 deploy:
   - provider: script
-    script: docker run -it --net=host -v $HOME/.ivy2:/root/.ivy2 -v $HOME/.sbt:/root/.sbt -v $TRAVIS_BUILD_DIR:/geotrellis-pointcloud -e TRAVIS_SCALA_VERSION=$TRAVIS_SCALA_VERSION -e TRAVIS_COMMIT=$TRAVIS_COMMIT -e TRAVIS_JDK_VERSION=$TRAVIS_JDK_VERSION -e BINTRAY_USER=$BINTRAY_USER -e BINTRAY_API_KEY=$BINTRAY_API_KEY -e VERSION_SUFFIX=$VERSION_SUFFIX daunnc/geotrellis-dependencies:latest /bin/bash -c "cd /geotrellis-pointcloud; .travis/deploy.sh"
+    script: .travis/deploy.sh
     skip_cleanup: true
     on:
       repo: geotrellis/geotrellis-pointcloud
       branch: master
       jdk: oraclejdk8
-      scala: "2.11.11"
+      scala: "2.11.12"
 after_deploy:
   - rm -f "${HOME}/.bintray/.credentials"
