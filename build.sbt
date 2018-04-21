@@ -26,6 +26,7 @@ pomIncludeRepository := { _ => false }
 bintrayRepository := "geotrellis"
 bintrayOrganization := None
 bintrayPackageLabels := Seq("geotrellis", "maps", "gis", "geographic", "data", "raster", "processing", "pdal", "pointcloud")
+bintrayVcsUrl := Some("https://github.com/geotrellis/geotrellis-pointcloud")
 
 addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.6" cross CrossVersion.binary)
 addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.full)
