@@ -24,7 +24,7 @@ publishMavenStyle := true
 publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
 bintrayRepository := "geotrellis"
-bintrayOrganization := None
+bintrayOrganization := Some("azavea")
 bintrayPackageLabels := Seq("geotrellis", "maps", "gis", "geographic", "data", "raster", "processing", "pdal", "pointcloud")
 bintrayVcsUrl := Some("https://github.com/geotrellis/geotrellis-pointcloud")
 
