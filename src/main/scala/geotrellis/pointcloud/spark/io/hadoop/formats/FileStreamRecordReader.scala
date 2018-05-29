@@ -37,12 +37,8 @@ class FileStreamRecordReader[K, V](read: InputStream => (K, V)) extends RecordRe
       val factory = new CompressionCodecFactory(conf)
       val codec = factory.getCodec(path)
 
-      if (codec == null) {
-        println(s"No codec found for $path, reading without compression.")
-        fs.open(path)
-      } else {
-        codec.createInputStream(fs.open(path))
-      }
+      if (codec == null) fs.open(path)
+      else codec.createInputStream(fs.open(path))
     }
 
     tup = read(is)
