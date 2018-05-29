@@ -23,9 +23,11 @@ import geotrellis.pointcloud.util.Filesystem
 
 import io.pdal._
 import org.apache.hadoop.mapreduce.{InputSplit, TaskAttemptContext}
+import org.apache.commons.io.FileUtils
 import io.circe.syntax._
 
-import java.io.{BufferedOutputStream, File, FileOutputStream}
+import java.io.{File, InputStream}
+
 import scala.collection.JavaConversions._
 
 /** Process files from the path through PDAL, and reads all files point data as an Array[Byte] **/
@@ -40,14 +42,13 @@ class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, Iterator
     val pipeline = PointCloudInputFormat.getPipeline(context)
     val dimTypeStrings = PointCloudInputFormat.getDimTypes(context)
 
-    new S3RecordReader[S3PointCloudHeader, Iterator[PointCloud]](s3Client) {
-      def read(key: String, bytes: Array[Byte]) = {
+    new S3StreamRecordReader[S3PointCloudHeader, Iterator[PointCloud]](s3Client) {
+      def read(key: String, is: InputStream) = {
         // copy remote file into local tmp dir
         tmpDir.mkdirs() // to be sure that dirs created
         val localPath = new File(tmpDir, key.replace("/", "_"))
-        val bos = new BufferedOutputStream(new FileOutputStream(localPath))
-        Stream.continually(bos.write(bytes))
-        bos.close()
+        FileUtils.copyInputStreamToFile(is, localPath)
+        is.close()
 
         // use local filename path if it's present in json
         val localPipeline =

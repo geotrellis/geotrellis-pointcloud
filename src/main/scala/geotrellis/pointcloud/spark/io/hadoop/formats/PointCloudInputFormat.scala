@@ -28,11 +28,12 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs._
 import org.apache.hadoop.mapreduce._
 import org.apache.hadoop.mapreduce.lib.input._
+import org.apache.commons.io.FileUtils
 import io.circe.Json
 import io.circe.syntax._
 import io.circe.parser._
 
-import java.io.{BufferedOutputStream, File, FileOutputStream}
+import java.io.File
 
 import scala.collection.JavaConversions._
 
@@ -110,14 +111,13 @@ class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, Iter
     val pipeline = PointCloudInputFormat.getPipeline(context)
     val dimTypeStrings = PointCloudInputFormat.getDimTypes(context)
 
-    new BinaryFileRecordReader({ bytes =>
+    new FileStreamRecordReader({ is =>
       val remotePath = split.asInstanceOf[FileSplit].getPath
 
       // copy remote file into local tmp dir
       val localPath = new File(tmpDir, remotePath.getName)
-      val bos = new BufferedOutputStream(new FileOutputStream(localPath))
-      Stream.continually(bos.write(bytes))
-      bos.close()
+      FileUtils.copyInputStreamToFile(is, localPath)
+      is.close()
 
       // use local filename path if it's present in json
       val localPipeline =
