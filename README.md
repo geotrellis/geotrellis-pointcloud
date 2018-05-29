@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/geotrellis/geotrellis-pointcloud.svg?branch=master)](https://travis-ci.org/geotrellis/geotrellis-pointcloud)
 [![Bintray](https://api.bintray.com/packages/azavea/geotrellis/geotrellis-pointcloud/images/download.svg)](https://bintray.com/azavea/geotrellis/geotrellis-pointcloud)
+[![Join the chat at https://gitter.im/geotrellis/geotrellis](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/geotrellis/geotrellis?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 GeoTrellis PointCloud uses PDAL bindings to work with PointCloud data.
 
