@@ -20,6 +20,7 @@ import java.nio.file.{Files, Paths}
 
 import geotrellis.pointcloud.spark.PointCloudTestEnvironment
 import geotrellis.spark.io.s3.testkit.MockS3Client
+import io.pdal.pipeline.Read
 import org.scalatest._
 import spire.syntax.cfor._
 
@@ -34,7 +35,7 @@ class S3PackedPointsRDDSpec extends FunSpec
     val fileBytes = Files.readAllBytes(Paths.get(filePath))
     mockClient.putObject(bucket, key, fileBytes)
 
-    it("should read LAS file as RDD using hadoop input format") {
+    it("should read LAS file as RDD using s3 input format") {
       val client = new MockS3Client
       val source = S3PointCloudRDD(
         bucket, key, S3PointCloudRDD.Options(getS3Client = () => new MockS3Client)
@@ -57,6 +58,23 @@ class S3PackedPointsRDDSpec extends FunSpec
         bucket, key, S3PointCloudRDD.Options(getS3Client = () => new MockS3Client)
       ).take(1).head._1
       sourceHeader.crs.proj4jCrs.getName should be ("lcc-CS")
+    }
+
+    ignore("should read LAS file as RDD using s3 input format (not mock)") {
+      val source = S3PointCloudRDD(
+        "geotrellis-test", "daunnc/pointcloud/1.2-with-color.las", S3PointCloudRDD.Options(pipeline = Read("s3"))
+      ).flatMap(_._2)
+      val pointsCount = source.mapPartitions { _.map { packedPoints =>
+        var acc = 0l
+        cfor(0)(_ < packedPoints.length, _ + 1) { i =>
+          packedPoints.get(i)
+          acc += 1
+        }
+        acc
+      } }.reduce(_ + _)
+      val sourceList = source.take(1).toList
+      sourceList.map(_.length).head should be (1065)
+      pointsCount should be (1065)
     }
   }
 }

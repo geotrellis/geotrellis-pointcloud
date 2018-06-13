@@ -22,96 +22,128 @@ import geotrellis.pointcloud.spark.io.hadoop.formats._
 import geotrellis.pointcloud.util.Filesystem
 
 import io.pdal._
+import io.circe.Json
+import io.circe.syntax._
+import cats.syntax.either._
 import org.apache.hadoop.mapreduce.{InputSplit, TaskAttemptContext}
 import org.apache.commons.io.FileUtils
-import io.circe.syntax._
 
 import java.io.{File, InputStream}
+import java.net.URI
 
 import scala.collection.JavaConversions._
 
 /** Process files from the path through PDAL, and reads all files point data as an Array[Byte] **/
 class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, Iterator[PointCloud]] {
-  def createRecordReader(split: InputSplit, context: TaskAttemptContext) = {
-    val tmpDir = {
-      val dir = PointCloudInputFormat.getTmpDir(context)
-      if(dir == null) Filesystem.createDirectory()
-      else Filesystem.createDirectory(dir)
+  def executePipeline(context: TaskAttemptContext)(key: String, pipelineJson: Json): (S3PointCloudHeader, Iterator[PointCloud]) = {
+    val dimTypeStrings: Option[Array[String]] = PointCloudInputFormat.getDimTypes(context)
+    val pipeline = Pipeline(pipelineJson.noSpaces)
+
+    // PDAL itself is not threadsafe
+    AnyRef.synchronized {
+      pipeline.execute
     }
+
+    val header =
+      S3PointCloudHeader(
+        key,
+        pipeline.getMetadata(),
+        pipeline.getSchema()
+      )
+
+    // If a filter extent is set, don't actually load points.
+    val (pointViewIterator, disposeIterator): (Iterator[PointView], () => Unit) =
+      PointCloudInputFormat.getFilterExtent(context) match {
+        case Some(filterExtent) =>
+          if (header.extent3D.toExtent.intersects(filterExtent)) {
+            val pvi = pipeline.getPointViews()
+            (pvi, pvi.dispose _)
+          } else {
+            (Iterator.empty, () => ())
+          }
+        case None =>
+          val pvi = pipeline.getPointViews()
+          (pvi, pvi.dispose _)
+      }
+
+
+    // conversion to list to load everything into JVM memory
+    val pointClouds = pointViewIterator.toList.map { pointView =>
+      val pointCloud =
+        dimTypeStrings match {
+          case Some(ss) =>
+            pointView.getPointCloud(dims = ss.map(pointView.findDimType))
+          case None =>
+            pointView.getPointCloud()
+        }
+
+      pointView.dispose()
+      pointCloud
+    }.toIterator
+
+    val result = (header, pointClouds)
+
+    disposeIterator()
+    pipeline.dispose()
+
+    result
+  }
+
+  def createRecordReader(split: InputSplit, context: TaskAttemptContext) = {
     val s3Client = getS3Client(context)
     val pipeline = PointCloudInputFormat.getPipeline(context)
-    val dimTypeStrings = PointCloudInputFormat.getDimTypes(context)
 
-    new S3StreamRecordReader[S3PointCloudHeader, Iterator[PointCloud]](s3Client) {
-      def read(key: String, is: InputStream) = {
-        // copy remote file into local tmp dir
-        tmpDir.mkdirs() // to be sure that dirs created
-        val localPath = new File(tmpDir, key.replace("/", "_"))
-        FileUtils.copyInputStreamToFile(is, localPath)
-        is.close()
+    val mode =
+      pipeline
+        .hcursor
+        .downField("pipeline").downArray
+        .downField("filename").focus.flatMap(_.as[String].toOption).getOrElse("local")
 
-        // use local filename path if it's present in json
-        val localPipeline =
-          pipeline
-            .hcursor
-            .downField("pipeline").downArray
-            .downField("filename").withFocus(_ => localPath.getAbsolutePath.asJson)
-            .top.fold(pipeline)(identity)
+    /** PDAL can pull files directly from S3 */
+    mode match {
+      case "s3" =>
+        new S3URIRecordReader[S3PointCloudHeader, Iterator[PointCloud]](s3Client) {
+          def read(key: String, uri: URI): (S3PointCloudHeader, Iterator[PointCloud]) = {
+            val s3Pipeline =
+              pipeline
+                .hcursor
+                .downField("pipeline").downArray
+                .downField("filename").withFocus(_ => uri.toString.asJson)
+                .top.fold(pipeline)(identity)
 
-        try {
-          val pipeline = Pipeline(localPipeline.noSpaces)
-
-          // PDAL itself is not threadsafe
-          AnyRef.synchronized { pipeline.execute }
-
-          val header =
-            S3PointCloudHeader(
-              key,
-              pipeline.getMetadata(),
-              pipeline.getSchema()
-            )
-
-          // If a filter extent is set, don't actually load points.
-          val (pointViewIterator, disposeIterator): (Iterator[PointView], () => Unit) =
-            PointCloudInputFormat.getFilterExtent(context) match {
-              case Some(filterExtent) =>
-                if (header.extent3D.toExtent.intersects(filterExtent)) {
-                  val pvi = pipeline.getPointViews()
-                  (pvi, pvi.dispose _)
-                } else {
-                  (Iterator.empty, () => ())
-                }
-              case None =>
-                val pvi = pipeline.getPointViews()
-                (pvi, pvi.dispose _)
-            }
-
-
-          // conversion to list to load everything into JVM memory
-          val pointClouds = pointViewIterator.toList.map { pointView =>
-            val pointCloud =
-              dimTypeStrings match {
-                case Some(ss) =>
-                  pointView.getPointCloud(dims = ss.map(pointView.findDimType))
-                case None =>
-                  pointView.getPointCloud()
-              }
-
-            pointView.dispose()
-            pointCloud
-          }.toIterator
-
-          val result = (header, pointClouds)
-
-          disposeIterator()
-          pipeline.dispose()
-
-          result
-        } finally {
-          localPath.delete()
-          tmpDir.delete()
+            executePipeline(context)(key, s3Pipeline)
+          }
         }
-      }
+
+      case _ =>
+        val tmpDir = {
+          val dir = PointCloudInputFormat.getTmpDir(context)
+          if (dir == null) Filesystem.createDirectory()
+          else Filesystem.createDirectory(dir)
+        }
+
+        new S3StreamRecordReader[S3PointCloudHeader, Iterator[PointCloud]](s3Client) {
+          def read(key: String, is: InputStream): (S3PointCloudHeader, Iterator[PointCloud]) = {
+            // copy remote file into local tmp dir
+            tmpDir.mkdirs() // to be sure that dirs created
+            val localPath = new File(tmpDir, key.replace("/", "_"))
+            FileUtils.copyInputStreamToFile(is, localPath)
+            is.close()
+
+            // use local filename path if it's present in json
+            val localPipeline =
+              pipeline
+                .hcursor
+                .downField("pipeline").downArray
+                .downField("filename").withFocus(_ => localPath.getAbsolutePath.asJson)
+                .top.fold(pipeline)(identity)
+
+            try executePipeline(context)(key, localPipeline) finally {
+              localPath.delete()
+              tmpDir.delete()
+            }
+          }
+        }
     }
   }
 }
