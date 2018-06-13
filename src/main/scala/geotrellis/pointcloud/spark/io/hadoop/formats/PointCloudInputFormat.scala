@@ -101,7 +101,6 @@ class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, Iter
   override def isSplitable(context: JobContext, fileName: Path) = false
 
   override def createRecordReader(split: InputSplit, context: TaskAttemptContext): RecordReader[HadoopPointCloudHeader, Iterator[PointCloud]] = {
-
     val tmpDir = {
       val dir = PointCloudInputFormat.getTmpDir(context)
       if(dir == null) Filesystem.createDirectory()
