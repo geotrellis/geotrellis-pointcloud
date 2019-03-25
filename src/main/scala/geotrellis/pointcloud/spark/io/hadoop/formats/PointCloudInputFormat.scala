@@ -97,10 +97,10 @@ object PointCloudInputFormat {
 }
 
 /** Process files from the path through PDAL, and reads all files point data as an Array[Byte] **/
-class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, Iterator[PointCloud]] {
+class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, List[PointCloud]] {
   override def isSplitable(context: JobContext, fileName: Path) = false
 
-  override def createRecordReader(split: InputSplit, context: TaskAttemptContext): RecordReader[HadoopPointCloudHeader, Iterator[PointCloud]] = {
+  override def createRecordReader(split: InputSplit, context: TaskAttemptContext): RecordReader[HadoopPointCloudHeader, List[PointCloud]] = {
     val tmpDir = {
       val dir = PointCloudInputFormat.getTmpDir(context)
       if(dir == null) Filesystem.createDirectory()
@@ -166,7 +166,7 @@ class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, Iter
 
           pointView.dispose()
           pointCloud
-        }.iterator
+        }
 
         val result = (header, pointClouds)
 

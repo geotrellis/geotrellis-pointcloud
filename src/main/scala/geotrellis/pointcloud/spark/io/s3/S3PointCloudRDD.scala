@@ -58,7 +58,7 @@ object S3PointCloudRDD {
     * @param prefix   Prefix of all of the keys on S3 that are to be read in.
     * @param options  An instance of [[Options]] that contains any user defined or default settings.
     */
-  def apply(bucket: String, prefix: String, options: Options = Options.DEFAULT)(implicit sc: SparkContext): RDD[(S3PointCloudHeader, Iterator[PointCloud])] = {
+  def apply(bucket: String, prefix: String, options: Options = Options.DEFAULT)(implicit sc: SparkContext): RDD[(S3PointCloudHeader, List[PointCloud])] = {
     val conf = sc.hadoopConfiguration
 
     S3InputFormat.setBucket(conf, bucket)
@@ -80,7 +80,7 @@ object S3PointCloudRDD {
           conf,
           classOf[S3PointCloudInputFormat],
           classOf[S3PointCloudHeader],
-          classOf[Iterator[PointCloud]]
+          classOf[List[PointCloud]]
         ).filter { case (header, _) =>
           header.extent3D.toExtent.intersects(filterExtent)
         }
@@ -89,7 +89,7 @@ object S3PointCloudRDD {
           conf,
           classOf[S3PointCloudInputFormat],
           classOf[S3PointCloudHeader],
-          classOf[Iterator[PointCloud]]
+          classOf[List[PointCloud]]
         )
     }
   }

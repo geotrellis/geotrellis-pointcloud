@@ -16,7 +16,6 @@
 
 package geotrellis.pointcloud.spark.io.s3
 
-import geotrellis.spark.io._
 import geotrellis.spark.io.s3._
 import geotrellis.pointcloud.spark.io.hadoop.formats._
 import geotrellis.pointcloud.util.Filesystem
@@ -34,8 +33,8 @@ import java.net.URI
 import scala.collection.JavaConversions._
 
 /** Process files from the path through PDAL, and reads all files point data as an Array[Byte] **/
-class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, Iterator[PointCloud]] {
-  def executePipeline(context: TaskAttemptContext)(key: String, pipelineJson: Json): (S3PointCloudHeader, Iterator[PointCloud]) = {
+class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, List[PointCloud]] {
+  def executePipeline(context: TaskAttemptContext)(key: String, pipelineJson: Json): (S3PointCloudHeader, List[PointCloud]) = {
     val dimTypeStrings: Option[Array[String]] = PointCloudInputFormat.getDimTypes(context)
     val pipeline = Pipeline(pipelineJson.noSpaces)
 
@@ -79,7 +78,7 @@ class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, Iterator
 
       pointView.dispose()
       pointCloud
-    }.toIterator
+    }
 
     val result = (header, pointClouds)
 
@@ -102,8 +101,8 @@ class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, Iterator
     /** PDAL can pull files directly from S3 */
     mode match {
       case "s3" =>
-        new S3URIRecordReader[S3PointCloudHeader, Iterator[PointCloud]](s3Client) {
-          def read(key: String, uri: URI): (S3PointCloudHeader, Iterator[PointCloud]) = {
+        new S3URIRecordReader[S3PointCloudHeader, List[PointCloud]](s3Client) {
+          def read(key: String, uri: URI): (S3PointCloudHeader, List[PointCloud]) = {
             val s3Pipeline =
               pipeline
                 .hcursor
@@ -122,8 +121,8 @@ class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, Iterator
           else Filesystem.createDirectory(dir)
         }
 
-        new S3StreamRecordReader[S3PointCloudHeader, Iterator[PointCloud]](s3Client) {
-          def read(key: String, is: InputStream): (S3PointCloudHeader, Iterator[PointCloud]) = {
+        new S3StreamRecordReader[S3PointCloudHeader, List[PointCloud]](s3Client) {
+          def read(key: String, is: InputStream): (S3PointCloudHeader, List[PointCloud]) = {
             // copy remote file into local tmp dir
             tmpDir.mkdirs() // to be sure that dirs created
             val localPath = new File(tmpDir, key.replace("/", "_"))
