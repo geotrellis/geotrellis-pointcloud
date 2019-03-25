@@ -16,13 +16,15 @@
 
 package geotrellis.pointcloud.spark.io.s3
 
-import java.nio.file.{Files, Paths}
-
 import geotrellis.pointcloud.spark.PointCloudTestEnvironment
 import geotrellis.spark.io.s3.testkit.MockS3Client
+
 import io.pdal.pipeline.Read
-import org.scalatest._
 import spire.syntax.cfor._
+
+import java.nio.file.{Files, Paths}
+
+import org.scalatest._
 
 class S3PackedPointsRDDSpec extends FunSpec
   with Matchers

@@ -16,8 +16,6 @@
 
 package geotrellis.vector.io.json
 
-import spray.json._
-
 /** A trait providing automatic to and from JSON marshalling/unmarshalling using spray-json implicits.
   * @note parameter for writing json and will attempt to attach it to
   *       Feature/Geometry json representations.

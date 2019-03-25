@@ -16,16 +16,15 @@
 
 package geotrellis.pointcloud.spark
 
-import com.vividsolutions.jts.geom.Coordinate
-import geotrellis.pointcloud.spark._
-import geotrellis.pointcloud.spark.io._
 import geotrellis.pointcloud.spark.io.hadoop._
 import geotrellis.proj4.CRS
 import geotrellis.raster.{DoubleConstantNoDataCellType, TileLayout}
 import geotrellis.spark.{ContextRDD, KeyBounds, SpatialKey, TileLayerMetadata}
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.Extent
+
 import spire.syntax.cfor.cfor
+import org.locationtech.jts.geom.Coordinate
 
 import scala.collection.mutable
 

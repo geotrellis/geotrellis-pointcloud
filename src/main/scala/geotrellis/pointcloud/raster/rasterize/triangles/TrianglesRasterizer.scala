@@ -19,7 +19,7 @@ package geotrellis.pointcloud.raster.rasterize.triangles
 import geotrellis.raster._
 import geotrellis.vector._
 
-import com.vividsolutions.jts.geom.{ Envelope => JtsEnvelope }
+import org.locationtech.jts.geom.{ Envelope => JtsEnvelope }
 
 import scala.collection.JavaConverters._
 

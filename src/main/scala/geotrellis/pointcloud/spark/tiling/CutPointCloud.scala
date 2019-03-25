@@ -25,7 +25,7 @@ import geotrellis.spark.tiling._
 import org.apache.spark.rdd._
 import org.apache.spark.Partitioner
 import spire.syntax.cfor._
-import com.vividsolutions.jts.{geom => jts}
+import org.locationtech.jts.{geom => jts}
 
 import scala.collection.mutable
 

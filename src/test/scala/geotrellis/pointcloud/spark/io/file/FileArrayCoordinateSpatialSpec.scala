@@ -16,8 +16,6 @@
 
 package geotrellis.pointcloud.spark.io.file
 
-import io.pdal._
-
 import geotrellis.pointcloud.spark._
 import geotrellis.pointcloud.spark.io._
 import geotrellis.spark.{LayerId, SpatialKey, TileLayerMetadata}
@@ -27,7 +25,7 @@ import geotrellis.spark.io.index._
 import geotrellis.spark.testkit.io._
 import geotrellis.spark.testkit.testfiles.TestFiles
 
-import com.vividsolutions.jts.geom.Coordinate
+import org.locationtech.jts.geom.Coordinate
 
 class FileArrayCoordinateSpatialSpec
   extends PersistenceSpec[SpatialKey, Array[Coordinate], TileLayerMetadata[SpatialKey]]
@@ -43,7 +41,6 @@ class FileArrayCoordinateSpatialSpec
   lazy val copier = FileLayerCopier(outputLocalPath)
   lazy val mover  = FileLayerMover(outputLocalPath)
   lazy val reindexer = FileLayerReindexer(outputLocalPath)
-  lazy val updater = FileLayerUpdater(outputLocalPath)
   lazy val tiles = FileValueReader(outputLocalPath)
   lazy val sample = pointCloudSampleC
 

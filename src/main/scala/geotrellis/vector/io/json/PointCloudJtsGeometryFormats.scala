@@ -19,7 +19,7 @@ package geotrellis.vector.io.json
 import geotrellis.vector._
 import geotrellis.vector.GeomFactory.factory
 
-import com.vividsolutions.jts.{geom => jts}
+import org.locationtech.jts.{geom => jts}
 import spray.json._
 
 import scala.collection.JavaConverters._
@@ -32,11 +32,8 @@ import scala.collection.mutable
 trait PointCloudJtsGeometryFormats {
   /** Writes point to JsArray as [x, y] */
   private def writeJtsPointCoords(coord: jts.Coordinate): JsArray =
-    if(java.lang.Double.isNaN(coord.z)) {
-      JsArray(JsNumber(coord.x), JsNumber(coord.y))
-    } else {
-      JsArray(JsNumber(coord.x), JsNumber(coord.y), JsNumber(coord.z))
-    }
+    if(java.lang.Double.isNaN(coord.getZ)) JsArray(JsNumber(coord.getX), JsNumber(coord.getY))
+    else JsArray(JsNumber(coord.getX), JsNumber(coord.getY), JsNumber(coord.getZ))
 
   /** Writes point to JsArray as [x, y] */
   private def writeJtsPointCoords(point: jts.Point): JsArray =
@@ -65,10 +62,10 @@ trait PointCloudJtsGeometryFormats {
             new jts.Coordinate(x.toDouble, y.toDouble)
           case Seq(JsNumber(x), JsNumber(y), JsNumber(z)) =>
             new jts.Coordinate(x.toDouble, y.toDouble, z.toDouble)
-          case _ => throw new DeserializationException("Point [x,y] or [x,y,z] coordinates expected")
+          case _ => throw DeserializationException("Point [x,y] or [x,y,z] coordinates expected")
         }
       coord
-    case _ => throw new DeserializationException("Point [x,y] coordinates expected")
+    case _ => throw DeserializationException("Point [x,y] coordinates expected")
   }
 
   /** Reads Point from JsArray of [x, y] */
@@ -79,7 +76,7 @@ trait PointCloudJtsGeometryFormats {
   private def readJtsLineCoords(value: JsValue): jts.LineString = value match {
     case arr: JsArray =>
       factory.createLineString(arr.elements.map(readJtsPointCoords).toArray)
-    case _ => throw new DeserializationException("LineString coordinates array expected")
+    case _ => throw DeserializationException("LineString coordinates array expected")
   }
 
   /** Reads Polygon from JsArray containg Lines for polygon */
@@ -97,7 +94,7 @@ trait PointCloudJtsGeometryFormats {
           }
 
       factory.createPolygon(lines.head, lines.tail.toArray)
-    case _ => throw new DeserializationException("Polygon coordinates array expected")
+    case _ => throw DeserializationException("Polygon coordinates array expected")
   }
 
   implicit object JtsPointFormat extends RootJsonFormat[jts.Point] {
@@ -111,7 +108,7 @@ trait PointCloudJtsGeometryFormats {
         readJtsPoint(point)
       case Seq(JsString("Feature")) =>
         read(unwrapFeature(value))
-      case _ => throw new DeserializationException("Point geometry expected")
+      case _ => throw DeserializationException("Point geometry expected")
     }
   }
 
@@ -126,7 +123,7 @@ trait PointCloudJtsGeometryFormats {
         readJtsLineCoords(points)
       case Seq(JsString("Feature")) =>
         read(unwrapFeature(value))
-      case _ => throw new DeserializationException("LineString geometry expected")
+      case _ => throw DeserializationException("LineString geometry expected")
     }
   }
 
@@ -136,7 +133,7 @@ trait PointCloudJtsGeometryFormats {
         readJtsPolygonCoords(linesArray)
       case Seq(JsString("Feature")) =>
         read(unwrapFeature(json))
-      case _ => throw new DeserializationException("Polygon geometry expected")
+      case _ => throw DeserializationException("Polygon geometry expected")
     }
 
     override def write(obj: jts.Polygon): JsValue = JsObject(
@@ -152,7 +149,7 @@ trait PointCloudJtsGeometryFormats {
           factory.createMultiPoint(pointArray.elements.map(readJtsPoint).toArray)
         case Seq(JsString("Feature")) =>
           read(unwrapFeature(json))
-        case _ => throw new DeserializationException("MultiPoint geometry expected")
+        case _ => throw DeserializationException("MultiPoint geometry expected")
       }
 
     override def write(obj: jts.MultiPoint): JsValue = JsObject(
@@ -169,7 +166,7 @@ trait PointCloudJtsGeometryFormats {
           factory.createMultiLineString(linesArray.elements.map(readJtsLineCoords).toArray)
         case Seq(JsString("Feature")) =>
           read(unwrapFeature(json))
-        case _ => throw new DeserializationException("MultiLine geometry expected")
+        case _ => throw DeserializationException("MultiLine geometry expected")
       }
 
     override def write(obj: jts.MultiLineString): JsValue = JsObject(
@@ -186,7 +183,7 @@ trait PointCloudJtsGeometryFormats {
           factory.createMultiPolygon(polygons.elements.map(readJtsPolygonCoords).toArray)
         case Seq(JsString("Feature")) =>
           read(unwrapFeature(json))
-        case _ => throw new DeserializationException("MultiPolygon geometry expected")
+        case _ => throw DeserializationException("MultiPolygon geometry expected")
       }
 
     override def write(obj: jts.MultiPolygon): JsValue =  JsObject(
@@ -214,7 +211,7 @@ trait PointCloudJtsGeometryFormats {
         factory.createGeometryCollection(geomsJson.map(g => JtsGeometryFormat.read(g)).toArray)
       case Seq(JsString("Feature")) =>
         read(unwrapFeature(value))
-      case _ => throw new DeserializationException("GeometryCollection expected")
+      case _ => throw DeserializationException("GeometryCollection expected")
     }
   }
 
@@ -239,7 +236,7 @@ trait PointCloudJtsGeometryFormats {
       case Seq(JsString("MultiPoint")) => value.convertTo[jts.MultiPoint]
       case Seq(JsString("MultiLineString")) => value.convertTo[jts.MultiLineString]
       case Seq(JsString("GeometryCollection")) => value.convertTo[jts.GeometryCollection]
-      case Seq(JsString(t)) => throw new DeserializationException(s"Unknown Geometry type: $t")
+      case Seq(JsString(t)) => throw DeserializationException(s"Unknown Geometry type: $t")
     }
   }
 

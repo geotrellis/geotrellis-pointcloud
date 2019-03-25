@@ -21,7 +21,6 @@ import geotrellis.vector._
 
 import org.scalatest._
 
-
 class TrianglesRasterizerSpec extends FunSpec
     with Matchers {
 

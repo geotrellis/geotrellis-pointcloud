@@ -22,6 +22,7 @@ import geotrellis.pointcloud.spark.PointCloudTestEnvironment
 import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD
 import geotrellis.vector.Extent
+
 import org.scalatest._
 
 class PointCloudTilingSpec extends FunSpec

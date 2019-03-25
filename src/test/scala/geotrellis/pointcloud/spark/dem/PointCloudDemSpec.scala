@@ -18,7 +18,6 @@ package geotrellis.pointcloud.spark.dem
 
 import geotrellis.raster._
 import geotrellis.pointcloud.spark.buffer._
-import geotrellis.pointcloud.raster._
 import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD
 import geotrellis.pointcloud.spark.{PointCloudTestEnvironment, _}
 import geotrellis.spark.tiling._

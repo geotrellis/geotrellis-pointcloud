@@ -16,9 +16,9 @@
 
 package geotrellis.pointcloud.vector.triangulation
 
-import com.vividsolutions.jts.geom.Coordinate
-
 import geotrellis.vector.Point
+
+import org.locationtech.jts.geom.Coordinate
 
 trait DelaunayPointSet {
   def length: Int
@@ -41,9 +41,9 @@ object DelaunayPointSet {
   def apply(points: Array[Coordinate]): DelaunayPointSet =
     new DelaunayPointSet {
       def length = points.length
-      def getX(i: Int) = points(i).x
-      def getY(i: Int) = points(i).y
-      def getZ(i: Int) = points(i).z
+      def getX(i: Int) = points(i).getX
+      def getY(i: Int) = points(i).getY
+      def getZ(i: Int) = points(i).getZ
       override def getCoordinate(i: Int) = points(i)
     }
 
@@ -53,9 +53,9 @@ object DelaunayPointSet {
   def apply(points: Int => Coordinate, len: Int): DelaunayPointSet =
     new DelaunayPointSet {
       def length = len
-      def getX(i: Int) = points(i).x
-      def getY(i: Int) = points(i).y
-      def getZ(i: Int) = points(i).z
+      def getX(i: Int) = points(i).getX
+      def getY(i: Int) = points(i).getY
+      def getZ(i: Int) = points(i).getZ
       override def getCoordinate(i: Int) = points(i)
     }
 

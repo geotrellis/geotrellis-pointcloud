@@ -17,17 +17,16 @@
 package geotrellis.vector.reproject
 
 import geotrellis.proj4._
-import geotrellis.vector._
 import geotrellis.vector.GeomFactory.factory
 
-import com.vividsolutions.jts.{geom => jts}
+import org.locationtech.jts.{geom => jts}
 import spire.syntax.cfor._
 
 /** This object contains various overloads for performing reprojections over geometries */
 object PointCloudJtsReproject {
   def apply(p: jts.Coordinate, transform: Transform): jts.Coordinate = {
-    val (newX, newY) = transform(p.x, p.y)
-    new jts.Coordinate(newX, newY, p.z)
+    val (newX, newY) = transform(p.getX, p.getY)
+    new jts.Coordinate(newX, newY, p.getZ)
   }
 
   def apply(p: jts.Coordinate, src: CRS, dest: CRS): jts.Coordinate =
@@ -69,7 +68,7 @@ object PointCloudJtsReproject {
     apply(mp, Transform(src, dest))
 
   def apply(mp: jts.MultiPoint, transform: Transform): jts.MultiPoint =
-    factory.createMultiPoint(mp.getCoordinates.map { p => apply(p, transform) })
+    factory.createMultiPointFromCoords(mp.getCoordinates.map { p => apply(p, transform) })
 
   def apply(ml: jts.MultiLineString, src: CRS, dest: CRS): jts.MultiLineString =
     apply(ml, Transform(src, dest))

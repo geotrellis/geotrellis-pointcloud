@@ -19,7 +19,7 @@ package geotrellis.vector.reproject
 import geotrellis.proj4._
 import geotrellis.vector.reproject.{PointCloudJtsReproject => JtsReproject}
 
-import com.vividsolutions.jts.{geom => jts}
+import org.locationtech.jts.{geom => jts}
 
 object Implicits extends Implicits
 

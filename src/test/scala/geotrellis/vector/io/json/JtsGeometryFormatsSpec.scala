@@ -18,10 +18,10 @@ package geotrellis.vector.io.json
 
 import geotrellis.vector._
 
-import org.scalatest._
-import com.vividsolutions.jts.{geom => jts}
+import org.locationtech.jts.{geom => jts}
 import spray.json._
-import spray.json.DefaultJsonProtocol._
+
+import org.scalatest._
 
 class JtsGeometryFormatsSpec extends FlatSpec with Matchers with PointCloudGeoJsonSupport {
 
@@ -184,7 +184,7 @@ class JtsGeometryFormatsSpec extends FlatSpec with Matchers with PointCloudGeoJs
     val poly = body.convertTo[jts.Polygon]
     for(coord <- poly.getCoordinates) {
       withClue(s"Coordinate $coord") {
-        coord.z should be (coord.y + 1)
+        coord.getZ should be (coord.getY + 1)
       }
     }
   }

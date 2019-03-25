@@ -26,7 +26,7 @@ import geotrellis.vector.triangulation._
 import geotrellis.vector.mesh.IndexedPointSet
 import geotrellis.spark.buffer
 
-import com.vividsolutions.jts.geom.Coordinate
+import org.locationtech.jts.geom.Coordinate
 import org.apache.spark.rdd.RDD
 import spire.syntax.cfor._
 

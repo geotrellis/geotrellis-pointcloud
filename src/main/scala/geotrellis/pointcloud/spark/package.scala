@@ -21,7 +21,7 @@ import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util._
 
 import org.apache.spark.rdd.RDD
-import com.vividsolutions.jts.geom.Coordinate
+import org.locationtech.jts.geom.Coordinate
 
 package object spark extends dem.Implicits with tiling.Implicits with Serializable {
   type PointCloudLayerRDD[K] = RDD[(SpatialKey, Array[Coordinate])] with Metadata[TileLayerMetadata[K]]

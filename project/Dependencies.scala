@@ -19,6 +19,7 @@ import sbt._
 object Dependencies {
   val scalatest    = "org.scalatest"    %%  "scalatest"    % Version.scalaTest
   val sparkCore    = "org.apache.spark" %% "spark-core"    % Version.spark
+  val sparkSQL     = "org.apache.spark" %% "spark-sql"     % Version.spark
   val hadoopClient = "org.apache.hadoop" % "hadoop-client" % Version.hadoop
   
   val pdalScala    = "io.pdal" %% "pdal-scala" % Version.pdal
