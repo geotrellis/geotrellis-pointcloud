@@ -9,7 +9,7 @@ jdk:
 scala:
   - 2.11.12
 before_install:
-  - docker pull daunnc/pdal-debian:1.7.1
+  - docker pull daunnc/pdal-debian:1.8.0
 cache:
   directories:
    - $HOME/.ivy2

@@ -23,7 +23,7 @@ import geotrellis.spark._
 import geotrellis.spark.tiling._
 import geotrellis.vector._
 
-import com.vividsolutions.jts.geom.Coordinate
+import org.locationtech.jts.geom.Coordinate
 
 import org.scalatest._
 

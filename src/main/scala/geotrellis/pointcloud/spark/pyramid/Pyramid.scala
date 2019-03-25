@@ -25,7 +25,7 @@ import geotrellis.vector.triangulation.DelaunayTriangulation
 import org.apache.spark.Partitioner
 import org.apache.spark.rdd._
 import com.typesafe.scalalogging.LazyLogging
-import com.vividsolutions.jts.geom.Coordinate
+import org.locationtech.jts.geom.Coordinate
 
 import scala.reflect.ClassTag
 

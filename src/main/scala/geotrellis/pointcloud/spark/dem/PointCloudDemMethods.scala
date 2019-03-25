@@ -25,7 +25,7 @@ import geotrellis.vector._
 import geotrellis.vector.triangulation.DelaunayTriangulation
 import geotrellis.vector.mesh.IndexedPointSet
 
-import com.vividsolutions.jts.geom.Coordinate
+import org.locationtech.jts.geom.Coordinate
 
 trait PointCloudDemMethods extends MethodExtensions[PointCloud] {
 

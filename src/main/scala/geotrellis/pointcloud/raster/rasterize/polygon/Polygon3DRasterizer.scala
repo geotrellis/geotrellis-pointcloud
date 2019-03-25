@@ -21,8 +21,8 @@ import geotrellis.pointcloud.raster.rasterize.triangles._
 import geotrellis.vector._
 import geotrellis.vector.voronoi._
 
-import com.vividsolutions.jts.{geom => jts}
-import com.vividsolutions.jts.index.strtree.STRtree
+import org.locationtech.jts.{geom => jts}
+import org.locationtech.jts.index.strtree.STRtree
 import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
@@ -38,7 +38,7 @@ object Polygon3DRasterizer {
     cfor(1)(_ < coords.length, _ + 1) { ci =>
       val coord1 = coords(ci - 1)
       val coord2 = coords(ci)
-      val segment = Line(Point(coord1.x, coord1.y), Point(coord2.x, coord2.y))
+      val segment = Line(Point(coord1.getX, coord1.getY), Point(coord2.getX, coord2.getY))
 
       arrayBuffer += segment
     }
@@ -49,7 +49,7 @@ object Polygon3DRasterizer {
       cfor(1)(_ < coords.length, _ + 1) { ci =>
         val coord1 = coords(ci - 1)
         val coord2 = coords(ci)
-        val segment = Line(Point(coord1.x, coord1.y), Point(coord2.x, coord2.y))
+        val segment = Line(Point(coord1.getX, coord1.getY), Point(coord2.getX, coord2.getY))
 
         arrayBuffer += segment
       }
@@ -61,7 +61,7 @@ object Polygon3DRasterizer {
   def rasterizePolygon(geom: jts.Polygon, tile: MutableArrayTile, re: RasterExtent): Unit = {
     val constraints = polygonToEdges(geom)
     val coordinates = geom.getCoordinates
-    val points = coordinates.map({ coord => Point(coord.x, coord.y) })
+    val points = coordinates.map({ coord => Point(coord.getX, coord.getY) })
     val dt = ConformingDelaunay(points, constraints)
     val triangles = dt.triangles.filter({ triangle => geom.contains(triangle) })
     val steinerPoints = dt.steinerPoints
@@ -90,12 +90,12 @@ object Polygon3DRasterizer {
       .toMap
 
     /** z-coordinates of original vertices */
-    val zs1 = geom.getCoordinates.map({ coord => coord.z })
+    val zs1 = geom.getCoordinates.map({ coord => coord.getZ })
 
     /** z-coordinates of Steiner vertices */
     val zs2 = steinerPoints.map({ point =>
       val envelope = new jts.Envelope(point.x, point.x, point.y, point.y)
-      val lines = rtree.query(envelope).asScala; require(lines.length > 0)
+      val lines = rtree.query(envelope).asScala; require(lines.nonEmpty)
       val line =
         lines
           .map({ line => line.asInstanceOf[Line] })

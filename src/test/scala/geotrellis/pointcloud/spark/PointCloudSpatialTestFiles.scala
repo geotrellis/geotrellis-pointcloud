@@ -24,7 +24,7 @@ import geotrellis.spark.tiling.LayoutDefinition
 import geotrellis.vector.Extent
 
 import spire.syntax.cfor.cfor
-import com.vividsolutions.jts.geom.Coordinate
+import org.locationtech.jts.geom.Coordinate
 
 import scala.collection.mutable
 
