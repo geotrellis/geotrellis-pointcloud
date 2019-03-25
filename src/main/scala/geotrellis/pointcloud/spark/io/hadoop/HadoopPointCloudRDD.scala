@@ -53,7 +53,7 @@ object HadoopPointCloudRDD {
     * @param path     Hdfs point data files path.
     * @param options  An instance of [[Options]] that contains any user defined or default settings.
     */
-  def apply(path: Path, options: Options = Options.DEFAULT)(implicit sc: SparkContext): RDD[(HadoopPointCloudHeader, Iterator[PointCloud])] = {
+  def apply(path: Path, options: Options = Options.DEFAULT)(implicit sc: SparkContext): RDD[(HadoopPointCloudHeader, List[PointCloud])] = {
     val conf = sc.hadoopConfiguration.withInputDirectory(path, options.filesExtensions)
 
     options.tmpDir.foreach(PointCloudInputFormat.setTmpDir(conf, _))
@@ -68,7 +68,7 @@ object HadoopPointCloudRDD {
           conf,
           classOf[PointCloudInputFormat],
           classOf[HadoopPointCloudHeader],
-          classOf[Iterator[PointCloud]]
+          classOf[List[PointCloud]]
         ).filter { case (header, _) =>
           header.extent3D.toExtent.intersects(filterExtent)
         }
@@ -77,7 +77,7 @@ object HadoopPointCloudRDD {
           conf,
           classOf[PointCloudInputFormat],
           classOf[HadoopPointCloudHeader],
-          classOf[Iterator[PointCloud]]
+          classOf[List[PointCloud]]
         )
     }
   }
