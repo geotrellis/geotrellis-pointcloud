@@ -63,7 +63,6 @@ sources in (Compile, doc) ~= (_ filterNot (_.getAbsolutePath contains "geotrelli
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots"),
-  "Sonatype Local Releases" at "https://oss.sonatype.org/service/local/repositories/releases/content/",
   "Locationtech Releases" at "https://repo.locationtech.org/content/groups/releases",
   "Locationtech Snapshots" at "https://repo.locationtech.org/content/groups/snapshots"
 )
