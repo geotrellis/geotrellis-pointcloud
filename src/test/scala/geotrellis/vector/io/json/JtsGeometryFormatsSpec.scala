@@ -18,10 +18,10 @@ package geotrellis.vector.io.json
 
 import geotrellis.vector._
 
-import org.scalatest._
 import com.vividsolutions.jts.{geom => jts}
 import spray.json._
-import spray.json.DefaultJsonProtocol._
+
+import org.scalatest._
 
 class JtsGeometryFormatsSpec extends FlatSpec with Matchers with PointCloudGeoJsonSupport {
 

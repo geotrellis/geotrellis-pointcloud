@@ -20,11 +20,11 @@ import geotrellis.pointcloud.spark._
 import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.spark._
-import geotrellis.spark.testkit._
 import geotrellis.spark.tiling._
 import geotrellis.vector._
 
 import com.vividsolutions.jts.geom.Coordinate
+
 import org.scalatest._
 
 class PyramidSpec extends FunSpec with Matchers with PointCloudTestEnvironment with PointCloudSpatialTestFiles {

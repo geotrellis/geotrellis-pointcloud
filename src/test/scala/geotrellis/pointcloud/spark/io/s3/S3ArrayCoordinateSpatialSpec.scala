@@ -16,15 +16,11 @@
 
 package geotrellis.pointcloud.spark.io.s3
 
-import io.pdal._
-
-import geotrellis.raster._
 import geotrellis.pointcloud.spark._
 import geotrellis.pointcloud.spark.io._
-import geotrellis.spark.{LayerId, SpatialKey, TileLayerMetadata}
+import geotrellis.spark.{SpatialKey, TileLayerMetadata}
 import geotrellis.spark.io._
 import geotrellis.spark.io.s3._
-import geotrellis.spark.io.index._
 import geotrellis.spark.io.s3.testkit._
 import geotrellis.spark.testkit.io._
 import geotrellis.spark.testkit.testfiles.TestFiles
@@ -62,7 +58,6 @@ class S3ArrayCoordinateSpatialSpec
   lazy val reader = new MockS3LayerReader(attributeStore)
   lazy val creader = new MockS3CollectionLayerReader(attributeStore)
   lazy val writer = new MockS3LayerWriter(attributeStore, bucket, prefix)
-  lazy val updater = new S3LayerUpdater(attributeStore, reader) { override def rddWriter = S3ArrayCoordinateSpatialSpec.this.rddWriter }
   lazy val deleter = new S3LayerDeleter(attributeStore) { override val getS3Client = () => new MockS3Client() }
   lazy val copier  = new S3LayerCopier(attributeStore, bucket, prefix) { override val getS3Client = () => new MockS3Client }
   lazy val reindexer = GenericLayerReindexer[S3LayerHeader](attributeStore, reader, writer, deleter, copier)

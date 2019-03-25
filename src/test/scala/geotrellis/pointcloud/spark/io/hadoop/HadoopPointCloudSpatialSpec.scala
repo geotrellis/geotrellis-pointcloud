@@ -18,7 +18,6 @@ package geotrellis.pointcloud.spark.io.hadoop
 
 import io.pdal._
 
-import geotrellis.raster._
 import geotrellis.pointcloud.spark._
 import geotrellis.pointcloud.spark.io._
 import geotrellis.spark.{LayerId, SpatialKey, TileLayerMetadata}
@@ -27,8 +26,6 @@ import geotrellis.spark.io.hadoop._
 import geotrellis.spark.io.index._
 import geotrellis.spark.testkit.io._
 import geotrellis.spark.testkit.testfiles.TestFiles
-
-import org.scalatest._
 
 class HadoopPointCloudSpatialSpec
   extends PersistenceSpec[SpatialKey, PointCloud, TileLayerMetadata[SpatialKey]]
@@ -44,7 +41,6 @@ class HadoopPointCloudSpatialSpec
   lazy val copier = HadoopLayerCopier(outputLocal)
   lazy val mover  = HadoopLayerMover(outputLocal)
   lazy val reindexer = HadoopLayerReindexer(outputLocal)
-  lazy val updater = HadoopLayerUpdater(outputLocal)
   lazy val tiles = HadoopValueReader(outputLocal)
   lazy val sample = pointCloudSample
 

@@ -27,8 +27,6 @@ import geotrellis.spark.io.index._
 import geotrellis.spark.testkit.io._
 import geotrellis.spark.testkit.testfiles.TestFiles
 
-import org.scalatest._
-
 class FilePointCloudSpatialSpec
   extends PersistenceSpec[SpatialKey, PointCloud, TileLayerMetadata[SpatialKey]]
     with SpatialKeyIndexMethods
@@ -43,7 +41,6 @@ class FilePointCloudSpatialSpec
   lazy val copier = FileLayerCopier(outputLocalPath)
   lazy val mover  = FileLayerMover(outputLocalPath)
   lazy val reindexer = FileLayerReindexer(outputLocalPath)
-  lazy val updater = FileLayerUpdater(outputLocalPath)
   lazy val tiles = FileValueReader(outputLocalPath)
   lazy val sample = pointCloudSample
 
