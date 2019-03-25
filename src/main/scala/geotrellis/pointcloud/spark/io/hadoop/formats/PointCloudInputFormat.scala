@@ -134,7 +134,7 @@ class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, Iter
 
         val header =
           HadoopPointCloudHeader(
-            split.asInstanceOf[FileSplit].getPath,
+            split.asInstanceOf[FileSplit].getPath.toString,
             pipeline.getMetadata(),
             pipeline.getSchema()
           )
