@@ -76,8 +76,8 @@ libraryDependencies ++= Seq(
   pdalScala,
   pdalNative,
   sparkCore % Provided,
+  sparkSQL % Provided,
   hadoopClient % Provided,
-  sparkSQL % Test,
   scalatest % Test
 )
 
