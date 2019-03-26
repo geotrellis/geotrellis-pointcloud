@@ -1,19 +1,18 @@
 package geotrellis.pointcloud.spark
 
 import cats.syntax.either._
-import cats.syntax.applicative._
 import _root_.io.pdal._
 import _root_.io.circe._
 import _root_.io.circe.parser._
 import _root_.io.circe.syntax._
+
 import geotrellis.proj4.CRS
 import geotrellis.vector.Extent
+
 import org.apache.spark.sql._
 import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
-import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import spire.syntax.cfor.cfor
-import spray.json.JsonFormat
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -66,8 +65,11 @@ package object datasource {
       }
     }
 
+    // TODO: name.replace("\"", "") should be probably removed
     def deriveSchema(metadata: Metadata): StructType =
-      StructType(sortedDimTypes.map { case (name, sd) => StructField(name, structFieldType(sd), nullable = true, metadata) })
+      StructType(sortedDimTypes.map { case (name, sd) =>
+        StructField(name.replace("\"", ""), structFieldType(sd), nullable = true, metadata)
+      })
 
     def readUntyped(idx: Int, sd: SizedDimType): Any = {
       val buffer = pc.get(idx, sd)
