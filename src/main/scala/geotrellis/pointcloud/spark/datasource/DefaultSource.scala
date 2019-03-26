@@ -1,22 +1,15 @@
 package geotrellis.pointcloud.spark.datasource
 
+import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD.{Options => HadoopOptions}
 import io.pdal.pipeline._
+
 import cats.syntax.either._
 import io.circe._
 import io.circe.parser._
 
-
-import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD.{Options => HadoopOptions}
-import geotrellis.spark._
-import geotrellis.spark.io._
-import geotrellis.spark.io.index.ZCurveKeyIndexMethod
-
 import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql._
 import org.apache.spark.sql.sources._
-import java.net.URI
-
-import scala.util.Try
 
 /**
   * DataSource over a GeoTrellis layer store.
@@ -36,7 +29,7 @@ class DefaultSource extends DataSourceRegister with RelationProvider with DataSo
     require(parameters.contains(PATH_PARAM), s"'$PATH_PARAM' parameter is required.")
 
     val path     = parameters(PATH_PARAM)
-    val pipeline = parameters.get(PIPELINE_PARAM).map(str => parse(str).getOrElse(Json.Null).as[PipelineExpr].valueOr(throw _)).getOrElse(Read("local"))
+    val pipeline = parameters.get(PIPELINE_PARAM).map { str => parse(str).getOrElse(Json.Null) }.getOrElse(List(Read("local")): Json)
 
     new PointCloudRelation(sqlContext, path, HadoopOptions.DEFAULT.copy(pipeline = pipeline))
   }

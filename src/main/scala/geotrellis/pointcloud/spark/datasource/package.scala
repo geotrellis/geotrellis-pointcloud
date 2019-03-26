@@ -1,12 +1,55 @@
 package geotrellis.pointcloud.spark
 
+import cats.syntax.either._
+import cats.syntax.applicative._
 import _root_.io.pdal._
-import org.apache.spark.sql.types.{DataType, DataTypes, StructField, StructType}
+import _root_.io.circe._
+import _root_.io.circe.parser._
+import _root_.io.circe.syntax._
+import geotrellis.proj4.CRS
+import geotrellis.vector.Extent
+import org.apache.spark.sql._
+import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types._
 import spire.syntax.cfor.cfor
+import spray.json.JsonFormat
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 package object datasource {
+  implicit val crsEncoder: _root_.io.circe.Encoder[CRS] =
+    Encoder.encodeString.contramap[CRS] { crs =>
+      crs.epsgCode
+        .map { c =>
+          s"epsg:$c"
+        }
+        .getOrElse(crs.toProj4String)
+    }
+
+  implicit val crsDecoder: Decoder[CRS] =
+    Decoder.decodeString.emap { str =>
+      Either
+        .catchNonFatal(Try(CRS.fromName(str)) getOrElse CRS.fromString(str))
+        .leftMap(_ => "CRS")
+    }
+
+  implicit val extentEncoder: _root_.io.circe.Encoder[Extent] =
+    new _root_.io.circe.Encoder[Extent] {
+      def apply(extent: Extent): Json =
+        List(extent.xmin, extent.ymin, extent.xmax, extent.ymax).asJson
+    }
+  implicit val extentDecoder: Decoder[Extent] =
+    Decoder[Json] emap { js =>
+      js.as[List[Double]]
+        .map {
+          case List(xmin, ymin, xmax, ymax) =>
+            Extent(xmin, ymin, xmax, ymax)
+        }
+        .leftMap(_ => "Extent")
+    }
+
   implicit class withPointCloudMethods(pc: PointCloud) {
     lazy val sortedDimTypes: List[(String, SizedDimType)] = pc.dimTypes.asScala.toList.sortBy(_._2.offset)
 
@@ -23,8 +66,8 @@ package object datasource {
       }
     }
 
-    def deriveSchema: StructType =
-      StructType(sortedDimTypes.map { case (name, sd) => StructField(name, structFieldType(sd), nullable = true) } )
+    def deriveSchema(metadata: Metadata): StructType =
+      StructType(sortedDimTypes.map { case (name, sd) => StructField(name, structFieldType(sd), nullable = true, metadata) })
 
     def readUntyped(idx: Int, sd: SizedDimType): Any = {
       val buffer = pc.get(idx, sd)
@@ -51,5 +94,21 @@ package object datasource {
 
       rowArray
     }
+  }
+
+  implicit val extent3DEncoder: ExpressionEncoder[Extent3D] = ExpressionEncoder[Extent3D]()
+
+  implicit class withPointCloudFramesMethods(self: DataFrame) {
+   def findField(name: String): Option[StructField] =
+     self.schema.fields.find { _.metadata.contains(name) }
+
+    def metadata: (Option[Extent], Option[CRS]) =
+      self
+        .findField("metadata")
+        .map(_.metadata)
+        .map(_.getString("metadata"))
+        .flatMap(parse(_).toOption)
+        .flatMap(_.as[(Option[Extent], Option[CRS])].toOption)
+        .getOrElse(throw new Exception("Not a PointCloud DataFrame"))
   }
 }

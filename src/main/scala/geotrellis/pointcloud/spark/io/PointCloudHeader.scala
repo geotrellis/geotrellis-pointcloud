@@ -16,22 +16,41 @@
 
 package geotrellis.pointcloud.spark.io
 
-import geotrellis.pointcloud.spark.ProjectedExtent3D
+import geotrellis.pointcloud.spark.{Extent3D, ProjectedExtent3D}
 import geotrellis.pointcloud.spark.json._
+import geotrellis.proj4.CRS
+import geotrellis.vector.Extent
 
 import io.circe.parser._
+import cats.syntax.either._
+import io.pdal.pipeline.ReaderTypes
 
 trait PointCloudHeader {
   val metadata: String
   val schema: String
 
-  def projectedExtent3D: ProjectedExtent3D =
-    parse(metadata).right.flatMap(_.as[ProjectedExtent3D]) match {
-      case Right(r) => r
-      case Left(e) => throw e
-    }
+  def projectedExtent3D: Option[ProjectedExtent3D] =
+    parse(metadata).right.flatMap(_.as[ProjectedExtent3D]).toOption
 
-  def extent3D = projectedExtent3D.extent3d
-  def extent = projectedExtent3D.extent3d.toExtent
-  def crs = projectedExtent3D.crs
+  def extent3D: Option[Extent3D] = projectedExtent3D.map(_.extent3d)
+  def extent: Option[Extent] = projectedExtent3D.map(_.extent3d.toExtent)
+  def crs: Option[CRS] = {
+    val result = projectedExtent3D.map(_.crs)
+    if(result.isEmpty) {
+      parse(metadata).right.toOption.flatMap { json =>
+        val md = json.hcursor.downField("metadata")
+        val driver =
+          ReaderTypes
+            .all.flatMap(s => md.downField(s.toString).focus)
+            .headOption
+            .map(_.hcursor)
+            .getOrElse(throw new Exception(s"Unsupported reader driver: ${md.keys.getOrElse(Nil)}"))
+
+        driver.downField("srs").downField("proj4").focus.map { str =>
+          CRS.fromString(str.noSpaces.replace("\"", ""))
+        }
+      }
+    }
+    else result
+  }
 }

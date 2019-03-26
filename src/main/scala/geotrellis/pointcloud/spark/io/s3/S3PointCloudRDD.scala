@@ -82,7 +82,7 @@ object S3PointCloudRDD {
           classOf[S3PointCloudHeader],
           classOf[List[PointCloud]]
         ).filter { case (header, _) =>
-          header.extent3D.toExtent.intersects(filterExtent)
+          header.extent3D.map(_.toExtent.intersects(filterExtent)).getOrElse(false)
         }
       case None =>
         sc.newAPIHadoopRDD(
