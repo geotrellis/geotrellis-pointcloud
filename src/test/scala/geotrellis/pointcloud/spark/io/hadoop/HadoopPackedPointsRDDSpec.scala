@@ -41,7 +41,7 @@ class HadoopPackedPointsRDDSpec extends FunSpec
 
     it("should read correct crs") {
       val sourceHeader = HadoopPointCloudRDD(lasPath).take(1).head._1
-      sourceHeader.crs.proj4jCrs.getName should be ("lcc-CS")
+      sourceHeader.crs.map(_.proj4jCrs.getName) should be (Some("lcc-CS"))
     }
   }
 }
