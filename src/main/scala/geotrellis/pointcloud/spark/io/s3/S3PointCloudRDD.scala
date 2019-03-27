@@ -20,6 +20,7 @@ import geotrellis.spark.io.s3._
 import geotrellis.pointcloud.spark.io.hadoop.formats.PointCloudInputFormat
 import geotrellis.vector.Extent
 
+import io.circe._
 import io.pdal._
 import io.pdal.pipeline._
 import org.apache.spark.SparkContext
@@ -38,7 +39,7 @@ object S3PointCloudRDD {
     */
   case class Options(
     filesExtensions: Seq[String] = PointCloudInputFormat.filesExtensions,
-    pipeline: PipelineConstructor = Read("local"),
+    pipeline: Json = Read("local") :: Nil,
     numPartitions: Option[Int] = None,
     partitionBytes: Option[Long] = None,
     getS3Client: () => S3Client = () => S3Client.DEFAULT,
@@ -82,7 +83,7 @@ object S3PointCloudRDD {
           classOf[S3PointCloudHeader],
           classOf[List[PointCloud]]
         ).filter { case (header, _) =>
-          header.extent3D.toExtent.intersects(filterExtent)
+          header.extent3D.map(_.toExtent.intersects(filterExtent)).getOrElse(false)
         }
       case None =>
         sc.newAPIHadoopRDD(

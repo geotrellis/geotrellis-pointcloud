@@ -65,7 +65,8 @@ object PointCloudInputFormat {
       ".sid",
       ".tindex",
       ".txt",
-      ".h5"
+      ".h5",
+      ".csv"
     )
 
   def setTmpDir(conf: Configuration, dir: String): Unit =
@@ -143,7 +144,7 @@ class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, List
         val (pointViewIterator, disposeIterator): (Iterator[PointView], () => Unit) =
           PointCloudInputFormat.getFilterExtent(context) match {
             case Some(filterExtent) =>
-              if(header.extent3D.toExtent.intersects(filterExtent)) {
+              if(header.extent3D.map(_.toExtent.intersects(filterExtent)).getOrElse(false)) {
                 val pvi = pipeline.getPointViews()
                 (pvi, pvi.dispose _)
               } else {

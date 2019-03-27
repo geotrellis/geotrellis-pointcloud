@@ -59,7 +59,7 @@ class S3PackedPointsRDDSpec extends FunSpec
       val sourceHeader = S3PointCloudRDD(
         bucket, key, S3PointCloudRDD.Options(getS3Client = () => new MockS3Client)
       ).take(1).head._1
-      sourceHeader.crs.proj4jCrs.getName should be ("lcc-CS")
+      sourceHeader.crs.map(_.proj4jCrs.getName) should be (Some("lcc-CS"))
     }
 
     ignore("should read LAS file as RDD using s3 input format (not mock)") {
