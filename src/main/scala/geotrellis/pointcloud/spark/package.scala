@@ -16,6 +16,7 @@
 
 package geotrellis.pointcloud
 
+import geotrellis.pointcloud.vector.{Extent3D, ProjectedExtent3D}
 import geotrellis.spark.{Metadata, SpatialKey, TileLayerMetadata}
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util._
@@ -31,4 +32,3 @@ package object spark extends dem.Implicits with tiling.Implicits with Serializab
     def translate(spatialKey: SpatialKey) = spatialKey
   }
 }
-
