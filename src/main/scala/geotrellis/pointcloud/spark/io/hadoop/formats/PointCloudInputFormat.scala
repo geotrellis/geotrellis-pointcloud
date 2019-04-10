@@ -66,8 +66,9 @@ object PointCloudInputFormat {
       ".tindex",
       ".txt",
       ".h5",
-      ".csv"
-    )
+      ".csv",
+      ".all"
+    ) ++ (1 to 100).map { i => s".mb$i" }
 
   def setTmpDir(conf: Configuration, dir: String): Unit =
     conf.set(POINTCLOUD_TMP_DIR, dir)
