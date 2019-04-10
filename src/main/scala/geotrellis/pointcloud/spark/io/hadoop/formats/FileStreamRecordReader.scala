@@ -16,7 +16,6 @@
 
 package geotrellis.pointcloud.spark.io.hadoop.formats
 
-import geotrellis.spark.io.hadoop._
 import org.apache.hadoop.fs._
 import org.apache.hadoop.io.compress.CompressionCodecFactory
 import org.apache.hadoop.mapreduce._

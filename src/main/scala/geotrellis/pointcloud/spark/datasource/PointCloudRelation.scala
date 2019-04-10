@@ -33,17 +33,17 @@ class PointCloudRelation(
   // TODO: switch between HadoopPointCloudRDD and S3PointcCloudRDD
   lazy val isS3: Boolean = path.startsWith("s3")
 
-  lazy val fixedPath: String =
-    if(path.startsWith("s3") || path.startsWith("hdfs")) {
-      val tmpDir = Filesystem.createDirectory()
-      val remotePath = new Path(path)
-      // copy remote file into local tmp dir
-      val localPath = new File(tmpDir, remotePath.getName)
-      HdfsUtils.copyPath(remotePath, new Path(localPath.getAbsolutePath), sc.hadoopConfiguration)
-      localPath.getAbsolutePath
-    } else path
-
   override def schema: StructType = {
+    lazy val (local, fixedPath) =
+      if(path.startsWith("s3") || path.startsWith("hdfs")) {
+        val tmpDir = Filesystem.createDirectory()
+        val remotePath = new Path(path)
+        // copy remote file into local tmp dir
+        val localPath = new File(tmpDir, remotePath.getName)
+        HdfsUtils.copyPath(remotePath, new Path(localPath.getAbsolutePath), sc.hadoopConfiguration)
+        (true, localPath.toString)
+      } else (false, path)
+
     val localPipeline =
       options.pipeline
         .hcursor
@@ -55,9 +55,12 @@ class PointCloudRelation(
     if (pl.validate()) pl.execute()
     val pointCloud = try {
       pl.getPointViews().next().getPointCloud(0)
-    } finally pl.dispose()
+    } finally {
+      pl.dispose()
+      if(local) println(new File(fixedPath).delete)
+    }
 
-    val rdd = HadoopPointCloudRDD(new Path(fixedPath), options)
+    val rdd = HadoopPointCloudRDD(new Path(path), options)
 
     val md: (Option[Extent], Option[CRS]) =
       rdd
@@ -70,7 +73,7 @@ class PointCloudRelation(
   }
 
   override def buildScan(): RDD[Row] = {
-    val rdd = HadoopPointCloudRDD(new Path(fixedPath), options)
+    val rdd = HadoopPointCloudRDD(new Path(path), options)
     rdd.flatMap { _._2.flatMap { pc => pc.readAll.toList.map { k => Row(k: _*) } } }
   }
 }
