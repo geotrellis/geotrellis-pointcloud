@@ -2,10 +2,12 @@ package geotrellis.pointcloud.spark.datasource
 
 import geotrellis.pointcloud.spark.io.hadoop._
 import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD.{Options => HadoopOptions}
+import geotrellis.pointcloud.util.Filesystem
+import geotrellis.proj4.CRS
+import geotrellis.spark.io.hadoop.HdfsUtils
+import geotrellis.vector.Extent
 
 import cats.implicits._
-import geotrellis.proj4.CRS
-import geotrellis.vector.Extent
 import io.pdal._
 import io.circe.syntax._
 import org.apache.hadoop.fs.Path
@@ -14,6 +16,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.sources.{BaseRelation, Filter, PrunedFilteredScan, PrunedScan, TableScan}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SQLContext}
+
+import java.io.File
 
 import scala.collection.JavaConverters._
 
@@ -26,14 +30,25 @@ class PointCloudRelation(
 
   @transient implicit lazy val sc: SparkContext = sqlContext.sparkContext
 
+  // TODO: switch between HadoopPointCloudRDD and S3PointcCloudRDD
   lazy val isS3: Boolean = path.startsWith("s3")
+
+  lazy val fixedPath: String =
+    if(path.startsWith("s3") || path.startsWith("hdfs")) {
+      val tmpDir = Filesystem.createDirectory()
+      val remotePath = new Path(path)
+      // copy remote file into local tmp dir
+      val localPath = new File(tmpDir, remotePath.getName)
+      HdfsUtils.copyPath(remotePath, new Path(localPath.getAbsolutePath), sc.hadoopConfiguration)
+      localPath.getAbsolutePath
+    } else path
 
   override def schema: StructType = {
     val localPipeline =
       options.pipeline
         .hcursor
         .downField("pipeline").downArray
-        .downField("filename").withFocus(_ => path.asJson)
+        .downField("filename").withFocus(_ => fixedPath.asJson)
         .top.fold(options.pipeline)(identity)
 
     val pl = Pipeline(localPipeline.noSpaces)
@@ -42,7 +57,7 @@ class PointCloudRelation(
       pl.getPointViews().next().getPointCloud(0)
     } finally pl.dispose()
 
-    val rdd = if (isS3) throw new Exception("Unsupported operation") else HadoopPointCloudRDD(new Path(path), options)
+    val rdd = HadoopPointCloudRDD(new Path(fixedPath), options)
 
     val md: (Option[Extent], Option[CRS]) =
       rdd
@@ -55,7 +70,7 @@ class PointCloudRelation(
   }
 
   override def buildScan(): RDD[Row] = {
-    val rdd = if (isS3) throw new Exception("Unsupported operation") else HadoopPointCloudRDD(new Path(path), options)
+    val rdd = HadoopPointCloudRDD(new Path(fixedPath), options)
     rdd.flatMap { _._2.flatMap { pc => pc.readAll.toList.map { k => Row(k: _*) } } }
   }
 }

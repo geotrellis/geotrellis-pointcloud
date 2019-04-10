@@ -78,6 +78,7 @@ libraryDependencies ++= Seq(
   sparkCore % Provided,
   sparkSQL % Provided,
   hadoopClient % Provided,
+  hadoopAWS % Test,
   scalatest % Test
 )
 

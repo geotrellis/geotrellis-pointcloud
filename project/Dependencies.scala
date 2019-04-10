@@ -21,6 +21,7 @@ object Dependencies {
   val sparkCore    = "org.apache.spark" %% "spark-core"    % Version.spark
   val sparkSQL     = "org.apache.spark" %% "spark-sql"     % Version.spark
   val hadoopClient = "org.apache.hadoop" % "hadoop-client" % Version.hadoop
+  val hadoopAWS    = "org.apache.hadoop" % "hadoop-aws" % Version.hadoop
   
   val pdalScala    = "io.pdal" %% "pdal-scala" % Version.pdal
   val pdalNative   = "io.pdal" % "pdal-native" % Version.pdal
