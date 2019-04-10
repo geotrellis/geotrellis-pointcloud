@@ -15,7 +15,7 @@
  */
 
 object Version {
-  val geotrellisPointCloud = "0.2.7" + Environment.versionSuffix
+  val geotrellisPointCloud = "0.2.8" + Environment.versionSuffix
   val geotrellis           = "2.2.0"
   val scala                = "2.11.12"
   val pdal                 = "1.8.4"
