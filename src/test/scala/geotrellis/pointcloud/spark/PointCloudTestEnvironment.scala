@@ -29,11 +29,15 @@ trait PointCloudTestEnvironment extends TestEnvironment { self: Suite =>
   val lasPath = new Path(s"file://${testResources.getAbsolutePath}/las")
 
   def setS3Credentials: Unit = {
-    val credentialsProviderChain = new DefaultAWSCredentialsProviderChain
-    val conf = ssc.sparkContext.hadoopConfiguration
+    try {
+      val credentialsProviderChain = new DefaultAWSCredentialsProviderChain
+      val conf = ssc.sparkContext.hadoopConfiguration
 
-    conf.set("fs.s3.impl", classOf[org.apache.hadoop.fs.s3native.NativeS3FileSystem].getName)
-    conf.set("fs.s3n.awsAccessKeyId", credentialsProviderChain.getCredentials.getAWSAccessKeyId)
-    conf.set("fs.s3n.awsSecretAccessKey", credentialsProviderChain.getCredentials.getAWSSecretKey)
+      conf.set("fs.s3.impl", classOf[org.apache.hadoop.fs.s3native.NativeS3FileSystem].getName)
+      conf.set("fs.s3n.awsAccessKeyId", credentialsProviderChain.getCredentials.getAWSAccessKeyId)
+      conf.set("fs.s3n.awsSecretAccessKey", credentialsProviderChain.getCredentials.getAWSSecretKey)
+    } catch {
+      case e => println(e.getMessage)
+    }
   }
 }
