@@ -1,4 +1,4 @@
-FROM debian:sid
+FROM quay.io/geodocker/pdal-mbio:1.8.0
 MAINTAINER Grigory Pomadchin <daunnc@gmail.com>
 
 RUN set -ex && \
@@ -10,7 +10,7 @@ RUN set -ex && \
 ENV JAVA_HOME /usr/lib/jvm/java-1.8.0-openjdk-amd64
 
 # Install PDAL and Python deps https://tracker.debian.org/pkg/pdal
-RUN apt-get -y install pdal libpdal-dev bash gcc g++ cmake
+RUN apt-get -y install bash gcc g++ cmake
 RUN apt-get -y install wget curl python-pip python3 python3-pip
 
 # Install GDAL

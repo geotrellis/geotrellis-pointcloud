@@ -78,23 +78,17 @@ trait PointCloudCodecs {
       .fields()
       .name("id").`type`().stringType().noDefault()
       .name("type").`type`().stringType().noDefault()
-      .name("scale").`type`().doubleType().noDefault()
-      .name("offset").`type`().doubleType().noDefault()
       .endRecord()
 
     def encode(dt: DimType, rec: GenericRecord): Unit = {
       rec.put("id", dt.id)
       rec.put("type", dt.`type`)
-      rec.put("scale", dt.scale)
-      rec.put("offset", dt.offset)
     }
 
     def decode(rec: GenericRecord): DimType =
       DimType(
         rec[Utf8]("id").toString,
-        rec[Utf8]("type").toString,
-        rec[Double]("scale"),
-        rec[Double]("offset")
+        rec[Utf8]("type").toString
       )
   }
 
