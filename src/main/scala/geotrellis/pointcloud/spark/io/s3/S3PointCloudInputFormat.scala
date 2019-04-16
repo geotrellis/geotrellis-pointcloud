@@ -37,11 +37,7 @@ class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, List[Poi
   def executePipeline(context: TaskAttemptContext)(key: String, pipelineJson: Json): (S3PointCloudHeader, List[PointCloud]) = {
     val dimTypeStrings: Option[Array[String]] = PointCloudInputFormat.getDimTypes(context)
     val pipeline = Pipeline(pipelineJson.noSpaces)
-
-    // PDAL itself is not threadsafe
-    AnyRef.synchronized {
-      pipeline.execute
-    }
+    pipeline.execute
 
     val header =
       S3PointCloudHeader(

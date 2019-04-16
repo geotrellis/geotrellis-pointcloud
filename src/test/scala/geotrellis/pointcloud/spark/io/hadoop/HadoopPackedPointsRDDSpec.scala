@@ -39,6 +39,21 @@ class HadoopPackedPointsRDDSpec extends FunSpec
       pointsCount should be (1065)
     }
 
+    it("should read multiple LAS files as RDD using hadoop input format") {
+      val source = HadoopPointCloudRDD(multipleLasPath).flatMap(_._2)
+      val pointsCount = source.mapPartitions { _.map { packedPoints =>
+        var acc = 0l
+        cfor(0)(_ < packedPoints.length, _ + 1) { i =>
+          packedPoints.get(i)
+          acc += 1
+        }
+        acc
+      } }.reduce(_ + _)
+      val sourceList = source.take(1).toList
+      sourceList.map(_.length).head should be (1065)
+      pointsCount should be (4 * 1065)
+    }
+
     it("should read correct crs") {
       val sourceHeader = HadoopPointCloudRDD(lasPath).take(1).head._1
       sourceHeader.crs.map(_.proj4jCrs.getName) should be (Some("lcc-CS"))
