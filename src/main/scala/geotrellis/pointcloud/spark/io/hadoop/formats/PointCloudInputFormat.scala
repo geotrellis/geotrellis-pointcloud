@@ -130,9 +130,7 @@ class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, List
 
       try {
         val pipeline = Pipeline(localPipeline.noSpaces)
-
-        // PDAL itself is not threadsafe
-        AnyRef.synchronized { pipeline.execute }
+        pipeline.execute
 
         val header =
           HadoopPointCloudHeader(

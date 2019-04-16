@@ -27,6 +27,7 @@ import java.io.File
 trait PointCloudTestEnvironment extends TestEnvironment { self: Suite =>
   val testResources = new File("src/test/resources")
   val lasPath = new Path(s"file://${testResources.getAbsolutePath}/las")
+  val multipleLasPath = new Path(s"file://${testResources.getAbsolutePath}/las/files")
 
   def setS3Credentials: Unit = {
     try {
