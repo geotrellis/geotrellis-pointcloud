@@ -19,7 +19,6 @@ package geotrellis.pointcloud.spark.io.hadoop.formats
 import geotrellis.spark.io.hadoop._
 import geotrellis.spark.io.hadoop.formats._
 import geotrellis.pointcloud.spark.io.hadoop._
-import geotrellis.pointcloud.spark.json._
 import geotrellis.pointcloud.util.Filesystem
 import geotrellis.vector.Extent
 
