@@ -16,7 +16,6 @@
 
 package geotrellis.pointcloud.spark.io
 
-import geotrellis.pointcloud.spark.json._
 import geotrellis.pointcloud.vector.{Extent3D, ProjectedExtent3D}
 import geotrellis.proj4.CRS
 import geotrellis.vector.Extent
