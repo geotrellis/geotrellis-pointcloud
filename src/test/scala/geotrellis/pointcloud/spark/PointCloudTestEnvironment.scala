@@ -19,7 +19,6 @@ package geotrellis.pointcloud.spark
 import geotrellis.spark.testkit._
 
 import org.apache.hadoop.fs.Path
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain
 import org.scalatest.Suite
 
 import java.io.File
@@ -31,12 +30,11 @@ trait PointCloudTestEnvironment extends TestEnvironment { self: Suite =>
 
   def setS3Credentials: Unit = {
     try {
-      val credentialsProviderChain = new DefaultAWSCredentialsProviderChain
       val conf = ssc.sparkContext.hadoopConfiguration
 
-      conf.set("fs.s3.impl", classOf[org.apache.hadoop.fs.s3native.NativeS3FileSystem].getName)
-      conf.set("fs.s3n.awsAccessKeyId", credentialsProviderChain.getCredentials.getAWSAccessKeyId)
-      conf.set("fs.s3n.awsSecretAccessKey", credentialsProviderChain.getCredentials.getAWSSecretKey)
+      conf.set("fs.s3.impl", classOf[org.apache.hadoop.fs.s3a.S3AFileSystem].getName)
+      conf.set("fs.s3a.aws.credentials.provider", classOf[com.amazonaws.auth.DefaultAWSCredentialsProviderChain].getName)
+      conf.set("fs.s3a.endpoint", "s3.eu-west-2.amazonaws.com")
     } catch {
       case e => println(e.getMessage)
     }
