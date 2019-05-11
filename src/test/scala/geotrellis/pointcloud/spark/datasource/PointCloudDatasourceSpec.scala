@@ -58,7 +58,7 @@ class PointCloudDatasourceSpec extends FunSpec with Matchers with PointCloudTest
         ssc
           .read
           .format("geotrellis.pointcloud.spark.datasource")
-          .option("path", "s3n://geotrellis-test/test-pdal.csv")
+          .option("path", "s3a://geotrellis-test/test-pdal.csv")
           .option("pipeline", """{"pipeline":[{"filename":"","separator":",","type":"readers.text","spatialreference":"EPSG:3857"}, {"type":"filters.info"}]}""")
           .load
 
@@ -71,7 +71,7 @@ class PointCloudDatasourceSpec extends FunSpec with Matchers with PointCloudTest
         ssc
           .read
           .format("geotrellis.pointcloud.spark.datasource")
-          .option("path", "s3n://test-bucket-mbio/test.all")
+          .option("path", "s3a://test-bucket-mbio/test.all")
           .option("pipeline", """{"pipeline":[{"filename":"","type":"readers.mbio","format":"MBF_EM710RAW", "spatialreference":"EPSG:4326"}, {"type":"filters.info"}]}""") // MBF_EMOLDRAW, MBF_EM710RAW
           .load
 
