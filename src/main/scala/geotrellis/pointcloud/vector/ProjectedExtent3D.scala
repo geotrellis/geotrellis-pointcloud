@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package geotrellis.pointcloud.spark
+package geotrellis.pointcloud.vector
 
 import geotrellis.proj4.CRS
 

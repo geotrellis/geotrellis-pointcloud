@@ -6,6 +6,7 @@ import _root_.io.circe._
 import _root_.io.circe.parser._
 import _root_.io.circe.syntax._
 
+import geotrellis.pointcloud.vector.Extent3D
 import geotrellis.proj4.CRS
 import geotrellis.vector.Extent
 
