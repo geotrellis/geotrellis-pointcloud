@@ -40,7 +40,7 @@ class PointCloudRelation(
         val remotePath = new Path(path)
         // copy remote file into local tmp dir
         val localPath = new File(tmpDir, remotePath.getName)
-        HdfsUtils.copyPath(remotePath, new Path(localPath.getAbsolutePath), sc.hadoopConfiguration)
+        HdfsUtils.copyPath(remotePath, new Path(s"file:///${localPath.getAbsolutePath}"), sc.hadoopConfiguration)
         (true, localPath.toString)
       } else (false, path)
 
