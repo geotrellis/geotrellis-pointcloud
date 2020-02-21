@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package geotrellis.pointcloud.spark.io.avro
+package geotrellis.pointcloud.store.avro
 
 object Implicits extends Implicits
 
-trait Implicits extends codecs.PointCloudCodecs
+trait Implicits extends PointCloudCodecs

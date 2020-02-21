@@ -26,7 +26,7 @@ scalacOptions ++= Seq(
   "-target:jvm-1.8"
 )
 publishMavenStyle := true
-publishArtifact in Test := false
+Test / publishArtifact := false
 pomIncludeRepository := { _ => false }
 bintrayRepository := "geotrellis"
 bintrayOrganization := Some("azavea")

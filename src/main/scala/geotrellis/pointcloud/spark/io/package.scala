@@ -16,4 +16,6 @@
 
 package geotrellis.pointcloud.spark
 
-package object io extends avro.Implicits with Serializable
+import geotrellis.pointcloud.store.avro.Implicits
+
+package object io extends Implicits with Serializable

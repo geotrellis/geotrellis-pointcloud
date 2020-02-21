@@ -18,6 +18,7 @@ package geotrellis.pointcloud.spark.io.s3
 
 import geotrellis.pointcloud.spark.PointCloudTestEnvironment
 import geotrellis.store.s3.S3ClientProducer
+
 import io.pdal.pipeline.Read
 import spire.syntax.cfor._
 import software.amazon.awssdk.core.sync.RequestBody

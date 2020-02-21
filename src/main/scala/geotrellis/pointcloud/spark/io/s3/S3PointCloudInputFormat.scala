@@ -30,7 +30,7 @@ import org.apache.commons.io.FileUtils
 import java.io.{File, InputStream}
 import java.net.URI
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /** Process files from the path through PDAL, and reads all files point data as an Array[Byte] **/
 class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, List[PointCloud]] {
@@ -50,15 +50,15 @@ class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, List[Poi
     val (pointViewIterator, disposeIterator): (Iterator[PointView], () => Unit) =
       PointCloudInputFormat.getFilterExtent(context) match {
         case Some(filterExtent) =>
-          if (header.extent3D.map(_.toExtent.intersects(filterExtent)).getOrElse(false)) {
+          if (header.extent3D.exists(_.toExtent.intersects(filterExtent))) {
             val pvi = pipeline.getPointViews()
-            (pvi, pvi.dispose _)
+            (pvi.asScala, pvi.dispose _)
           } else {
             (Iterator.empty, () => ())
           }
         case None =>
           val pvi = pipeline.getPointViews()
-          (pvi, pvi.dispose _)
+          (pvi.asScala, pvi.dispose _)
       }
 
 

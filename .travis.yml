@@ -1,4 +1,6 @@
-sudo: false
+# See https://docs.travis-ci.com/user/reference/overview/#Virtualisation-Environment-vs-Operating-System
+dist: xenial
+
 language: scala
 addons:
   hostname: localhost

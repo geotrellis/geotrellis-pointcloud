@@ -23,7 +23,7 @@ import geotrellis.store.{InvalidLayerIdError, LayerId}
 import geotrellis.store.hadoop._
 import geotrellis.spark.store.hadoop._
 import geotrellis.store.index._
-import geotrellis.pointcloud.spark.io.avro.Implicits._
+import geotrellis.pointcloud.store.avro._
 import geotrellis.spark.testkit.io._
 import geotrellis.spark.testkit.testfiles.TestFiles
 
