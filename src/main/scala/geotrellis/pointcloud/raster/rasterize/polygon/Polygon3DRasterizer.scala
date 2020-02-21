@@ -29,27 +29,27 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 object Polygon3DRasterizer {
-  private def polygonToEdges(poly: Polygon): Seq[Line] = {
+  private def polygonToEdges(poly: Polygon): Seq[LineString] = {
 
-    val arrayBuffer = mutable.ArrayBuffer.empty[Line]
+    val arrayBuffer = mutable.ArrayBuffer.empty[LineString]
 
     /** Find the outer ring's segments */
-    val coords = poly.jtsGeom.getExteriorRing.getCoordinates
+    val coords = poly.getExteriorRing.getCoordinates
     cfor(1)(_ < coords.length, _ + 1) { ci =>
       val coord1 = coords(ci - 1)
       val coord2 = coords(ci)
-      val segment = Line(Point(coord1.getX, coord1.getY), Point(coord2.getX, coord2.getY))
+      val segment = LineString(Point(coord1.getX, coord1.getY), Point(coord2.getX, coord2.getY))
 
       arrayBuffer += segment
     }
 
     /** Find the segments for the holes */
-    cfor(0)(_ < poly.numberOfHoles, _ + 1) { i =>
-      val coords = poly.jtsGeom.getInteriorRingN(i).getCoordinates
+    cfor(0)(_ < poly.getNumInteriorRing, _ + 1) { i =>
+      val coords = poly.getInteriorRingN(i).getCoordinates
       cfor(1)(_ < coords.length, _ + 1) { ci =>
         val coord1 = coords(ci - 1)
         val coord2 = coords(ci)
-        val segment = Line(Point(coord1.getX, coord1.getY), Point(coord2.getX, coord2.getY))
+        val segment = LineString(Point(coord1.getX, coord1.getY), Point(coord2.getX, coord2.getY))
 
         arrayBuffer += segment
       }
@@ -72,8 +72,8 @@ object Polygon3DRasterizer {
       */
     val rtree = new STRtree
     constraints.foreach({ line =>
-      val a = line.vertices(0)
-      val b = line.vertices(1)
+      val a = line.points(0)
+      val b = line.points(1)
       val xmin = math.min(a.x, b.x)
       val xmax = math.max(a.x, b.x)
       val ymin = math.min(a.y, b.y)
@@ -90,7 +90,7 @@ object Polygon3DRasterizer {
       .toMap
 
     /** z-coordinates of original vertices */
-    val zs1 = geom.getCoordinates.map({ coord => coord.getZ })
+    val zs1 = geom.getCoordinates.map(_.getZ)
 
     /** z-coordinates of Steiner vertices */
     val zs2 = steinerPoints.map({ point =>
@@ -98,14 +98,14 @@ object Polygon3DRasterizer {
       val lines = rtree.query(envelope).asScala; require(lines.nonEmpty)
       val line =
         lines
-          .map({ line => line.asInstanceOf[Line] })
+          .map({ line => line.asInstanceOf[LineString] })
           .map({ line => (line.distance(point), line) })
           .reduce({ (pair1, pair2) => if (pair1._1 <= pair2._1) pair1; else pair2 })
           ._2
-      val a = line.vertices(0) // first endpoint
+      val a = line.points(0) // first endpoint
       val aIndex = indexMap.getOrElse((a.x, a.y), throw new Exception) // index of first endpoint
       val aValue = zs1(aIndex) // z value at first endpoint
-      val b = line.vertices(1) // second endpoint
+      val b = line.points(1) // second endpoint
       val bIndex = indexMap.getOrElse((b.x, b.y), throw new Exception) // index of second endpoint
       val bValue = zs1(bIndex) // z value at second endpoint
       val dista = a.distance(point) // distance from Steiner point to first endpoint
@@ -130,16 +130,10 @@ object Polygon3DRasterizer {
   }
 
   def rasterize(tile: MutableArrayTile, geom: jts.Geometry, re: RasterExtent): Unit = {
-    val extentGeom = re.extent.toPolygon.jtsGeom
+    val extentGeom = re.extent.toPolygon
     geom match {
-      case p: jts.Polygon =>
-        if(p.intersects(extentGeom)) {
-          rasterizePolygon(p, tile, re)
-        }
-      case mp: jts.MultiPolygon =>
-        for(p <- MultiPolygon(mp).polygons) {
-          rasterizePolygon(p.jtsGeom, tile, re)
-        }
+      case p: jts.Polygon => if(p.intersects(extentGeom)) rasterizePolygon(p, tile, re)
+      case mp: jts.MultiPolygon => mp.polygons.map(rasterizePolygon(_, tile, re))
     }
   }
 }

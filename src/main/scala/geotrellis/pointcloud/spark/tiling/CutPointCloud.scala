@@ -19,7 +19,9 @@ package geotrellis.pointcloud.spark.tiling
 import io.pdal._
 
 import geotrellis.spark._
+import geotrellis.layer._
 import geotrellis.pointcloud.spark._
+import geotrellis.raster.Dimensions
 import geotrellis.spark.tiling._
 
 import org.apache.spark.rdd._
@@ -43,7 +45,7 @@ object CutPointCloud {
 
   def apply(rdd: RDD[Array[jts.Coordinate]], layoutDefinition: LayoutDefinition, options: Options): RDD[(SpatialKey, Array[jts.Coordinate])] with Metadata[LayoutDefinition] = {
     val mapTransform = layoutDefinition.mapTransform
-    val (tileCols, tileRows) = layoutDefinition.tileLayout.tileDimensions
+    val Dimensions(tileCols, tileRows) = layoutDefinition.tileLayout.tileDimensions
     val tilePoints = tileCols * tileRows
 
     val cut =
@@ -87,7 +89,7 @@ object CutPointCloud {
 
   def apply(rdd: RDD[PointCloud], layoutDefinition: LayoutDefinition, options: Options)(implicit d: DummyImplicit): RDD[(SpatialKey, PointCloud)] with Metadata[LayoutDefinition] = {
     val mapTransform = layoutDefinition.mapTransform
-    val (tileCols, tileRows) = layoutDefinition.tileLayout.tileDimensions
+    val Dimensions(tileCols, tileRows) = layoutDefinition.tileLayout.tileDimensions
     val tilePoints = tileCols * tileRows
 
     val cut =

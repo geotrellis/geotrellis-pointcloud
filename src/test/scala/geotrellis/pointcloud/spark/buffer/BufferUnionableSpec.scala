@@ -16,7 +16,9 @@
 
 package geotrellis.pointcloud.spark.buffer
 
-import geotrellis.spark._
+import geotrellis.layer._
+import geotrellis.util._
+
 import geotrellis.spark.testkit._
 
 import org.scalatest.FunSpec

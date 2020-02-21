@@ -16,14 +16,15 @@
 
 package geotrellis.pointcloud.spark.io.s3
 
-import geotrellis.spark.io.s3.{BaseS3RecordReader, S3Client}
-import com.amazonaws.services.s3.model.GetObjectRequest
+import geotrellis.spark.store.s3.BaseS3RecordReader
 
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import java.net.URI
 
 abstract class S3URIRecordReader[K, V](s3Client: S3Client) extends BaseS3RecordReader[K, V](s3Client: S3Client) {
   def readObjectRequest(objectRequest: GetObjectRequest): (K, V) =
-    read(objectRequest.getKey, new URI(s"s3://${objectRequest.getBucketName}/${objectRequest.getKey}"))
+    read(objectRequest.key, new URI(s"s3://${objectRequest.bucket}/${objectRequest.key}"))
 
   def read(key: String, uri: URI): (K, V)
 }

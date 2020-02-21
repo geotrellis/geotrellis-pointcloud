@@ -16,6 +16,17 @@
 
 import sbt._
 
+object Version {
+  val geotrellisPointCloud = "0.3.0" + Environment.versionSuffix
+  val geotrellis           = "3.2.0"
+  val crossScala           = List("2.12.10", "2.11.12")
+  val scala                = crossScala.head
+  val pdal                 = "2.0.0"
+  val scalaTest            = "3.0.8"
+  lazy val hadoop          = Environment.hadoopVersion
+  lazy val spark           = Environment.sparkVersion
+}
+
 object Dependencies {
   val scalatest    = "org.scalatest"    %%  "scalatest"    % Version.scalaTest
   val sparkCore    = "org.apache.spark" %% "spark-core"    % Version.spark
@@ -30,5 +41,6 @@ object Dependencies {
   val geotrellisSpark        = "org.locationtech.geotrellis" %% "geotrellis-spark" % Version.geotrellis
   val geotrellisRaster       = "org.locationtech.geotrellis" %% "geotrellis-raster" % Version.geotrellis
   val geotrellisS3           = "org.locationtech.geotrellis" %% "geotrellis-s3" % Version.geotrellis
+  val geotrellisS3Spark      = "org.locationtech.geotrellis" %% "geotrellis-s3-spark" % Version.geotrellis
   val geotrellisS3Testkit    = "org.locationtech.geotrellis" %% "geotrellis-s3-testkit" % Version.geotrellis
 }

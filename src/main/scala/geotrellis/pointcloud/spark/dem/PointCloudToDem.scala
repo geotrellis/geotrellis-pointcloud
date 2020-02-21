@@ -17,22 +17,22 @@
 package geotrellis.pointcloud.spark.dem
 
 import io.pdal._
+import geotrellis.layer._
 import geotrellis.raster._
 import geotrellis.spark._
-import geotrellis.spark.tiling._
 import geotrellis.util._
 import geotrellis.vector._
 
 import org.apache.spark.rdd.RDD
 
 object PointCloudToDem {
-  def apply[M: GetComponent[?, LayoutDefinition]](rdd: RDD[(SpatialKey, PointCloud)] with Metadata[M], tileDimensions: (Int, Int), options: PointToGrid.Options): RDD[(SpatialKey, Tile)] with Metadata[LayoutDefinition] =
+  def apply[M: GetComponent[*, LayoutDefinition]](rdd: RDD[(SpatialKey, PointCloud)] with Metadata[M], tileDimensions: (Int, Int), options: PointToGrid.Options): RDD[(SpatialKey, Tile)] with Metadata[LayoutDefinition] =
     apply[M](rdd, options) { e => RasterExtent(e, tileDimensions._1, tileDimensions._2) }
 
-  def apply[M: GetComponent[?, LayoutDefinition]](rdd: RDD[(SpatialKey, PointCloud)] with Metadata[M], cellSize: CellSize, options: PointToGrid.Options): RDD[(SpatialKey, Tile)] with Metadata[LayoutDefinition] =
+  def apply[M: GetComponent[*, LayoutDefinition]](rdd: RDD[(SpatialKey, PointCloud)] with Metadata[M], cellSize: CellSize, options: PointToGrid.Options): RDD[(SpatialKey, Tile)] with Metadata[LayoutDefinition] =
    apply[M](rdd, options) { e => RasterExtent(e, cellSize) }
 
-  def apply[M: GetComponent[?, LayoutDefinition]](rdd: RDD[(SpatialKey, PointCloud)] with Metadata[M], options: PointToGrid.Options)(createRE: Extent => RasterExtent): RDD[(SpatialKey, Tile)] with Metadata[LayoutDefinition] = {
+  def apply[M: GetComponent[*, LayoutDefinition]](rdd: RDD[(SpatialKey, PointCloud)] with Metadata[M], options: PointToGrid.Options)(createRE: Extent => RasterExtent): RDD[(SpatialKey, Tile)] with Metadata[LayoutDefinition] = {
     val layoutDefinition = rdd.metadata.getComponent[LayoutDefinition]
     val mapTransform = layoutDefinition.mapTransform
 

@@ -1,9 +1,23 @@
+/*
+ * Copyright 2020 Azavea
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package geotrellis.pointcloud.tiling
 
-import geotrellis.pointcloud.raster.{GridExtent3D, VoxelSize}
-import geotrellis.pointcloud.vector.Extent3D
 import geotrellis.raster.TileLayout
-import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.layer._
 import geotrellis.vector.Extent
 
 case class LayoutDefinition3D(extent: Extent,

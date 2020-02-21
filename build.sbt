@@ -1,9 +1,12 @@
 import Dependencies._
 import sbt.Keys._
+import de.heikoseeberger.sbtheader.{CommentCreator, CommentStyle, FileType}
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerLicense, headerMappings}
 
 name := "geotrellis-pointcloud"
 version := Version.geotrellisPointCloud
 scalaVersion := Version.scala
+crossScalaVersions := Version.crossScala
 description := "GeoTrellis PointCloud library"
 organization := "com.azavea.geotrellis"
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
@@ -28,7 +31,7 @@ bintrayOrganization := Some("azavea")
 bintrayPackageLabels := Seq("geotrellis", "maps", "gis", "geographic", "data", "raster", "processing", "pdal", "pointcloud")
 bintrayVcsUrl := Some("https://github.com/geotrellis/geotrellis-pointcloud")
 
-addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.9" cross CrossVersion.binary)
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
 addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.1" cross CrossVersion.full)
 
 pomExtra := (
@@ -56,7 +59,21 @@ pomExtra := (
 )
 
 shellPrompt := { s => Project.extract(s).currentProject.id + " > " }
-headerLicense := Some(HeaderLicense.ALv2("2017", "Azavea"))
+headerLicense := Some(HeaderLicense.ALv2(java.time.Year.now.getValue.toString, "Azavea"))
+headerMappings := Map(
+  FileType.scala -> CommentStyle.cStyleBlockComment.copy(commentCreator = new CommentCreator() {
+    val Pattern = "(?s).*?(\\d{4}(-\\d{4})?).*".r
+    def findYear(header: String): Option[String] = header match {
+      case Pattern(years, _) => Some(years)
+      case _                 => None
+    }
+    def apply(text: String, existingText: Option[String]): String = {
+      // preserve year of old headers
+      val newText = CommentStyle.cStyleBlockComment.commentCreator.apply(text, existingText)
+      existingText.flatMap(_ => existingText.map(_.trim)).getOrElse(newText)
+    }
+  })
+)
 
 sources in (Compile, doc) ~= (_ filterNot (_.getAbsolutePath contains "geotrellis/vector"))
 
@@ -71,8 +88,8 @@ libraryDependencies ++= Seq(
   geotrellisSpark % Provided,
   geotrellisRaster % Provided,
   geotrellisS3 % Provided,
+  geotrellisS3Spark % Provided,
   geotrellisSparkTestkit % Test,
-  geotrellisS3Testkit % Test,
   pdalScala,
   pdalNative,
   sparkCore % Provided,
@@ -81,6 +98,20 @@ libraryDependencies ++= Seq(
   hadoopAWS % Test,
   scalatest % Test
 )
+
+/** https://github.com/lucidworks/spark-solr/issues/179 */
+dependencyOverrides ++= {
+  val deps = Seq(
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.6.7",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.7",
+    "com.fasterxml.jackson.core" % "jackson-annotations" % "2.6.7"
+  )
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    // if Scala 2.12+ is used
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => deps
+    case _ => deps :+ "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.6.7"
+  }
+}
 
 fork in Test := true
 parallelExecution in Test := false

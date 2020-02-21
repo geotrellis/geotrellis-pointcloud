@@ -17,19 +17,21 @@
 package geotrellis.pointcloud.spark.pyramid
 
 import geotrellis.spark._
-import geotrellis.spark.tiling._
+import geotrellis.layer._
 import geotrellis.raster._
 import geotrellis.util._
 import geotrellis.vector.triangulation.DelaunayTriangulation
 
 import org.apache.spark.Partitioner
 import org.apache.spark.rdd._
-import com.typesafe.scalalogging.LazyLogging
 import org.locationtech.jts.geom.Coordinate
+import org.log4s._
 
 import scala.reflect.ClassTag
 
-object Pyramid extends LazyLogging {
+object Pyramid {
+  @transient private[this] lazy val logger = getLogger
+  
   type V = Array[Coordinate]
 
   case class Options(decimation: Double = 0.75, partitioner: Option[Partitioner] = None)
@@ -42,7 +44,7 @@ object Pyramid extends LazyLogging {
 
   def up[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     zoom: Int,
@@ -124,7 +126,7 @@ object Pyramid extends LazyLogging {
 
   def up[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     zoom: Int
@@ -133,7 +135,7 @@ object Pyramid extends LazyLogging {
 
   def levelStream[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     startZoom: Int,
@@ -151,7 +153,7 @@ object Pyramid extends LazyLogging {
 
   def levelStream[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     startZoom: Int,
@@ -161,7 +163,7 @@ object Pyramid extends LazyLogging {
 
   def levelStream[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     startZoom: Int,
@@ -171,7 +173,7 @@ object Pyramid extends LazyLogging {
 
   def levelStream[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     startZoom: Int
@@ -180,7 +182,7 @@ object Pyramid extends LazyLogging {
 
   def upLevels[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     startZoom: Int,
@@ -202,7 +204,7 @@ object Pyramid extends LazyLogging {
 
   def upLevels[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     startZoom: Int,
@@ -212,7 +214,7 @@ object Pyramid extends LazyLogging {
 
   def upLevels[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     startZoom: Int,
@@ -222,7 +224,7 @@ object Pyramid extends LazyLogging {
 
   def upLevels[
     K: SpatialComponent: ClassTag,
-    M: Component[?, LayoutDefinition]: Component[?, Bounds[K]]
+    M: Component[*, LayoutDefinition]: Component[*, Bounds[K]]
   ](rdd: RDD[(K, V)] with Metadata[M],
     layoutScheme: LayoutScheme,
     startZoom: Int

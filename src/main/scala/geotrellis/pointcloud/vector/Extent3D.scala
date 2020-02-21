@@ -45,7 +45,7 @@ case class Extent3D(xmin: Double, ymin: Double, zmin: Double, xmax: Double, ymax
 
   /** Return the smallest extent that contains this extent and the provided point. */
   def expandToInclude(p: Point): Extent3D = {
-    val c = p.jtsGeom.getCoordinate
+    val c = p.getCoordinate
     expandToInclude(c.getX, c.getY, c.getZ)
   }
 

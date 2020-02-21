@@ -17,10 +17,11 @@
 package geotrellis.pointcloud.spark.io.s3
 
 import geotrellis.pointcloud.spark.PointCloudTestEnvironment
-import geotrellis.spark.io.s3.testkit.MockS3Client
-
+import geotrellis.store.s3.S3ClientProducer
 import io.pdal.pipeline.Read
 import spire.syntax.cfor._
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
 
 import java.nio.file.{Files, Paths}
 
@@ -30,23 +31,38 @@ class S3PackedPointsRDDSpec extends FunSpec
   with Matchers
   with PointCloudTestEnvironment {
   describe("PackedPoints RDD reads") {
-    implicit val mockClient = new MockS3Client
+    implicit val mockClient = MockS3Client()
     val bucket = this.getClass.getSimpleName
     val key = "las/1.2-with-color.las"
     val keyFiles = "las/files/"
     val filePath = s"${testResources.getAbsolutePath}/las/1.2-with-color.las"
     val fileBytes = Files.readAllBytes(Paths.get(filePath))
-    mockClient.putObject(bucket, key, fileBytes)
+
+    val request = PutObjectRequest.builder()
+      .bucket(bucket)
+      .key(key)
+      .build()
+
+    mockClient.putObject(request, RequestBody.fromBytes(fileBytes))
 
     (1 to 4).foreach { i =>
       val key = s"las/files/1.2-with-color_$i.las"
       val filePath = s"${testResources.getAbsolutePath}/las/files/1.2-with-color_$i.las"
       val fileBytes = Files.readAllBytes(Paths.get(filePath))
-      mockClient.putObject(bucket, key, fileBytes)
+
+      val request = PutObjectRequest.builder()
+        .bucket(bucket)
+        .key(key)
+        .build()
+
+      mockClient.putObject(request, RequestBody.fromBytes(fileBytes))
     }
 
+    S3ClientProducer.set(() => mockClient)
+
     it("should read LAS file as RDD using s3 input format") {
-      val source = S3PointCloudRDD(bucket, key, S3PointCloudRDD.Options(getS3Client = () => new MockS3Client)).flatMap(_._2)
+
+      val source = S3PointCloudRDD(bucket, key).flatMap(_._2)
       val pointsCount = source.mapPartitions { _.map { packedPoints =>
         var acc = 0l
         cfor(0)(_ < packedPoints.length, _ + 1) { i =>
@@ -61,7 +77,7 @@ class S3PackedPointsRDDSpec extends FunSpec
     }
 
     it("should read multiple LAS files as RDD using s3 input format") {
-      val source = S3PointCloudRDD(bucket, keyFiles, S3PointCloudRDD.Options(getS3Client = () => new MockS3Client)).flatMap(_._2)
+      val source = S3PointCloudRDD(bucket, keyFiles).flatMap(_._2)
       val pointsCount = source.mapPartitions { _.map { packedPoints =>
         var acc = 0l
         cfor(0)(_ < packedPoints.length, _ + 1) { i =>
@@ -76,9 +92,7 @@ class S3PackedPointsRDDSpec extends FunSpec
     }
 
     it("should read correct crs") {
-      val sourceHeader = S3PointCloudRDD(
-        bucket, key, S3PointCloudRDD.Options(getS3Client = () => new MockS3Client)
-      ).take(1).head._1
+      val sourceHeader = S3PointCloudRDD(bucket, key).take(1).head._1
       sourceHeader.crs.map(_.proj4jCrs.getName) should be (Some("lcc-CS"))
     }
 

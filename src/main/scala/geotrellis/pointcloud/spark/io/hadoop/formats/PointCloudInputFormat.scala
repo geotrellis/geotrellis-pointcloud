@@ -16,8 +16,7 @@
 
 package geotrellis.pointcloud.spark.io.hadoop.formats
 
-import geotrellis.spark.io.hadoop._
-import geotrellis.spark.io.hadoop.formats._
+import geotrellis.store.hadoop._
 import geotrellis.pointcloud.spark.io.hadoop._
 import geotrellis.pointcloud.util.Filesystem
 import geotrellis.vector.Extent
@@ -34,7 +33,7 @@ import io.circe.parser._
 
 import java.io.File
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object PointCloudInputFormat {
   final val POINTCLOUD_TMP_DIR = "POINTCLOUD_TMP_DIR"
@@ -142,15 +141,15 @@ class PointCloudInputFormat extends FileInputFormat[HadoopPointCloudHeader, List
         val (pointViewIterator, disposeIterator): (Iterator[PointView], () => Unit) =
           PointCloudInputFormat.getFilterExtent(context) match {
             case Some(filterExtent) =>
-              if(header.extent3D.map(_.toExtent.intersects(filterExtent)).getOrElse(false)) {
+              if(header.extent3D.exists(_.toExtent.intersects(filterExtent))) {
                 val pvi = pipeline.getPointViews()
-                (pvi, pvi.dispose _)
+                (pvi.asScala, pvi.dispose _)
               } else {
                 (Iterator.empty, () => ())
               }
             case None =>
               val pvi = pipeline.getPointViews()
-              (pvi, pvi.dispose _)
+              (pvi.asScala, pvi.dispose _)
           }
 
         // conversion to list to load everything into JVM memory

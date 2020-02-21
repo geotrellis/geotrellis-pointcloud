@@ -19,7 +19,7 @@ package geotrellis.pointcloud.spark.tiling
 import geotrellis.raster.TileLayout
 import Implicits._
 import geotrellis.pointcloud.spark.PointCloudTestEnvironment
-import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.layer.LayoutDefinition
 import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD
 import geotrellis.vector.Extent
 

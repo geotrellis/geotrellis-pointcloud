@@ -18,10 +18,11 @@ package geotrellis.pointcloud.spark.io.s3
 
 import geotrellis.pointcloud.spark._
 import geotrellis.pointcloud.spark.io._
-import geotrellis.spark.{SpatialKey, TileLayerMetadata}
-import geotrellis.spark.io._
-import geotrellis.spark.io.s3._
-import geotrellis.spark.io.s3.testkit._
+import geotrellis.layer._
+import geotrellis.spark.store.GenericLayerReindexer
+import geotrellis.store._
+import geotrellis.store.s3._
+import geotrellis.spark.store.s3._
 import geotrellis.spark.testkit.io._
 import geotrellis.spark.testkit.testfiles.TestFiles
 
@@ -36,32 +37,27 @@ class S3ArrayCoordinateSpatialSpec
 
   lazy val bucket = "mock-bucket"
   lazy val prefix = "catalog"
-
+  val client = MockS3Client()
+  S3TestUtils.cleanBucket(client, bucket)
   registerAfterAll { () =>
-    MockS3Client.reset()
+    S3TestUtils.cleanBucket(client, bucket)
   }
 
-  lazy val attributeStore = new S3AttributeStore(bucket, prefix) {
-    override val s3Client = new MockS3Client()
-  }
+  // We need to register the mock client for SPI loaded classes
+  S3ClientProducer.set(() => MockS3Client())
 
-  lazy val rddReader =
-    new S3RDDReader {
-      def getS3Client = () => new MockS3Client()
-    }
+  lazy val attributeStore = new S3AttributeStore(bucket, prefix, MockS3Client.instance)
 
-  lazy val rddWriter =
-    new S3RDDWriter {
-      def getS3Client = () => new MockS3Client()
-    }
+  lazy val rddReader = new S3RDDReader(MockS3Client.instance)
+  lazy val rddWriter = new S3RDDWriter(MockS3Client.instance)
 
-  lazy val reader = new MockS3LayerReader(attributeStore)
-  lazy val creader = new MockS3CollectionLayerReader(attributeStore)
-  lazy val writer = new MockS3LayerWriter(attributeStore, bucket, prefix)
-  lazy val deleter = new S3LayerDeleter(attributeStore) { override val getS3Client = () => new MockS3Client() }
-  lazy val copier  = new S3LayerCopier(attributeStore, bucket, prefix) { override val getS3Client = () => new MockS3Client }
-  lazy val reindexer = GenericLayerReindexer[S3LayerHeader](attributeStore, reader, writer, deleter, copier)
+  lazy val reader = new S3LayerReader(attributeStore, MockS3Client.instance)
+  lazy val creader = new S3CollectionLayerReader(attributeStore)
+  lazy val writer = new S3LayerWriter(attributeStore, bucket, prefix, identity, MockS3Client.instance)
+  lazy val deleter = new S3LayerDeleter(attributeStore, MockS3Client.instance)
+  lazy val copier  = new S3LayerCopier(attributeStore, bucket, prefix, MockS3Client.instance)
+  lazy val reindexer = GenericLayerReindexer(attributeStore, reader, writer, deleter, copier)
   lazy val mover = GenericLayerMover(copier, deleter)
-  lazy val tiles = new S3ValueReader(attributeStore) { override val s3Client = new MockS3Client()  }
+  lazy val tiles = new S3ValueReader(attributeStore, MockS3Client.instance)
   lazy val sample = pointCloudSampleC
 }

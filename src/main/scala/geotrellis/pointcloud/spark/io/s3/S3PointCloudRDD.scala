@@ -16,8 +16,9 @@
 
 package geotrellis.pointcloud.spark.io.s3
 
-import geotrellis.spark.io.s3._
+import geotrellis.spark.store.s3._
 import geotrellis.pointcloud.spark.io.hadoop.formats.PointCloudInputFormat
+import geotrellis.store.s3.S3ClientProducer
 import geotrellis.vector.Extent
 
 import io.circe._
@@ -25,6 +26,7 @@ import io.pdal._
 import io.pdal.pipeline._
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import software.amazon.awssdk.services.s3.S3Client
 
 /**
   * Allows for reading point data files using PDAL as RDD[(ProjectedPackedPointsBounds, PointCloud)]s through S3 API.
@@ -35,14 +37,14 @@ object S3PointCloudRDD {
     * @param filesExtensions Supported files extensions
     * @param numPartitions   How many partitions Spark should create when it repartitions the data.
     * @param partitionBytes  Desired partition size in bytes, at least one item per partition will be assigned
-    * @param getS3Client     A function to instantiate an S3Client. Must be serializable.
+    * @param getClient      A function to instantiate an S3Client.
     */
   case class Options(
     filesExtensions: Seq[String] = PointCloudInputFormat.filesExtensions,
     pipeline: Json = Read("local") :: Nil,
     numPartitions: Option[Int] = None,
     partitionBytes: Option[Long] = None,
-    getS3Client: () => S3Client = () => S3Client.DEFAULT,
+    getClient: () => S3Client = S3ClientProducer.get,
     tmpDir: Option[String] = None,
     filterExtent: Option[Extent] = None,
     dimTypes: Option[Iterable[String]] = None
@@ -65,7 +67,7 @@ object S3PointCloudRDD {
     S3InputFormat.setBucket(conf, bucket)
     S3InputFormat.setPrefix(conf, prefix)
     S3InputFormat.setExtensions(conf, options.filesExtensions)
-    S3InputFormat.setCreateS3Client(conf, options.getS3Client)
+    S3InputFormat.setCreateS3Client(conf, options.getClient)
     options.numPartitions.foreach(S3InputFormat.setPartitionCount(conf, _))
     options.partitionBytes.foreach(S3InputFormat.setPartitionBytes(conf, _))
 

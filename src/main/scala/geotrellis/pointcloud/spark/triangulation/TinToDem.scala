@@ -20,11 +20,11 @@ import geotrellis.pointcloud.raster._
 import geotrellis.raster._
 import geotrellis.raster.triangulation.DelaunayRasterizer
 import geotrellis.spark._
-import geotrellis.spark.tiling._
+import geotrellis.layer._
 import geotrellis.vector._
 import geotrellis.vector.triangulation._
 import geotrellis.vector.mesh.IndexedPointSet
-import geotrellis.spark.buffer
+import geotrellis.raster.buffer
 
 import org.locationtech.jts.geom.Coordinate
 import org.apache.spark.rdd.RDD

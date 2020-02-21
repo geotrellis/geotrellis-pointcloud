@@ -20,10 +20,11 @@ import io.pdal._
 
 import geotrellis.pointcloud.spark._
 import geotrellis.pointcloud.spark.io._
-import geotrellis.spark.{LayerId, SpatialKey, TileLayerMetadata}
-import geotrellis.spark.io._
-import geotrellis.spark.io.file._
-import geotrellis.spark.io.index._
+import geotrellis.layer._
+import geotrellis.store._
+import geotrellis.store.file._
+import geotrellis.spark.store.file._
+import geotrellis.store.index._
 import geotrellis.spark.testkit.io._
 import geotrellis.spark.testkit.testfiles.TestFiles
 

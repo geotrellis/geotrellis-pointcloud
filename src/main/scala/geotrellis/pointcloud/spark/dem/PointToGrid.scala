@@ -19,6 +19,7 @@ package geotrellis.pointcloud.spark.dem
 import io.pdal._
 import geotrellis.raster._
 import geotrellis.raster.mapalgebra.focal._
+import geotrellis.raster.mapalgebra.focal.{TargetCell => FocalTargetCell}
 import geotrellis.vector._
 import spire.syntax.cfor._
 
@@ -50,7 +51,7 @@ object PointToGrid {
     interpolatePoints(interp, pointCloud, options)
     val result =
       if(options.performFill) {
-        interp.result.focalMean(Square(options.fillSize), target = TargetCell.NoData)
+        interp.result.focalMean(Square(options.fillSize), target = FocalTargetCell.NoData)
       } else {
         interp.result
       }
@@ -70,7 +71,7 @@ object PointToGrid {
 
     val result =
       if(options.performFill) {
-        interp.result.focalMean(Square(options.fillSize), target = TargetCell.NoData)
+        interp.result.focalMean(Square(options.fillSize), target = FocalTargetCell.NoData)
       } else {
         interp.result
       }

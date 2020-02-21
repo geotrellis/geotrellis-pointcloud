@@ -16,7 +16,7 @@
 
 package geotrellis.pointcloud.spark.buffer
 
-import geotrellis.spark._
+import geotrellis.layer._
 
 import org.apache.spark.rdd.RDD
 

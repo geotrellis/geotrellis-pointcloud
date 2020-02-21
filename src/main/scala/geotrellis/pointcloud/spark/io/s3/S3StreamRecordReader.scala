@@ -16,17 +16,18 @@
 
 package geotrellis.pointcloud.spark.io.s3
 
-import com.amazonaws.services.s3.model.GetObjectRequest
-import geotrellis.spark.io.s3.{BaseS3RecordReader, S3Client}
+import geotrellis.spark.store.s3.BaseS3RecordReader
 
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import java.io.InputStream
 
 /** This reader will fetch bytes of each key one at a time using [AmazonS3Client.getObject].
   * Subclass must extend [read] method to map from S3 object bytes to (K,V) */
 abstract class S3StreamRecordReader[K, V](s3Client: S3Client) extends BaseS3RecordReader[K, V](s3Client: S3Client) {
   def readObjectRequest(objectRequest: GetObjectRequest): (K, V) = {
-    val obj = s3Client.getObject(objectRequest)
-    read(objectRequest.getKey, obj.getObjectContent)
+    val response = s3Client.getObject(objectRequest)
+    read(objectRequest.key, response)
   }
 
   def read(key: String, is: InputStream): (K, V)

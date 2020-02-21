@@ -16,8 +16,8 @@
 
 package geotrellis.pointcloud
 
-import geotrellis.pointcloud.vector.{Extent3D, ProjectedExtent3D}
-import geotrellis.spark.{Metadata, SpatialKey, TileLayerMetadata}
+import geotrellis.pointcloud.vector.ProjectedExtent3D
+import geotrellis.layer._
 import geotrellis.spark.tiling.TilerKeyMethods
 import geotrellis.util._
 
@@ -27,7 +27,7 @@ import org.locationtech.jts.geom.Coordinate
 package object spark extends dem.Implicits with tiling.Implicits with Serializable {
   type PointCloudLayerRDD[K] = RDD[(SpatialKey, Array[Coordinate])] with Metadata[TileLayerMetadata[K]]
 
-  implicit class withProjectedExtent3DTilerKeyMethods[K: Component[?, ProjectedExtent3D]](val self: K) extends TilerKeyMethods[K, SpatialKey] {
+  implicit class withProjectedExtent3DTilerKeyMethods[K: Component[*, ProjectedExtent3D]](val self: K) extends TilerKeyMethods[K, SpatialKey] {
     def extent = self.getComponent[ProjectedExtent3D].extent3d.toExtent
     def translate(spatialKey: SpatialKey) = spatialKey
   }

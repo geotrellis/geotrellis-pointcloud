@@ -16,7 +16,7 @@
 
 package geotrellis.pointcloud.spark.io.s3
 
-import geotrellis.spark.io.s3._
+import geotrellis.spark.store.s3._
 import geotrellis.pointcloud.spark.io.hadoop.formats._
 import geotrellis.pointcloud.util.Filesystem
 

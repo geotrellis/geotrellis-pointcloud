@@ -19,8 +19,8 @@ package geotrellis.pointcloud.spark
 import geotrellis.pointcloud.spark.io.hadoop._
 import geotrellis.proj4.CRS
 import geotrellis.raster.{DoubleConstantNoDataCellType, TileLayout}
-import geotrellis.spark.{ContextRDD, KeyBounds, SpatialKey, TileLayerMetadata}
-import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.spark.ContextRDD
+import geotrellis.layer._
 import geotrellis.vector.Extent
 
 import spire.syntax.cfor.cfor

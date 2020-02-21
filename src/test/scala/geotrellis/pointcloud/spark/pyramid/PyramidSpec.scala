@@ -20,7 +20,7 @@ import geotrellis.pointcloud.spark._
 import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.spark._
-import geotrellis.spark.tiling._
+import geotrellis.layer._
 import geotrellis.vector._
 
 import org.locationtech.jts.geom.Coordinate

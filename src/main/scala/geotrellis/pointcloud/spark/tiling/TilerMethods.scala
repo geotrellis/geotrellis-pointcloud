@@ -17,8 +17,7 @@
 package geotrellis.pointcloud.spark.tiling
 
 import io.pdal._
-import geotrellis.spark._
-import geotrellis.spark.tiling.LayoutDefinition
+import geotrellis.layer._
 import geotrellis.util.MethodExtensions
 
 import org.apache.spark.rdd._

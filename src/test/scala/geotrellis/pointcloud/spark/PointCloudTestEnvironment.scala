@@ -36,7 +36,7 @@ trait PointCloudTestEnvironment extends TestEnvironment { self: Suite =>
       conf.set("fs.s3a.aws.credentials.provider", classOf[com.amazonaws.auth.DefaultAWSCredentialsProviderChain].getName)
       conf.set("fs.s3a.endpoint", "s3.eu-west-2.amazonaws.com")
     } catch {
-      case e => println(e.getMessage)
+      case e: Throwable => println(e.getMessage)
     }
   }
 }

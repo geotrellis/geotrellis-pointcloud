@@ -57,7 +57,7 @@ object TrianglesRasterizer {
     indexMap: Map[(Double, Double), Int]
   ): Unit = {
 
-    val Extent(xmin, ymin, xmax, ymax) = triangle.envelope
+    val Extent(xmin, ymin, xmax, ymax) = triangle.extent
     val xn = ((xmin - re.extent.xmin) / re.cellwidth).toInt
     val yn = ((ymin - re.extent.ymin) / re.cellheight).toInt
     val xStart = re.extent.xmin + (xn + 0.5) * re.cellwidth

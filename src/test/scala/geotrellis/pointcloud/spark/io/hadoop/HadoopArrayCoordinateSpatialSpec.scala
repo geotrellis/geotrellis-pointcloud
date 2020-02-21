@@ -17,11 +17,13 @@
 package geotrellis.pointcloud.spark.io.hadoop
 
 import geotrellis.pointcloud.spark._
-import geotrellis.pointcloud.spark.io._
-import geotrellis.spark.{LayerId, SpatialKey, TileLayerMetadata}
-import geotrellis.spark.io._
-import geotrellis.spark.io.hadoop._
-import geotrellis.spark.io.index._
+import geotrellis.layer.{SpatialKey, TileLayerMetadata}
+import geotrellis.spark._
+import geotrellis.store.{InvalidLayerIdError, LayerId}
+import geotrellis.store.hadoop._
+import geotrellis.spark.store.hadoop._
+import geotrellis.store.index._
+import geotrellis.pointcloud.spark.io.avro.Implicits._
 import geotrellis.spark.testkit.io._
 import geotrellis.spark.testkit.testfiles.TestFiles
 

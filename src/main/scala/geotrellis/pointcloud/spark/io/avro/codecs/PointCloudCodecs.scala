@@ -16,7 +16,7 @@
 
 package geotrellis.pointcloud.spark.io.avro.codecs
 
-import geotrellis.spark.io.avro._
+import geotrellis.store.avro._
 
 import io.pdal._
 import org.apache.avro._

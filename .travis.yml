@@ -7,9 +7,10 @@ services:
 jdk:
   - openjdk8
 scala:
-  - 2.11.12
+  - "2.11.12"
+  - "2.12.10"
 before_install:
-  - docker pull daunnc/pdal-debian:1.8.0
+  - docker run -d --restart=always -p 9091:9000 -e MINIO_ACCESS_KEY=minio -e MINIO_SECRET_KEY=password minio/minio:RELEASE.2019-05-02T19-07-09Z server /data
 cache:
   directories:
    - $HOME/.ivy2
@@ -34,7 +35,7 @@ deploy:
     on:
       repo: geotrellis/geotrellis-pointcloud
       branch: master
-      jdk: oraclejdk8
-      scala: "2.11.12"
+      jdk: openjdk8
+
 after_deploy:
   - rm -f "${HOME}/.bintray/.credentials"

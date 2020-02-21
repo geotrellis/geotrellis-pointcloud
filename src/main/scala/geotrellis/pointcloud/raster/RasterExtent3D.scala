@@ -1,7 +1,23 @@
+/*
+ * Copyright 2020 Azavea
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package geotrellis.pointcloud.raster
 
 import geotrellis.pointcloud.vector.Extent3D
-import geotrellis.raster.{GeoAttrsError, RasterExtent}
+import geotrellis.raster.{GeoAttrsError, GridExtent, RasterExtent}
 import org.locationtech.jts.{geom => jts}
 
 case class RasterExtent3D(
@@ -123,19 +139,19 @@ case class RasterExtent3D(
     // contains the point.
     val colMax = {
       val colMaxDouble = mapXToGridDouble(subExtent.xmax)
-      if(math.abs(colMaxDouble - math.floor(colMaxDouble)) < RasterExtent.epsilon) colMaxDouble.toInt - 1
+      if (math.abs(colMaxDouble - GridExtent.floorWithTolerance(colMaxDouble)) < GridExtent.epsilon) colMaxDouble.toInt - 1
       else colMaxDouble.toInt
     }
 
     val rowMax = {
       val rowMaxDouble = mapYToGridDouble(subExtent.ymin)
-      if(math.abs(rowMaxDouble - math.floor(rowMaxDouble)) < RasterExtent.epsilon) rowMaxDouble.toInt - 1
+      if (math.abs(rowMaxDouble - GridExtent.floorWithTolerance(rowMaxDouble)) < GridExtent.epsilon) rowMaxDouble.toInt - 1
       else rowMaxDouble.toInt
     }
 
     val layerMax = {
       val layerMaxDouble = mapZToGridDouble(subExtent.zmin)
-      if(math.abs(layerMaxDouble - math.floor(layerMaxDouble)) < RasterExtent.epsilon) layerMaxDouble.toInt - 1
+      if(math.abs(layerMaxDouble -GridExtent.floorWithTolerance(layerMaxDouble)) < GridExtent.epsilon) layerMaxDouble.toInt - 1
       else layerMaxDouble.toInt
     }
 

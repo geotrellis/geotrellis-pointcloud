@@ -33,6 +33,7 @@ _SUCCESS
 *.swo
 *.sublime-*
 .vagrant
+.metals
 
 lib
 index.html
