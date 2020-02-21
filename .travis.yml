@@ -17,7 +17,6 @@ scala:
   - "2.12.10"
 
 before_install:
-  - sudo fallocate -l 5G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile
   - docker run -d --restart=always -p 9091:9000 -e MINIO_ACCESS_KEY=minio -e MINIO_SECRET_KEY=password minio/minio:RELEASE.2019-05-02T19-07-09Z server /data
 
 before_cache:
