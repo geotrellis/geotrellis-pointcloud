@@ -16,8 +16,8 @@
 
 package geotrellis.pointcloud.spark.datasource
 
-import geotrellis.pointcloud.spark.io.hadoop._
-import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD.{Options => HadoopOptions}
+import geotrellis.pointcloud.spark.store.hadoop._
+import geotrellis.pointcloud.spark.store.hadoop.HadoopPointCloudRDD.{Options => HadoopOptions}
 import geotrellis.pointcloud.util.Filesystem
 import geotrellis.proj4.CRS
 import geotrellis.store.hadoop.util.HdfsUtils

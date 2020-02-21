@@ -16,7 +16,7 @@
 
 package geotrellis.pointcloud.spark.datasource
 
-import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD.{Options => HadoopOptions}
+import geotrellis.pointcloud.spark.store.hadoop.HadoopPointCloudRDD.{Options => HadoopOptions}
 import io.pdal.pipeline._
 
 import cats.syntax.either._

@@ -16,7 +16,7 @@
 
 package geotrellis.pointcloud.spark
 
-import geotrellis.pointcloud.spark.io.hadoop._
+import geotrellis.pointcloud.spark.store.hadoop._
 import geotrellis.proj4.CRS
 import geotrellis.raster.{DoubleConstantNoDataCellType, TileLayout}
 import geotrellis.spark.ContextRDD

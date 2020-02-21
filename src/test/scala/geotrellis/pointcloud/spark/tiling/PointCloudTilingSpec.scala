@@ -20,7 +20,7 @@ import geotrellis.raster.TileLayout
 import Implicits._
 import geotrellis.pointcloud.spark.PointCloudTestEnvironment
 import geotrellis.layer.LayoutDefinition
-import geotrellis.pointcloud.spark.io.hadoop.HadoopPointCloudRDD
+import geotrellis.pointcloud.spark.store.hadoop.HadoopPointCloudRDD
 import geotrellis.vector.Extent
 
 import org.scalatest._
