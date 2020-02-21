@@ -6,7 +6,7 @@ import software.amazon.awssdk.regions.Region
 
 import java.net.URI
 
-object MockS3Client {
+object MockS3Client extends Serializable {
   def apply(): S3Client = {
     val cred = AwsBasicCredentials.create("minio", "password")
     val credProvider = StaticCredentialsProvider.create(cred)

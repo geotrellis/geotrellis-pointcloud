@@ -37,14 +37,14 @@ class S3PointCloudSpatialSpec
 
   lazy val bucket = "mock-bucket"
   lazy val prefix = "catalog"
-  val client = MockS3Client()
+  val client = MockS3Client.instance
   S3TestUtils.cleanBucket(client, bucket)
   registerAfterAll { () =>
     S3TestUtils.cleanBucket(client, bucket)
   }
 
   // We need to register the mock client for SPI loaded classes
-  S3ClientProducer.set(() => MockS3Client())
+  S3ClientProducer.set(() => MockS3Client.instance)
 
   lazy val attributeStore = new S3AttributeStore(bucket, prefix, MockS3Client.instance)
 

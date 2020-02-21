@@ -27,14 +27,14 @@ import java.nio.file.{Files, Paths}
 
 import org.scalatest._
 
-class S3PackedPointsRDDSpec extends FunSpec
-  with Matchers
-  with PointCloudTestEnvironment {
-  describe("PackedPoints RDD reads") {
-    implicit val mockClient = MockS3Client()
-    val bucket = this.getClass.getSimpleName
-    val key = "las/1.2-with-color.las"
-    val keyFiles = "las/files/"
+class S3PackedPointsRDDSpec extends FunSpec with Matchers with PointCloudTestEnvironment with BeforeAndAfterAll {
+  val bucket = this.getClass.getSimpleName.toLowerCase
+  val bucketKey = "las/1.2-with-color.las"
+  val keyFiles = "las/files/"
+
+  override def beforeAll(): Unit = {
+    S3TestUtils.cleanBucket(MockS3Client.instance, bucket)
+    val key = bucketKey
     val filePath = s"${testResources.getAbsolutePath}/las/1.2-with-color.las"
     val fileBytes = Files.readAllBytes(Paths.get(filePath))
 
@@ -43,7 +43,7 @@ class S3PackedPointsRDDSpec extends FunSpec
       .key(key)
       .build()
 
-    mockClient.putObject(request, RequestBody.fromBytes(fileBytes))
+    MockS3Client.instance.putObject(request, RequestBody.fromBytes(fileBytes))
 
     (1 to 4).foreach { i =>
       val key = s"las/files/1.2-with-color_$i.las"
@@ -55,13 +55,18 @@ class S3PackedPointsRDDSpec extends FunSpec
         .key(key)
         .build()
 
-      mockClient.putObject(request, RequestBody.fromBytes(fileBytes))
+      MockS3Client.instance.putObject(request, RequestBody.fromBytes(fileBytes))
     }
 
-    S3ClientProducer.set(() => mockClient)
+    S3ClientProducer.set(() => MockS3Client.instance)
+  }
+
+  override def afterAll(): Unit = S3TestUtils.cleanBucket(MockS3Client.instance, bucket)
+
+  describe("PackedPoints RDD reads") {
+    val key = bucketKey
 
     it("should read LAS file as RDD using s3 input format") {
-
       val source = S3PointCloudRDD(bucket, key).flatMap(_._2)
       val pointsCount = source.mapPartitions { _.map { packedPoints =>
         var acc = 0l

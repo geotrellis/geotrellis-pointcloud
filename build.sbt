@@ -21,7 +21,9 @@ scalacOptions ++= Seq(
   "-language:postfixOps",
   "-language:existentials",
   "-language:experimental.macros",
-  "-feature"
+  "-feature",
+  "-Ypartial-unification", // Required by Cats
+  "-target:jvm-1.8"
 )
 publishMavenStyle := true
 publishArtifact in Test := false
@@ -113,6 +115,7 @@ dependencyOverrides ++= {
   }
 }
 
-fork in Test := true
-parallelExecution in Test := false
-connectInput in Test := true
+Test / fork := true
+Test / parallelExecution := false
+Test / connectInput := true
+Test / testOptions += Tests.Argument("-oDF")

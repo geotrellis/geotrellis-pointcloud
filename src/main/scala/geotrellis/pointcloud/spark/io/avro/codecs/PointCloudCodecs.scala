@@ -29,7 +29,7 @@ import java.nio.ByteBuffer
 
 import scala.collection.JavaConverters._
 
-trait PointCloudCodecs {
+trait PointCloudCodecs extends Serializable {
   implicit def coordinateCodec = new AvroRecordCodec[Coordinate] {
     def schema: Schema = SchemaBuilder
       .record("Coordinate").namespace("org.locationtech.jts.geom")
