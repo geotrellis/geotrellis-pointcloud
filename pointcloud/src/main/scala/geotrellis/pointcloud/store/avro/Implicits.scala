@@ -16,6 +16,8 @@
 
 package geotrellis.pointcloud.store.avro
 
+import geotrellis.pointcloud.store.avro.codecs.PointCloudCodecs
+
 object Implicits extends Implicits
 
 trait Implicits extends PointCloudCodecs

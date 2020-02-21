@@ -99,6 +99,7 @@ lazy val root = (project in file("."))
   .aggregate(pointcloud)
 
 lazy val pointcloud = project
+  .settings(name := "geotrellis-pointcloud")
   .settings(commonSettings: _*)
   .settings(libraryDependencies ++= Seq(
     geotrellisSpark % Provided,

@@ -1,4 +1,4 @@
-package geotrellis.pointcloud.store.avro
+package geotrellis.pointcloud.store.avro.codecs
 
 import geotrellis.store.avro._
 
