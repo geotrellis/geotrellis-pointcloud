@@ -26,7 +26,7 @@ import geotrellis.raster.CellSize
   * @param  height  The height of a cell
   */
 case class VoxelSize(width: Double, height: Double, depth: Double) {
-  def resolution: Double = math.pow(width*height*depth, 1.0/3.0)
+  def resolution: Double = math.pow(width * height * depth, 1.0/3.0)
 }
 
 /**

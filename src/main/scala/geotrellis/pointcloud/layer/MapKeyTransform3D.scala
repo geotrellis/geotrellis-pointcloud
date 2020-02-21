@@ -54,7 +54,7 @@ class MapKeyTransform3D(override val extent: Extent,
   private def layerToZRange(layer: Int): (Double, Double) =
     (datum + layer * layerThickness, datum + (layer + 1) * layerThickness)
 
-  def extentToBounds(otherExtent: Extent3D): GridBounds3D = {
+  def extentToBounds(otherExtent: Extent3D): GridBounds3D[Int] = {
     val gridBounds = extentToBounds(otherExtent.toExtent)
     val layerMin = zToLayer(otherExtent.zmin)
     val layerMax = zToLayer(otherExtent.zmax)
@@ -62,15 +62,15 @@ class MapKeyTransform3D(override val extent: Extent,
     GridBounds3D(gridBounds, layerMin, layerMax)
   }
 
-  def apply(otherExtent: Extent3D): GridBounds3D = extentToBounds(otherExtent)
+  def apply(otherExtent: Extent3D): GridBounds3D[Int] = extentToBounds(otherExtent)
 
-  def boundsToExtent(gridBounds: GridBounds3D): Extent3D = {
+  def boundsToExtent(gridBounds: GridBounds3D[Int]): Extent3D = {
     val e1 = apply(gridBounds.colMin, gridBounds.rowMin, gridBounds.layerMin)
     val e2 = apply(gridBounds.colMax, gridBounds.rowMax, gridBounds.layerMax)
     e1.expandToInclude(e2)
   }
 
-  def apply(gridBounds: GridBounds3D): Extent3D = boundsToExtent(gridBounds)
+  def apply(gridBounds: GridBounds3D[Int]): Extent3D = boundsToExtent(gridBounds)
 
   /** Fetch the [[SpatialKey]] that corresponds to some coordinates in some CRS on the Earth. */
   def coordinateToKey(c: jts.Coordinate): VoxelKey = pointToKey(c.getX, c.getY, c.getZ)

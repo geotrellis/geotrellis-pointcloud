@@ -18,13 +18,14 @@ package geotrellis.pointcloud.spark.store.s3
 
 import geotrellis.pointcloud.spark.PointCloudTestEnvironment
 import geotrellis.store.s3.S3ClientProducer
+
 import io.pdal.pipeline.Read
 import spire.syntax.cfor._
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
+
 import java.nio.file.{Files, Paths}
 
-import geotrellis.pointcloud.spark.store.s3.S3PointCloudRDD
 import org.scalatest._
 
 class S3PackedPointsRDDSpec extends FunSpec with Matchers with PointCloudTestEnvironment with BeforeAndAfterAll {

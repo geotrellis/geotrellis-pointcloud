@@ -129,7 +129,7 @@ case class RasterExtent3D(
     * @param     subExtent      The extent to get the grid bounds for
     * @param     clamp          A boolean
     */
-  def gridBoundsFor(subExtent: Extent3D, clamp: Boolean = true): GridBounds3D = {
+  def gridBoundsFor(subExtent: Extent3D, clamp: Boolean = true): GridBounds3D[Int] = {
     // West and North boundaries are a simple mapToGrid call.
     val (colMin, rowMin, layerMin) = mapToGrid(subExtent.xmin, subExtent.ymax, subExtent.zmax)
 
