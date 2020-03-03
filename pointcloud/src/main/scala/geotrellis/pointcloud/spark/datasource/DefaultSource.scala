@@ -45,7 +45,7 @@ class DefaultSource extends DataSourceRegister with RelationProvider with DataSo
     require(parameters.contains(PATH_PARAM), s"'$PATH_PARAM' parameter is required.")
 
     val path     = parameters(PATH_PARAM)
-    val pipeline = parameters.get(PIPELINE_PARAM).map { str => parse(str).getOrElse(Json.Null) }.getOrElse(List(Read("local")): Json)
+    val pipeline = parameters.get(PIPELINE_PARAM).map { str => parse(str).getOrElse(Json.Null) }.getOrElse(Read("local") ~ ENil: Json)
 
     new PointCloudRelation(sqlContext, path, HadoopOptions.DEFAULT.copy(pipeline = pipeline))
   }

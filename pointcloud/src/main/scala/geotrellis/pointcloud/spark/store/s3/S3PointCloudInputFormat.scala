@@ -47,18 +47,18 @@ class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, List[Poi
       )
 
     // If a filter extent is set, don't actually load points.
-    val (pointViewIterator, disposeIterator): (Iterator[PointView], () => Unit) =
+    val (pointViewIterator, closeIterator): (Iterator[PointView], () => Unit) =
       PointCloudInputFormat.getFilterExtent(context) match {
         case Some(filterExtent) =>
           if (header.extent3D.exists(_.toExtent.intersects(filterExtent))) {
             val pvi = pipeline.getPointViews()
-            (pvi.asScala, pvi.dispose _)
+            (pvi.asScala, pvi.close _)
           } else {
             (Iterator.empty, () => ())
           }
         case None =>
           val pvi = pipeline.getPointViews()
-          (pvi.asScala, pvi.dispose _)
+          (pvi.asScala, pvi.close _)
       }
 
 
@@ -72,14 +72,14 @@ class S3PointCloudInputFormat extends S3InputFormat[S3PointCloudHeader, List[Poi
             pointView.getPointCloud()
         }
 
-      pointView.dispose()
+      pointView.close()
       pointCloud
     }
 
     val result = (header, pointClouds)
 
-    disposeIterator()
-    pipeline.dispose()
+    closeIterator()
+    pipeline.close()
 
     result
   }
