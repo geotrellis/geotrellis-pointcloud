@@ -17,7 +17,7 @@
 import sbt._
 
 object Version {
-  val geotrellisPointCloud = "0.3.1" + Environment.versionSuffix
+  val geotrellisPointCloud = "0.3.2" + Environment.versionSuffix
   val geotrellis           = "3.2.0"
   val crossScala           = List("2.12.10", "2.11.12")
   val scala                = crossScala.head
