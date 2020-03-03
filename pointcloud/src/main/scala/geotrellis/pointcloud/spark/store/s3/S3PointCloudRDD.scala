@@ -40,7 +40,7 @@ object S3PointCloudRDD {
     */
   case class Options(
     filesExtensions: Seq[String] = PointCloudInputFormat.filesExtensions,
-    pipeline: Json = Read("local") :: Nil,
+    pipeline: Json = Read("local") ~ ENil,
     numPartitions: Option[Int] = None,
     partitionBytes: Option[Long] = None,
     getClient: () => S3Client = S3ClientProducer.get,

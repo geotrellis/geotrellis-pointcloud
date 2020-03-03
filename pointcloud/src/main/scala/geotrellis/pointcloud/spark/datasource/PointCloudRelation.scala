@@ -72,7 +72,7 @@ class PointCloudRelation(
     val pointCloud = try {
       pl.getPointViews().next().getPointCloud(0)
     } finally {
-      pl.dispose()
+      pl.close()
       if(local) println(new File(fixedPath).delete)
     }
 

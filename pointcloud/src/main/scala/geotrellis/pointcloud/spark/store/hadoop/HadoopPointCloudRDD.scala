@@ -38,7 +38,7 @@ object HadoopPointCloudRDD {
 
   case class Options(
     filesExtensions: Seq[String] = PointCloudInputFormat.filesExtensions,
-    pipeline: Json = Read("local") :: Nil,
+    pipeline: Json = Read("local") ~ ENil,
     tmpDir: Option[String] = None,
     filterExtent: Option[Extent] = None,
     dimTypes: Option[Iterable[String]] = None
