@@ -14,6 +14,19 @@
  * limitations under the License.
  */
 
-package geotrellis.pointcloud.store
+package geotrellis.pointcloud.raster.ept
 
-package object avro extends Implicits
+import geotrellis.proj4.{CRS, LatLng}
+
+import io.circe.generic.JsonCodec
+
+@JsonCodec
+case class SRS(authority: Option[String], horizontal: Option[String], vertical: Option[String], wkt: Option[String]) {
+  def toCRS(defaultCRS: CRS = LatLng): CRS = {
+    val parsed: Option[CRS] = for { txt <- wkt; crs <- CRS.fromWKT(txt) } yield crs
+    val fromCode = authority.filter(_.toLowerCase == "epsg").fold(defaultCRS) { _ =>
+      horizontal.map(epsg => CRS.fromEpsgCode(epsg.toInt)).getOrElse(defaultCRS)
+    }
+    parsed.getOrElse(fromCode)
+  }
+}
