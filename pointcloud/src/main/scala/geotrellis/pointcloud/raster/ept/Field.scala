@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
-package geotrellis.pointcloud.store
+package geotrellis.pointcloud.raster.ept
 
-package object avro extends Implicits
+import io.circe.generic.JsonCodec
+
+@JsonCodec
+case class Field(name: String, size: Int, `type`: String, offset: Option[Double], scale: Option[Double])
