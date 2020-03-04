@@ -1,0 +1,34 @@
+[
+  {
+    "bounds": [
+      482060.5,
+      4390187.5,
+      1843.98,
+      482763.78,
+      4391071.0,
+      2029.41
+    ],
+    "id": "red-rocks.laz",
+    "inserts": 4004326,
+    "path": "https://data.entwine.io/red-rocks.laz",
+    "points": 4004326,
+    "status": "inserted",
+    "url": "0.json"
+  },
+  {
+    "bounds": [
+      635619.85,
+      848899.7000000001,
+      406.59000000000003,
+      638982.55,
+      853535.43,
+      586.38
+    ],
+    "id": "1.2-with-color.las",
+    "outOfBounds": 1065,
+    "path": "/entwine/1.2-with-color.las",
+    "points": 1065,
+    "status": "inserted",
+    "url": "0.json"
+  }
+]
