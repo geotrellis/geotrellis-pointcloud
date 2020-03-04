@@ -27,8 +27,10 @@ import geotrellis.vector.triangulation._
 import cats.syntax.option._
 import org.locationtech.jts.geom.Coordinate
 import spire.syntax.cfor._
+import _root_.io.circe.syntax._
 import _root_.io.pdal._
 import _root_.io.pdal.pipeline._
+import org.log4s._
 
 import scala.collection.JavaConverters._
 
@@ -37,8 +39,11 @@ case class DEMRasterSource(
   resampleTarget: ResampleTarget = DefaultTarget,
   destCRS: Option[CRS] = None,
   targetCellType: Option[TargetCellType] = None,
-  sourceMetadata: Option[EPTMetadata] = None
+  sourceMetadata: Option[EPTMetadata] = None,
+  threads: Option[Int] = None
 ) extends RasterSource {
+  @transient private[this] lazy val logger = getLogger
+
   lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(eptSource))
 
   def attributes: Map[String, String] = metadata.attributes
@@ -67,10 +72,10 @@ case class DEMRasterSource(
   def resolutions: List[CellSize] = metadata.resolutions
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMRasterSource =
-    DEMRasterSource(eptSource, resampleTarget, targetCRS.some, sourceMetadata = metadata.some)
+    DEMRasterSource(eptSource, resampleTarget, targetCRS.some, sourceMetadata = metadata.some, threads = threads)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): RasterSource =
-    DEMRasterSource(eptSource, resampleTarget, destCRS, sourceMetadata = metadata.some)
+    DEMRasterSource(eptSource, resampleTarget, destCRS, sourceMetadata = metadata.some, threads = threads)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
@@ -81,11 +86,16 @@ case class DEMRasterSource(
     )
     val bnds = srcBounds.extent
 
-    val pipeline = ReadEpt(
+    val expression = ReadEpt(
       filename   = eptSource,
       resolution = gridExtent.cellSize.resolution.some,
-      bounds     = s"([${bnds.xmin}, ${bnds.ymin}], [${bnds.xmax}, ${bnds.ymax}])".some
-    ) toPipeline
+      bounds     = s"([${bnds.xmin}, ${bnds.ymin}], [${bnds.xmax}, ${bnds.ymax}])".some,
+      threads    = threads
+    )
+
+    logger.debug(expression.toPipelineConstructor.asJson.spaces4)
+
+    val pipeline = expression toPipeline
 
     try {
       if(pipeline.validate()) {
