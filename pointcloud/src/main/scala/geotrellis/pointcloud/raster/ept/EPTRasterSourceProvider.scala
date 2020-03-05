@@ -20,5 +20,5 @@ import geotrellis.raster.{RasterSource, RasterSourceProvider}
 
 class EPTRasterSourceProvider extends RasterSourceProvider {
   def canProcess(path: String): Boolean = path.nonEmpty && path.startsWith("ept+")
-  def rasterSource(path: String): RasterSource = DEMRasterSource(path)
+  def rasterSource(path: String): RasterSource = DEMRasterSource(path.split("ept+").last)
 }
