@@ -1,4 +1,3 @@
-import Dependencies._
 import sbt.Keys._
 import de.heikoseeberger.sbtheader.{CommentCreator, CommentStyle, FileType}
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.{HeaderLicense, headerLicense, headerMappings}
@@ -94,27 +93,20 @@ lazy val commonSettings = Seq(
   Test / testOptions += Tests.Argument("-oDF")
 )
 
+lazy val noPublishSettings = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false
+)
+
 lazy val root = (project in file("."))
-  .settings(commonSettings: _*)
-  .aggregate(pointcloud)
+  .settings(commonSettings)
+  .aggregate(pointcloud, benchmark)
 
 lazy val pointcloud = project
   .settings(name := "geotrellis-pointcloud")
-  .settings(commonSettings: _*)
-  .settings(libraryDependencies ++= Seq(
-    geotrellisSpark % Provided,
-    geotrellisRaster % Provided,
-    geotrellisS3 % Provided,
-    geotrellisS3Spark % Provided,
-    geotrellisSparkTestkit % Test,
-    pdalScala,
-    pdalNative,
-    sparkCore % Provided,
-    sparkSQL % Provided,
-    hadoopClient % Provided,
-    hadoopAWS % Test,
-    scalatest % Test
-  ))
+  .settings(commonSettings)
+  .settings(libraryDependencies ++= Dependencies.all)
   .settings(
     /** https://github.com/lucidworks/spark-solr/issues/179 */
     dependencyOverrides ++= {
@@ -130,3 +122,11 @@ lazy val pointcloud = project
       }
     }
   )
+
+lazy val benchmark = project
+  .dependsOn(pointcloud)
+  .settings(commonSettings)
+  .settings(noPublishSettings)
+  .enablePlugins(JmhPlugin)
+  .settings(name := "benchmark", fork := true)
+  .settings(libraryDependencies ++= Dependencies.all)

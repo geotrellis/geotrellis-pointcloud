@@ -43,4 +43,19 @@ object Dependencies {
   val geotrellisS3           = "org.locationtech.geotrellis" %% "geotrellis-s3" % Version.geotrellis
   val geotrellisS3Spark      = "org.locationtech.geotrellis" %% "geotrellis-s3-spark" % Version.geotrellis
   val geotrellisS3Testkit    = "org.locationtech.geotrellis" %% "geotrellis-s3-testkit" % Version.geotrellis
+
+  val all = Seq(
+    geotrellisSpark % Provided,
+    geotrellisRaster % Provided,
+    geotrellisS3 % Provided,
+    geotrellisS3Spark % Provided,
+    geotrellisSparkTestkit % Test,
+    pdalScala,
+    pdalNative,
+    sparkCore % Provided,
+    sparkSQL % Provided,
+    hadoopClient % Provided,
+    hadoopAWS % Test,
+    scalatest % Test
+  )
 }
