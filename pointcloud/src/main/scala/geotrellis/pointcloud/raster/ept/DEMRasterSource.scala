@@ -114,7 +114,7 @@ case class DEMRasterSource(
         val tile = DoubleArrayTile.empty(cols.toInt, rows.toInt)
 
         def rasterizeTriangle(tri: Triangle): Unit = {
-          val (a,b,c) = (tri.a, tri.b, tri.c)
+          val Triangle(a,b,c) = tri
 
           val v1x = pc.getX(a)
           val v1y = pc.getY(a)
