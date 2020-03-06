@@ -93,7 +93,7 @@ case class DEMRasterSource(
       threads    = threads
     ) ~ FilterDelaunay()
 
-    //logger.debug(expression.toPipelineConstructor.asJson.spaces4)
+    logger.debug(expression.asJson.spaces4)
 
     val pipeline = expression toPipeline
 
