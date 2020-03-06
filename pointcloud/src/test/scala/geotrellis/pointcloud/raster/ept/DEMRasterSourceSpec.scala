@@ -16,10 +16,9 @@
 
 package geotrellis.pointcloud.raster.ept
 
-import geotrellis.proj4.CRS
+import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster.{CellSize, DoubleCellType, GridExtent, StringName}
 import geotrellis.vector.Extent
-
 import org.scalatest._
 
 class DEMRasterSourceSpec extends FunSpec with Matchers {
@@ -38,9 +37,51 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
         Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
+      rs.gridExtent shouldBe new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 6.9375, 6.9375, 128, 128)
+      rs.crs shouldBe CRS.fromEpsgCode(26913)
+
       val res = rs.read()
       res.nonEmpty shouldBe true
       res.map(_.tile.band(0).findMinMaxDouble) shouldBe Some(1845.9715706168827 -> 2028.8939339826734)
+    }
+
+    it("should resample RasterSource") {
+      val rs = DEMRasterSource(catalog).resample(100, 100)
+
+      rs.metadata shouldBe EPTMetadata(
+        StringName("src/test/resources/red-rocks/"),
+        CRS.fromEpsgCode(26913),
+        DoubleCellType,
+        new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 6.9375, 6.9375, 128, 128),
+        List(CellSize(6.9375,6.9375), CellSize(3.46875,3.46875), CellSize(1.734375,1.734375), CellSize(0.8671875,0.8671875), CellSize(0.43359375,0.43359375)),
+        Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
+      )
+
+      rs.gridExtent shouldBe new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0),8.88, 8.88,100, 100)
+      rs.crs shouldBe CRS.fromEpsgCode(26913)
+
+      val res = rs.read()
+      res.nonEmpty shouldBe true
+      res.map(_.tile.band(0).findMinMaxDouble) shouldBe Some(1846.6964160007376 -> 2027.6579571429975)
+    }
+
+    it("should reproject RasterSource") {
+      val rs = DEMRasterSource(catalog).reproject(LatLng)
+
+      rs.metadata shouldBe EPTMetadata(
+        StringName("src/test/resources/red-rocks/"),
+        CRS.fromEpsgCode(26913),
+        DoubleCellType,
+        new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 6.9375, 6.9375, 128, 128),
+        List(CellSize(6.9375,6.9375), CellSize(3.46875,3.46875), CellSize(1.734375,1.734375), CellSize(0.8671875,0.8671875), CellSize(0.43359375,0.43359375)),
+        Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
+      )
+
+      rs.gridExtent shouldBe new GridExtent(Extent(-105.21023644880934, 39.661268543413485, -105.19987676348154, 39.669309977479124), 7.244535194267097E-5,7.244535194267097E-5, 143, 111)
+      rs.crs shouldBe LatLng
+      val res = rs.read()
+      res.nonEmpty shouldBe true
+      res.map(_.tile.band(0).findMinMaxDouble) shouldBe Some(1845.6835560343884 -> 2028.1504611896025)
     }
   }
 }

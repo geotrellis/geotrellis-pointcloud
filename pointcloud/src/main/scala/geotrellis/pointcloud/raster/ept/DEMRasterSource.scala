@@ -19,7 +19,6 @@ package geotrellis.pointcloud.raster.ept
 import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.OverviewStrategy
-import geotrellis.raster.reproject.{Reproject, ReprojectRasterExtent}
 import geotrellis.vector._
 
 import cats.syntax.option._
@@ -33,10 +32,9 @@ import scala.collection.JavaConverters._
 case class DEMRasterSource(
   eptSource: String,
   resampleTarget: ResampleTarget = DefaultTarget,
-  destCRS: Option[CRS] = None,
-  targetCellType: Option[TargetCellType] = None,
   sourceMetadata: Option[EPTMetadata] = None,
-  threads: Option[Int] = None
+  threads: Option[Int] = None,
+  targetCellType: Option[TargetCellType] = None,
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
 
@@ -46,41 +44,20 @@ case class DEMRasterSource(
   def attributesForBand(band: Int): Map[String, String] = metadata.attributesForBand(band)
   def bandCount: Int = metadata.bandCount
   def cellType: CellType = metadata.cellType
-  def crs: CRS = destCRS.getOrElse(metadata.crs)
-  lazy val gridExtent: GridExtent[Long] = {
-    lazy val reprojectedRasterExtent =
-      ReprojectRasterExtent(
-        metadata.gridExtent,
-        Transform(metadata.crs, crs),
-        Reproject.Options.DEFAULT
-      )
-
-    resampleTarget match {
-      case targetRegion: TargetRegion         => targetRegion.region.toGridType[Long]
-      case targetAlignment: TargetAlignment   => targetAlignment(metadata.gridExtent)
-      case targetDimensions: TargetDimensions => targetDimensions(metadata.gridExtent)
-      case targetCellSize: TargetCellSize     => targetCellSize(metadata.gridExtent)
-      case _                                  => reprojectedRasterExtent
-    }
-  }
-
+  def crs: CRS = metadata.crs
+  def gridExtent: GridExtent[Long] = metadata.gridExtent
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMRasterSource =
-    DEMRasterSource(eptSource, resampleTarget, targetCRS.some, sourceMetadata = metadata.some, threads = threads)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
+    DEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): RasterSource =
-    DEMRasterSource(eptSource, resampleTarget, destCRS, sourceMetadata = metadata.some, threads = threads)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMResampleRasterSource =
+    DEMResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
-    val srcBounds = ReprojectRasterExtent(
-      GridExtent(targetRegion, bounds.width, bounds.height),
-      Proj4Transform(crs, metadata.crs),
-      Reproject.Options.DEFAULT
-    )
-    val bnds @ Extent(exmin, eymin, exmax, eymax) = srcBounds.extent
+    val bnds @ Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
     val expression = ReadEpt(
       filename   = eptSource,
