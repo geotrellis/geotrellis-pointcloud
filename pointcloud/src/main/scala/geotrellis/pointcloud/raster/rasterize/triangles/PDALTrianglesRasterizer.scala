@@ -16,21 +16,22 @@
 
 package geotrellis.pointcloud.raster.rasterize.triangles
 
-import geotrellis.raster.{DoubleArrayTile, GridBounds, GridExtent, Tile}
+import geotrellis.raster.{DoubleArrayTile, Raster, RasterExtent, Tile}
 import geotrellis.vector.Extent
 import io.pdal.{DimType, PointView, Triangle}
 import io.pdal.pipeline._
 
 object PDALTrianglesRasterizer {
-  def apply(gridExtent: GridExtent[Long], bounds: GridBounds[Long], sourceBounds: GridExtent[Long], pv: PointView): Tile = {
-    val Extent(exmin, eymin, exmax, eymax) = sourceBounds.extent
+  def apply(pv: PointView, sourceRegion: RasterExtent): Raster[Tile] = {
+    val Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
+
     val pc = pv.getPointCloud(DimType.X, DimType.Y, DimType.Z)
     val tris = pv.getTriangularMesh()
 
-    val w = gridExtent.cellwidth
-    val h = gridExtent.cellheight
-    val cols = bounds.width
-    val rows = bounds.height
+    val w = sourceRegion.cellwidth
+    val h = sourceRegion.cellheight
+    val cols = sourceRegion.cols
+    val rows = sourceRegion.rows
     val tile = DoubleArrayTile.empty(cols.toInt, rows.toInt)
 
     def rasterizeTriangle(tri: Triangle): Unit = {
@@ -140,6 +141,6 @@ object PDALTrianglesRasterizer {
     }
 
     tris.asArray.foreach(rasterizeTriangle)
-    tile
+    Raster(tile, sourceRegion.extent)
   }
 }
