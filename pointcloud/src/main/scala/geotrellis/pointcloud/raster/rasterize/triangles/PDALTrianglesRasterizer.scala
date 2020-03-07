@@ -55,10 +55,13 @@ object PDALTrianglesRasterizer {
       val s3x = pc.getX(b)
       val s3y = pc.getY(b)
 
-      val determinant = (v2y - v3y) * (v1x - v3x) + (v3x - v2x) * (v1y - v3y)
+      val determinant =
+        (v2y - v3y) * (v1x - v3x) + (v3x - v2x) * (v1y - v3y)
 
-      val ymin = math.min(v1y, math.min(v2y, v3y))
-      val ymax = math.max(v1y, math.max(v2y, v3y))
+      val ymin =
+        math.min(v1y, math.min(v2y, v3y))
+      val ymax =
+        math.max(v1y, math.max(v2y, v3y))
 
       val scanrow0 = math.max(math.ceil((ymin - eymin) / h - 0.5), 0)
       var scany = eymin + scanrow0 * h + h / 2
@@ -111,11 +114,19 @@ object PDALTrianglesRasterizer {
         while (scanx < exmax && scanx < xmax) {
           val col = ((scanx - exmin) / w).toInt
           val row = ((eymax - scany) / h).toInt
-          if(0 <= col && col < cols && 0 <= row && row < rows) {
+          if(0 <= col && col < cols &&
+            0 <= row && row < rows) {
+
             val z = {
-              val lambda1 = ((v2y - v3y) * (scanx - v3x) + (v3x - v2x) * (scany - v3y)) / determinant
-              val lambda2 = ((v3y - v1y) * (scanx - v3x) + (v1x - v3x) * (scany - v3y)) / determinant
+
+              val lambda1 =
+                ((v2y - v3y) * (scanx - v3x) + (v3x - v2x) * (scany - v3y)) / determinant
+
+              val lambda2 =
+                ((v3y - v1y) * (scanx - v3x) + (v1x - v3x) * (scany - v3y)) / determinant
+
               val lambda3 = 1.0 - lambda1 - lambda2
+
               lambda1 * v1z + lambda2 * v2z + lambda3 * v3z
             }
 

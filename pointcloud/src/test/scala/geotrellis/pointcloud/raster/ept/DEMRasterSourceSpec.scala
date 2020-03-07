@@ -17,9 +17,9 @@
 package geotrellis.pointcloud.raster.ept
 
 import geotrellis.proj4.{CRS, LatLng}
+import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.raster.{CellSize, Dimensions, DoubleCellType, GridExtent, StringName}
 import geotrellis.vector.Extent
-
 import org.scalatest._
 
 class DEMRasterSourceSpec extends FunSpec with Matchers {
@@ -98,6 +98,12 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       val (mi, ma) = tile.findMinMaxDouble
       mi shouldBe 1845.683 +- 1e3
       ma shouldBe 2028.15 +- 1e3
+    }
+
+    ignore("rasterizer bug") {
+      val ge = new GridExtent[Long](Extent(481968.0, 4390186.0, 482718.32558139536, 4390537.069767442), 6.883720930232645, 6.883720930227462, 109, 51)
+      val rs = DEMRasterSource(catalog).resampleToRegion(ge)
+      GeoTiff(rs.read().get, rs.crs).write("/tmp/test.tiff")
     }
   }
 }
