@@ -28,32 +28,32 @@ class DEMRasterSourceBench {
 
   var rs: DEMRasterSource = _
   var gtrs: GeoTrellisDEMRasterSource = _
-  var tsrs: TriangulationSplitDEMRasterSource = _
 
   /**
     * jmh:run -i 3 -wi 1 -f1 -t1 .*DEMRasterSourceBench.*
     *
+    * 03/06/2020 #1
     * [info] Benchmark                                                      Mode  Cnt        Score         Error  Units
     * [info] DEMRasterSourceBench.DEMRasterSourceReadAll                    avgt    3  1289156.313 ± 3962647.278  us/op
     * [info] DEMRasterSourceBench.GeoTrellisDEMRasterSourceReadAll          avgt    3  2727125.104 ± 4561499.533  us/op
+    * // this is a test to move PDALTrianglesRasterzer into a separate object
     * [info] DEMRasterSourceBench.TriangulationSplitDEMRasterSourceReadAll  avgt    3  1236215.715 ± 1164712.450  us/op
+    *
+    * 03/06/2020 #2
+    * [info] Benchmark                                              Mode  Cnt        Score         Error  Units
+    * [info] DEMRasterSourceBench.DEMRasterSourceReadAll            avgt    3  1196822.191 ± 1135355.015  us/op
+    * [info] DEMRasterSourceBench.GeoTrellisDEMRasterSourceReadAll  avgt    3  3209836.953 ± 8172952.538  us/op
     */
 
   @Setup(Level.Invocation)
   def setupData(): Unit = {
     rs   = DEMRasterSource(catalogPath)
     gtrs = GeoTrellisDEMRasterSource(catalogPath)
-    tsrs = TriangulationSplitDEMRasterSource(catalogPath)
   }
 
   @Benchmark
   def DEMRasterSourceReadAll(): Option[Raster[MultibandTile]] = {
     rs.read()
-  }
-
-  @Benchmark
-  def TriangulationSplitDEMRasterSourceReadAll(): Option[Raster[MultibandTile]] = {
-    tsrs.read()
   }
 
   @Benchmark

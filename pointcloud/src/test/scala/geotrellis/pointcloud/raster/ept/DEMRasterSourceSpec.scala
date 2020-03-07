@@ -17,8 +17,9 @@
 package geotrellis.pointcloud.raster.ept
 
 import geotrellis.proj4.{CRS, LatLng}
-import geotrellis.raster.{CellSize, DoubleCellType, GridExtent, StringName}
+import geotrellis.raster.{CellSize, Dimensions, DoubleCellType, GridExtent, StringName}
 import geotrellis.vector.Extent
+
 import org.scalatest._
 
 class DEMRasterSourceSpec extends FunSpec with Matchers {
@@ -42,7 +43,12 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
 
       val res = rs.read()
       res.nonEmpty shouldBe true
-      res.map(_.tile.band(0).findMinMaxDouble) shouldBe Some(1845.9715706168827 -> 2028.8939339826734)
+
+      val tile = res.map(_.tile.band(0)).get
+      tile.dimensions shouldBe Dimensions(128, 128)
+      val (mi, ma) = tile.findMinMaxDouble
+      mi shouldBe 1845.971 +- 1e3
+      ma shouldBe 2028.893 +- 1e3
     }
 
     it("should resample RasterSource") {
@@ -62,7 +68,12 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
 
       val res = rs.read()
       res.nonEmpty shouldBe true
-      res.map(_.tile.band(0).findMinMaxDouble) shouldBe Some(1846.6964160007376 -> 2027.6579571429975)
+
+      val tile = res.map(_.tile.band(0)).get
+      tile.dimensions shouldBe Dimensions(100, 100)
+      val (mi, ma) = tile.findMinMaxDouble
+      mi shouldBe 1846.696 +- 1e3
+      ma shouldBe 2027.657 +- 1e3
     }
 
     it("should reproject RasterSource") {
@@ -81,7 +92,12 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       rs.crs shouldBe LatLng
       val res = rs.read()
       res.nonEmpty shouldBe true
-      res.map(_.tile.band(0).findMinMaxDouble) shouldBe Some(1845.6835560343884 -> 2028.1504611896025)
+
+      val tile = res.map(_.tile.band(0)).get
+      tile.dimensions shouldBe Dimensions(143, 111)
+      val (mi, ma) = tile.findMinMaxDouble
+      mi shouldBe 1845.683 +- 1e3
+      ma shouldBe 2028.15 +- 1e3
     }
   }
 }

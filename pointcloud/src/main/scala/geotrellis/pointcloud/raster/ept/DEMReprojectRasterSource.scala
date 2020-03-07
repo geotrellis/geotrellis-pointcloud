@@ -16,6 +16,8 @@
 
 package geotrellis.pointcloud.raster.ept
 
+import geotrellis.pointcloud.raster.rasterize.triangles.PDALTrianglesRasterizer
+import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.OverviewStrategy
@@ -25,8 +27,6 @@ import geotrellis.vector._
 import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
-import geotrellis.pointcloud.raster.rasterize.triangles.PDALTrianglesRasterizer
-import geotrellis.raster.resample.NearestNeighbor
 import org.log4s._
 
 import scala.collection.JavaConverters._
@@ -97,12 +97,12 @@ case class DEMReprojectRasterSource(
         Reproject.Options.DEFAULT
       )
 
-      val bnds @ Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
+      val Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
 
       val expression = ReadEpt(
         filename   = eptSource,
         resolution = sourceRegion.cellSize.resolution.some,
-        bounds     = s"([${bnds.xmin}, ${bnds.ymin}], [${bnds.xmax}, ${bnds.ymax}])".some,
+        bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       ) ~ FilterDelaunay()
 

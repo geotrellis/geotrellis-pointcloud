@@ -22,16 +22,16 @@ import io.pdal.{DimType, PointView, Triangle}
 import io.pdal.pipeline._
 
 object PDALTrianglesRasterizer {
-  def apply(pv: PointView, sourceRegion: RasterExtent): Raster[Tile] = {
-    val Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
-
+  def apply(pv: PointView, re: RasterExtent): Raster[Tile] = {
     val pc = pv.getPointCloud(DimType.X, DimType.Y, DimType.Z)
     val tris = pv.getTriangularMesh()
 
-    val w = sourceRegion.cellwidth
-    val h = sourceRegion.cellheight
-    val cols = sourceRegion.cols
-    val rows = sourceRegion.rows
+    val w = re.cellwidth
+    val h = re.cellheight
+    val cols = re.cols
+    val rows = re.rows
+    val Extent(exmin, eymin, exmax, eymax) = re.extent
+
     val tile = DoubleArrayTile.empty(cols.toInt, rows.toInt)
 
     def rasterizeTriangle(tri: Triangle): Unit = {
@@ -55,13 +55,10 @@ object PDALTrianglesRasterizer {
       val s3x = pc.getX(b)
       val s3y = pc.getY(b)
 
-      val determinant =
-        (v2y - v3y) * (v1x - v3x) + (v3x - v2x) * (v1y - v3y)
+      val determinant = (v2y - v3y) * (v1x - v3x) + (v3x - v2x) * (v1y - v3y)
 
-      val ymin =
-        math.min(v1y, math.min(v2y, v3y))
-      val ymax =
-        math.max(v1y, math.max(v2y, v3y))
+      val ymin = math.min(v1y, math.min(v2y, v3y))
+      val ymax = math.max(v1y, math.max(v2y, v3y))
 
       val scanrow0 = math.max(math.ceil((ymin - eymin) / h - 0.5), 0)
       var scany = eymin + scanrow0 * h + h / 2
@@ -112,21 +109,13 @@ object PDALTrianglesRasterizer {
         val scancol0 = math.max(math.ceil((xmin - exmin) / w - 0.5), 0)
         var scanx = exmin + scancol0 * w + w / 2
         while (scanx < exmax && scanx < xmax) {
-          val col = ((scanx - exmin) / w).toInt
-          val row = ((eymax - scany) / h).toInt
-          if(0 <= col && col < cols &&
-            0 <= row && row < rows) {
-
+          val col = ((scanx - exmin) / w + w / 2).toInt
+          val row = ((eymax - scany) / h + h / 2).toInt
+          if(0 <= col && col < cols && 0 <= row && row < rows) {
             val z = {
-
-              val lambda1 =
-                ((v2y - v3y) * (scanx - v3x) + (v3x - v2x) * (scany - v3y)) / determinant
-
-              val lambda2 =
-                ((v3y - v1y) * (scanx - v3x) + (v1x - v3x) * (scany - v3y)) / determinant
-
+              val lambda1 = ((v2y - v3y) * (scanx - v3x) + (v3x - v2x) * (scany - v3y)) / determinant
+              val lambda2 = ((v3y - v1y) * (scanx - v3x) + (v1x - v3x) * (scany - v3y)) / determinant
               val lambda3 = 1.0 - lambda1 - lambda2
-
               lambda1 * v1z + lambda2 * v2z + lambda3 * v3z
             }
 
@@ -141,6 +130,6 @@ object PDALTrianglesRasterizer {
     }
 
     tris.asArray.foreach(rasterizeTriangle)
-    Raster(tile, sourceRegion.extent)
+    Raster(tile, re.extent)
   }
 }

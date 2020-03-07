@@ -34,6 +34,10 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
+/**
+  * Reproject and Resample methods of this RasterSource are not implemented in a correct way.
+  * It is used only for the relative read() benchmarks.
+  */
 case class GeoTrellisDEMRasterSource(
   eptSource: String,
   resampleTarget: ResampleTarget = DefaultTarget,
@@ -71,11 +75,11 @@ case class GeoTrellisDEMRasterSource(
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMRasterSource =
-    DEMRasterSource(eptSource, resampleTarget, targetCRS.some, sourceMetadata = metadata.some, threads = threads)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): GeoTrellisDEMRasterSource =
+    GeoTrellisDEMRasterSource(eptSource, resampleTarget, targetCRS.some, sourceMetadata = metadata.some, threads = threads)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): RasterSource =
-    DEMRasterSource(eptSource, resampleTarget, destCRS, sourceMetadata = metadata.some, threads = threads)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): GeoTrellisDEMRasterSource =
+    GeoTrellisDEMRasterSource(eptSource, resampleTarget, destCRS, sourceMetadata = metadata.some, threads = threads)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
