@@ -109,8 +109,8 @@ object PDALTrianglesRasterizer {
         val scancol0 = math.max(math.ceil((xmin - exmin) / w - 0.5), 0)
         var scanx = exmin + scancol0 * w + w / 2
         while (scanx < exmax && scanx < xmax) {
-          val col = ((scanx - exmin) / w + w / 2).toInt
-          val row = ((eymax - scany) / h + h / 2).toInt
+          val col = ((scanx - exmin) / w).toInt
+          val row = ((eymax - scany) / h).toInt
           if(0 <= col && col < cols && 0 <= row && row < rows) {
             val z = {
               val lambda1 = ((v2y - v3y) * (scanx - v3x) + (v3x - v2x) * (scany - v3y)) / determinant
