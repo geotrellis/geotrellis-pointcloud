@@ -97,12 +97,12 @@ case class DEMReprojectRasterSource(
         Reproject.Options.DEFAULT
       )
 
-      val bnds @ Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
+      val Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
 
       val expression = ReadEpt(
         filename   = eptSource,
         resolution = sourceRegion.cellSize.resolution.some,
-        bounds     = s"([${bnds.xmin}, ${bnds.ymin}], [${bnds.xmax}, ${bnds.ymax}])".some,
+        bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       ) ~ FilterDelaunay()
 
