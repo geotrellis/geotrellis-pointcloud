@@ -91,11 +91,7 @@ case class DEMReprojectRasterSource(
         rows = targetPixelBounds.height.toInt
       )
 
-      val sourceRegion = ReprojectRasterExtent(
-        targetRegion,
-        Proj4Transform(crs, baseCRS),
-        Reproject.Options.DEFAULT
-      )
+      val sourceRegion = ReprojectRasterExtent(targetRegion, backTransform, Reproject.Options.DEFAULT)
 
       val Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
 
