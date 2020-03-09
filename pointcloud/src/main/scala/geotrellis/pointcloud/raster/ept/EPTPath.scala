@@ -41,6 +41,7 @@ case class EPTPath(value: String) extends SourcePath
 
 object EPTPath {
   val PREFIX = "ept+"
+  val SCHEME = "ept://"
 
   implicit def toEPTPath(path: String): EPTPath = parse(path)
 

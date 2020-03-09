@@ -19,6 +19,6 @@ package geotrellis.pointcloud.raster.ept
 import geotrellis.raster.{RasterSource, RasterSourceProvider}
 
 class EPTRasterSourceProvider extends RasterSourceProvider {
-  def canProcess(path: String): Boolean = path.nonEmpty && path.startsWith("ept+")
+  def canProcess(path: String): Boolean = path.nonEmpty && (path.startsWith(EPTPath.PREFIX) || path.startsWith(EPTPath.SCHEME))
   def rasterSource(path: String): RasterSource = DEMRasterSource(path)
 }
