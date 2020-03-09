@@ -22,14 +22,14 @@ import geotrellis.raster._
 import geotrellis.raster.io.geotiff.OverviewStrategy
 import geotrellis.vector._
 
-import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
+import cats.syntax.option._
 import org.log4s._
 
 import scala.collection.JavaConverters._
 
-case class DEMRasterSource(
+case class JavaDEMRasterSource(
   eptSource: String,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
@@ -78,8 +78,7 @@ case class DEMRasterSource(
         assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
         pointViews.headOption.map { pv =>
-          PDALTrianglesRasterizer
-            .native(pv, RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt))
+          PDALTrianglesRasterizer(pv, RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt))
             .mapTile(MultibandTile(_))
         }
       } else None

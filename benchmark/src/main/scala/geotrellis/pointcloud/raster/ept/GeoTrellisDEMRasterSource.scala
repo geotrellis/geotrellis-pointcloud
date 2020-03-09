@@ -106,17 +106,17 @@ case class GeoTrellisDEMRasterSource(
         pipeline.execute
 
         val pointViews = pipeline.getPointViews().asScala.toList
-        val viewSizes = pointViews.map(_.length)
-        val (nCoords, starts) = viewSizes.foldLeft(0 -> List.empty[Int]) { case ((acc, cum), v) => (v + acc, cum :+ acc) }
-        val coords = Array.ofDim[Coordinate](nCoords)
-        viewSizes.zip(starts).zip(pointViews).foreach { case ((n, z), pv) =>
-          val pc = pv.getPointCloud(DimType.X, DimType.Y, DimType.Z)
-          cfor(0)(_ < n, _ + 1) { i => coords(z + i) = pc.getCoordinate(i) }
-        }
+        assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
-        val dt = DelaunayTriangulation(coords)
-        val tile = DelaunayRasterizer.rasterizeDelaunayTriangulation(dt, srcBounds.toRasterExtent)
-        Raster(MultibandTile(tile), targetRegion).some
+        pointViews.headOption.map { pv =>
+          val coords = Array.ofDim[Coordinate](pv.length)
+          val pc = pv.getPointCloud(DimType.X, DimType.Y, DimType.Z)
+          cfor(0)(_ < pv.length, _ + 1) { i => coords(i) = pc.getCoordinate(i) }
+          
+          val dt = DelaunayTriangulation(coords)
+          val tile = DelaunayRasterizer.rasterizeDelaunayTriangulation(dt, srcBounds.toRasterExtent)
+          Raster(MultibandTile(tile), targetRegion)
+        }
       } else None
     } finally pipeline.close()
   }

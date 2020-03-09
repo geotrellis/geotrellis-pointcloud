@@ -22,6 +22,14 @@ import io.pdal.{DimType, PointView, Triangle}
 import io.pdal.pipeline._
 
 object PDALTrianglesRasterizer {
+  def native(pv: PointView, re: RasterExtent): Raster[Tile] = {
+    val Extent(exmin, eymin, exmax, eymax) = re.extent
+    val cols = re.cols
+    val rows = re.rows
+
+    Raster(DoubleArrayTile(pv.rasterizeTriangularMesh(Array(exmin, eymin, exmax, eymax), cols, rows), cols, rows, None), re.extent)
+  }
+
   def apply(pv: PointView, re: RasterExtent): Raster[Tile] = {
     val pc = pv.getPointCloud(DimType.X, DimType.Y, DimType.Z)
     val tris = pv.getTriangularMesh()

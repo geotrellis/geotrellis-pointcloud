@@ -97,7 +97,7 @@ case class DEMResampleRasterSource(
 
       val expression = ReadEpt(
         filename   = eptSource,
-        resolution = targetRegion.cellSize.resolution.some,
+        resolution = gridExtent.cellSize.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       ) ~ FilterDelaunay()
@@ -114,7 +114,11 @@ case class DEMResampleRasterSource(
           assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
           val pv = pointViews.head
-          val raster = PDALTrianglesRasterizer(pv, targetRegion).mapTile(MultibandTile(_)).resample(targetRegion.cols, targetRegion.rows, resampleMethod)
+          val raster =
+            PDALTrianglesRasterizer
+              .native(pv, targetRegion)
+              .mapTile(MultibandTile(_))
+              .resample(targetRegion.cols, targetRegion.rows, resampleMethod)
 
           convertRaster(raster).some
         } else None

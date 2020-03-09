@@ -47,8 +47,8 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       val tile = res.map(_.tile.band(0)).get
       tile.dimensions shouldBe Dimensions(128, 128)
       val (mi, ma) = tile.findMinMaxDouble
-      mi shouldBe 1845.971 +- 1e3
-      ma shouldBe 2028.893 +- 1e3
+      mi shouldBe 1845.9 +- 1e-1
+      ma shouldBe 2028.9 +- 1e-1
     }
 
     it("should resample RasterSource") {
@@ -72,8 +72,8 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       val tile = res.map(_.tile.band(0)).get
       tile.dimensions shouldBe Dimensions(100, 100)
       val (mi, ma) = tile.findMinMaxDouble
-      mi shouldBe 1846.696 +- 1e3
-      ma shouldBe 2027.657 +- 1e3
+      mi shouldBe 1846.6 +- 1e-1
+      ma shouldBe 2027.6 +- 1e-1
     }
 
     it("should reproject RasterSource") {
@@ -96,8 +96,8 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       val tile = res.map(_.tile.band(0)).get
       tile.dimensions shouldBe Dimensions(143, 111)
       val (mi, ma) = tile.findMinMaxDouble
-      mi shouldBe 1845.683 +- 1e3
-      ma shouldBe 2028.15 +- 1e3
+      mi shouldBe 1845.6 +- 2
+      ma shouldBe 2026.7 +- 2
     }
 
     ignore("rasterizer bug") {
