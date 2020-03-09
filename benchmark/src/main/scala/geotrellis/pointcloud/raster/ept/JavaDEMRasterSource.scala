@@ -20,23 +20,21 @@ import geotrellis.pointcloud.raster.rasterize.triangles.PDALTrianglesRasterizer
 import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.OverviewStrategy
-import geotrellis.raster.reproject.{Reproject, ReprojectRasterExtent}
 import geotrellis.vector._
 
-import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
+import cats.syntax.option._
 import org.log4s._
 
 import scala.collection.JavaConverters._
 
-case class TriangulationSplitDEMRasterSource(
+case class JavaDEMRasterSource(
   eptSource: String,
   resampleTarget: ResampleTarget = DefaultTarget,
-  destCRS: Option[CRS] = None,
-  targetCellType: Option[TargetCellType] = None,
   sourceMetadata: Option[EPTMetadata] = None,
-  threads: Option[Int] = None
+  threads: Option[Int] = None,
+  targetCellType: Option[TargetCellType] = None
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
 
@@ -46,46 +44,25 @@ case class TriangulationSplitDEMRasterSource(
   def attributesForBand(band: Int): Map[String, String] = metadata.attributesForBand(band)
   def bandCount: Int = metadata.bandCount
   def cellType: CellType = metadata.cellType
-  def crs: CRS = destCRS.getOrElse(metadata.crs)
-  lazy val gridExtent: GridExtent[Long] = {
-    lazy val reprojectedRasterExtent =
-      ReprojectRasterExtent(
-        metadata.gridExtent,
-        Transform(metadata.crs, crs),
-        Reproject.Options.DEFAULT
-      )
-
-    resampleTarget match {
-      case targetRegion: TargetRegion         => targetRegion.region.toGridType[Long]
-      case targetAlignment: TargetAlignment   => targetAlignment(metadata.gridExtent)
-      case targetDimensions: TargetDimensions => targetDimensions(metadata.gridExtent)
-      case targetCellSize: TargetCellSize     => targetCellSize(metadata.gridExtent)
-      case _                                  => reprojectedRasterExtent
-    }
-  }
-
+  def crs: CRS = metadata.crs
+  def gridExtent: GridExtent[Long] = metadata.gridExtent
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TriangulationSplitDEMRasterSource =
-    TriangulationSplitDEMRasterSource(eptSource, resampleTarget, targetCRS.some, sourceMetadata = metadata.some, threads = threads)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
+    DEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): RasterSource =
-    TriangulationSplitDEMRasterSource(eptSource, resampleTarget, destCRS, sourceMetadata = metadata.some, threads = threads)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMResampleRasterSource =
+    DEMResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
-    val srcBounds = ReprojectRasterExtent(
-      GridExtent(targetRegion, bounds.width, bounds.height),
-      Proj4Transform(crs, metadata.crs),
-      Reproject.Options.DEFAULT
-    )
-    val bnds = srcBounds.extent
+    val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
     val expression = ReadEpt(
       filename   = eptSource,
       resolution = gridExtent.cellSize.resolution.some,
-      bounds     = s"([${bnds.xmin}, ${bnds.ymin}], [${bnds.xmax}, ${bnds.ymax}])".some,
+      bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
       threads    = threads
     ) ~ FilterDelaunay()
 
@@ -101,8 +78,8 @@ case class TriangulationSplitDEMRasterSource(
         assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
         pointViews.headOption.map { pv =>
-          val tile = PDALTrianglesRasterizer(gridExtent, bounds, srcBounds, pv)
-          Raster(MultibandTile(tile), targetRegion)
+          PDALTrianglesRasterizer(pv, RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt))
+            .mapTile(MultibandTile(_))
         }
       } else None
     } finally pipeline.close()
