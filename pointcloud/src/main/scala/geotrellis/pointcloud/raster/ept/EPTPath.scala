@@ -46,9 +46,9 @@ object EPTPath {
 
   def parseOption(path: String, percentEncoder: PercentEncoder = PercentEncoder(PATH_CHARS_TO_ENCODE ++ Set('%', '?', '#'))): Option[EPTPath] = {
     val upath = percentEncoder.encode(path, "UTF-8")
-    Uri.parseOption(upath).fold(Option.empty[EPTPath]) { uri =>
+    Uri.parseOption(upath.split("ept://").last).fold(Option.empty[EPTPath]) { uri =>
       EPTPath(uri.schemeOption.fold(uri.toStringRaw) { scheme =>
-        uri.withScheme(scheme.split("\\+").filterNot(_ == "ept").last).toStringRaw
+        uri.withScheme(scheme.split("\\+").last).toStringRaw
       }).some
     }
   }
