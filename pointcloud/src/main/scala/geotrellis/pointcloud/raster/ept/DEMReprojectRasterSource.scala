@@ -33,7 +33,7 @@ import scala.collection.JavaConverters._
 
 /** TODO: replace it with io.pdal.pipeline.FilterReproject */
 case class DEMReprojectRasterSource(
-  eptSource: String,
+  path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
@@ -44,7 +44,7 @@ case class DEMReprojectRasterSource(
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
 
-  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(eptSource))
+  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
 
   protected lazy val baseCRS: CRS = metadata.crs
   protected lazy val baseGridExtent: GridExtent[Long] = metadata.gridExtent
@@ -78,10 +78,10 @@ case class DEMReprojectRasterSource(
   }
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
-    DEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
+    DEMReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
-    DEMReprojectRasterSource(eptSource, crs, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
+    DEMReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -96,7 +96,7 @@ case class DEMReprojectRasterSource(
       val Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
 
       val expression = ReadEpt(
-        filename   = eptSource,
+        filename   = path.value,
         resolution = sourceRegion.cellSize.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
@@ -143,6 +143,8 @@ case class DEMReprojectRasterSource(
 
   def convert(targetCellType: TargetCellType): RasterSource =
     throw new UnsupportedOperationException("DEM height fields may only be of floating point type")
+}
 
+object DEMReprojectRasterSource {
 
 }

@@ -30,7 +30,7 @@ import org.log4s._
 import scala.collection.JavaConverters._
 
 case class DEMRasterSource(
-  eptSource: String,
+  path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
@@ -38,7 +38,7 @@ case class DEMRasterSource(
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
 
-  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(eptSource))
+  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
 
   def attributes: Map[String, String] = metadata.attributes
   def attributesForBand(band: Int): Map[String, String] = metadata.attributesForBand(band)
@@ -50,17 +50,17 @@ case class DEMRasterSource(
   def resolutions: List[CellSize] = metadata.resolutions
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
-    DEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
+    DEMReprojectRasterSource(path.value, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMResampleRasterSource =
-    DEMResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)
+    DEMResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
     val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
     val expression = ReadEpt(
-      filename   = eptSource,
+      filename   = path.value,
       resolution = gridExtent.cellSize.resolution.some,
       bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
       threads    = threads
@@ -93,6 +93,4 @@ case class DEMRasterSource(
 
   def convert(targetCellType: TargetCellType): RasterSource =
     throw new UnsupportedOperationException("DEM height fields may only be of floating point type")
-
-
 }

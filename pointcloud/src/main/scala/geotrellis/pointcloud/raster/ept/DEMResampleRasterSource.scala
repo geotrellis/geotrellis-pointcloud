@@ -33,7 +33,7 @@ import scala.collection.JavaConverters._
 
 /** TODO: replace it with io.pdal.pipeline.FilterReproject */
 case class DEMResampleRasterSource(
-  eptSource: String,
+  path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
@@ -42,7 +42,7 @@ case class DEMResampleRasterSource(
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
 
-  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(eptSource))
+  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
 
   protected lazy val baseCRS: CRS = metadata.crs
   protected lazy val baseGridExtent: GridExtent[Long] = metadata.gridExtent
@@ -62,7 +62,7 @@ case class DEMResampleRasterSource(
   lazy val gridExtent: GridExtent[Long] = resampleTarget(metadata.gridExtent)
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource = {
-    new DEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, metadata.some, threads, method, targetCellType = targetCellType) {
+    new DEMReprojectRasterSource(path.value, targetCRS, resampleTarget, metadata.some, threads, method, targetCellType = targetCellType) {
       override lazy val gridExtent: GridExtent[Long] = {
         val reprojectedRasterExtent =
           ReprojectRasterExtent(
@@ -83,7 +83,7 @@ case class DEMResampleRasterSource(
   }
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMResampleRasterSource =
-    DEMResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)
+    DEMResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -96,7 +96,7 @@ case class DEMResampleRasterSource(
       val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
       val expression = ReadEpt(
-        filename   = eptSource,
+        filename   = path.value,
         resolution = gridExtent.cellSize.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
