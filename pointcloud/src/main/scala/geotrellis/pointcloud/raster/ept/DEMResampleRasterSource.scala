@@ -97,7 +97,7 @@ case class DEMResampleRasterSource(
 
       val expression = ReadEpt(
         filename   = path.value,
-        resolution = gridExtent.cellSize.resolution.some,
+        resolution = targetRegion.cellSize.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       ) ~ FilterDelaunay()
