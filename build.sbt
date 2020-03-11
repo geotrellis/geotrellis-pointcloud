@@ -128,5 +128,5 @@ lazy val benchmark = project
   .settings(commonSettings)
   .settings(noPublishSettings)
   .enablePlugins(JmhPlugin)
-  .settings(name := "benchmark", fork := true)
+  .settings(name := "benchmark", fork := true, javaOptions += "-Xmx4G")
   .settings(libraryDependencies ++= Dependencies.all)

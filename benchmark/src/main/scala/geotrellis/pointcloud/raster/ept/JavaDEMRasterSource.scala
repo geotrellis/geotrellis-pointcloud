@@ -52,8 +52,8 @@ case class JavaDEMRasterSource(
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
     DEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMResampleRasterSource =
-    DEMResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMResampleRasterSource =
+    JavaDEMResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
@@ -78,7 +78,8 @@ case class JavaDEMRasterSource(
         assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
         pointViews.headOption.map { pv =>
-          PDALTrianglesRasterizer(pv, RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt))
+          PDALTrianglesRasterizer
+            .apply(pv, RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt))
             .mapTile(MultibandTile(_))
         }
       } else None
