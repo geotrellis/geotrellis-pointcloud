@@ -91,13 +91,15 @@ case class DEMReprojectRasterSource(
         rows = targetPixelBounds.height.toInt
       )
 
-      val sourceRegion = ReprojectRasterExtent(targetRegion, backTransform, Reproject.Options.DEFAULT)
+      /** Buffer the targetRegion to generate a buffered raster from a mesh to perform a more precise region reproject */
+      val bufferedTargetRegion = RasterExtent(targetRegion.extent.buffer(4 * targetRegion.cellwidth, 4 * targetRegion.cellheight), targetRegion.cellSize)
+      val bufferedSourceRegion = ReprojectRasterExtent(bufferedTargetRegion, backTransform, Reproject.Options.DEFAULT)
 
-      val Extent(exmin, eymin, exmax, eymax) = sourceRegion.extent
+      val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
 
       val expression = ReadEpt(
         filename   = path.value,
-        resolution = sourceRegion.cellSize.resolution.some,
+        resolution = bufferedSourceRegion.cellSize.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       ) ~ FilterDelaunay()
@@ -116,7 +118,7 @@ case class DEMReprojectRasterSource(
           val pv = pointViews.head
           val sourceRaster =
             PDALTrianglesRasterizer
-              .apply(pv, sourceRegion)
+              .native(pv, bufferedSourceRegion)
               .mapTile(MultibandTile(_))
 
           val rr = implicitly[RasterRegionReproject[MultibandTile]]

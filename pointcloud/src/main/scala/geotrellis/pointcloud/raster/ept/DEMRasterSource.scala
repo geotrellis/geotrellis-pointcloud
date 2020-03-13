@@ -79,7 +79,7 @@ case class DEMRasterSource(
 
         pointViews.headOption.map { pv =>
           PDALTrianglesRasterizer
-            .apply(pv, RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt))
+            .native(pv, RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt))
             .mapTile(MultibandTile(_))
         }
       } else None

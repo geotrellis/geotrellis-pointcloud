@@ -17,7 +17,7 @@
 package geotrellis.pointcloud.raster.ept
 
 import geotrellis.layer._
-import geotrellis.proj4.{CRS, LatLng}
+import geotrellis.proj4.{CRS, LatLng, WebMercator}
 import geotrellis.raster.io.geotiff.GeoTiff
 import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.raster.{CellSize, DefaultTarget, Dimensions, DoubleCellType, GridExtent, Raster, StringName, TileLayout}
@@ -103,26 +103,27 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       ma shouldBe 2026.7 +- 2
     }
 
+    // https://github.com/geotrellis/geotrellis-pointcloud/issues/47
     ignore("rasterizer bug") {
       val ge = new GridExtent[Long](Extent(481968.0, 4390186.0, 482718.32558139536, 4390537.069767442), 6.883720930232645, 6.883720930227462, 109, 51)
       val rs = DEMRasterSource(catalog).resampleToRegion(ge)
       GeoTiff(rs.read().get, rs.crs).write("/tmp/test.tiff")
     }
 
-    it("rasterizer bug #2") {
-      val rs = DEMRasterSource(catalog)
+    // https://github.com/geotrellis/geotrellis-pointcloud/issues/47
+    ignore("reprojection bug") {
       val key = SpatialKey(27231, 49781)
       val ld =
         LayoutDefinition(Extent(-2.003750834278925E7, -2.003750834278925E7, 2.003750834278925E7, 2.003750834278925E7),
           TileLayout(131072,131072,256,256)
         )
 
-      val rsr =
+      val rs =
         DEMRasterSource(catalog)
-          .reproject(CRS.fromEpsgCode(3857), DefaultTarget)
+          .reproject(WebMercator, DefaultTarget)
           .tileToLayout(ld, NearestNeighbor)
 
-      GeoTiff(Raster(rsr.read(key).get, ld.mapTransform(key)), CRS.fromEpsgCode(3857)).write("/tmp/test#2.tiff")
+      GeoTiff(Raster(rs.read(key).get, ld.mapTransform(key)), WebMercator).write("/tmp/test-reproject.tiff")
     }
   }
 }
