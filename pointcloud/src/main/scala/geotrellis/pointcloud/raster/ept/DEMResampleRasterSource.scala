@@ -116,7 +116,7 @@ case class DEMResampleRasterSource(
           val pv = pointViews.head
           val raster =
             PDALTrianglesRasterizer
-              .native(pv, targetRegion)
+              .apply(pv, targetRegion)
               .mapTile(MultibandTile(_))
               .resample(targetRegion.cols, targetRegion.rows, resampleMethod)
 

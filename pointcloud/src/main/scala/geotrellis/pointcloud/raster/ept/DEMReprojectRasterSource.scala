@@ -116,7 +116,7 @@ case class DEMReprojectRasterSource(
           val pv = pointViews.head
           val sourceRaster =
             PDALTrianglesRasterizer
-              .native(pv, sourceRegion)
+              .apply(pv, sourceRegion)
               .mapTile(MultibandTile(_))
 
           val rr = implicitly[RasterRegionReproject[MultibandTile]]
