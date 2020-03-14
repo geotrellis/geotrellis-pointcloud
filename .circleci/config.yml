@@ -1,0 +1,62 @@
+version: 2.1
+jobs:
+  scala-212:
+    docker:
+      - image: daunnc/pdal-debian:2.0.1
+      - image: minio/minio:RELEASE.2019-05-02T19-07-09Z
+        environment:
+          MINIO_ACCESS_KEY: minio
+          MINIO_SECRET_KEY: password
+        run: server /data
+    environment:
+        SCALA_VERSION: 2.12.10
+    steps:
+      - checkout
+      - restore_cache:
+          key: sbt-cache
+      - run:
+          name: Build and test
+          command: ./sbt -J-Xmx2G "++$SCALA_VERSION" "project pointcloud" test
+      - run:
+          name: Publish
+          command: ./sbt "++$SCALA_VERSION" "project pointcloud" publish
+      - save_cache:
+          key: sbt-cache
+          paths:
+            - "~/.ivy2/cache"
+            - "~/.couriser/cache"
+            - "~/.sbt"
+            - "~/.m2"
+    scala-211:
+    docker:
+      - image: daunnc/pdal-debian:2.0.1
+      - image: minio/minio:RELEASE.2019-05-02T19-07-09Z
+        environment:
+          MINIO_ACCESS_KEY: minio
+          MINIO_SECRET_KEY: password
+        run: server /data
+    environment:
+        SCALA_VERSION: 2.11.12
+    steps:
+      - checkout
+      - restore_cache:
+          key: sbt-cache
+      - run:
+          name: Build and test
+          command: ./sbt -J-Xmx2G "++$SCALA_VERSION" "project pointcloud" test
+      - run:
+          name: Publish
+          command: ./sbt "++$SCALA_VERSION" "project pointcloud" publish
+      - save_cache:
+          key: sbt-cache
+          paths:
+            - "~/.ivy2/cache"
+            - "~/.couriser/cache"
+            - "~/.sbt"
+            - "~/.m2"
+
+workflows:
+  build-test-deploy:
+    jobs:
+      - scala-212
+      - scala-211
