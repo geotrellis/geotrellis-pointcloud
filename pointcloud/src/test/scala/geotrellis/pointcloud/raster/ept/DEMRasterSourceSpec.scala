@@ -18,14 +18,15 @@ package geotrellis.pointcloud.raster.ept
 
 import geotrellis.layer._
 import geotrellis.proj4.{CRS, LatLng, WebMercator}
-import geotrellis.raster.io.geotiff.GeoTiff
+import geotrellis.raster.geotiff.GeoTiffRasterSource
 import geotrellis.raster.resample.NearestNeighbor
+import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{CellSize, DefaultTarget, Dimensions, DoubleCellType, GridExtent, Raster, StringName, TileLayout}
 import geotrellis.vector.Extent
 
 import org.scalatest._
 
-class DEMRasterSourceSpec extends FunSpec with Matchers {
+class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
   val catalog: String = "src/test/resources/red-rocks"
 
   describe("DEMRasterSourceSpec") {
@@ -50,6 +51,9 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       val tile = res.map(_.tile.band(0)).get
       tile.dimensions shouldBe Dimensions(128, 128)
       val (mi, ma) = tile.findMinMaxDouble
+
+      // threshold is large, since triangulation mesh can vary a little that may cause
+      // slightly different results during the rasterization process
       mi shouldBe 1845.9 +- 1e-1
       ma shouldBe 2028.9 +- 1e-1
     }
@@ -75,6 +79,9 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       val tile = res.map(_.tile.band(0)).get
       tile.dimensions shouldBe Dimensions(100, 100)
       val (mi, ma) = tile.findMinMaxDouble
+
+      // threshold is large, since triangulation mesh can vary a little that may cause
+      // slightly different results during the rasterization process
       mi shouldBe 1846.6 +- 1e-1
       ma shouldBe 2027.6 +- 1e-1
     }
@@ -99,31 +106,51 @@ class DEMRasterSourceSpec extends FunSpec with Matchers {
       val tile = res.map(_.tile.band(0)).get
       tile.dimensions shouldBe Dimensions(143, 111)
       val (mi, ma) = tile.findMinMaxDouble
+
+      // threshold is large, since triangulation mesh can vary a little that may cause
+      // slightly different results during the rasterization process
       mi shouldBe 1845.6 +- 2
       ma shouldBe 2026.7 +- 2
     }
 
     // https://github.com/geotrellis/geotrellis-pointcloud/issues/47
-    ignore("rasterizer bug") {
+    it("rasterizer bug") {
       val ge = new GridExtent[Long](Extent(481968.0, 4390186.0, 482718.32558139536, 4390537.069767442), 6.883720930232645, 6.883720930227462, 109, 51)
       val rs = DEMRasterSource(catalog).resampleToRegion(ge)
-      GeoTiff(rs.read().get, rs.crs).write("/tmp/test.tiff")
+
+      val actual = rs.read().get
+
+      val ers = GeoTiffRasterSource("src/test/resources/tiff/dem-rasterizer-bug.tiff")
+      val expected = ers.read().get
+
+      // threshold is large, since triangulation mesh can vary a little that may cause
+      // slightly different results during the rasterization process
+      assertRastersEqual(actual, expected, 1e1)
+      ers.crs shouldBe rs.crs
     }
 
     // https://github.com/geotrellis/geotrellis-pointcloud/issues/47
-    ignore("reprojection bug") {
+    it("reprojection bug") {
       val key = SpatialKey(27231, 49781)
-      val ld =
-        LayoutDefinition(Extent(-2.003750834278925E7, -2.003750834278925E7, 2.003750834278925E7, 2.003750834278925E7),
-          TileLayout(131072,131072,256,256)
-        )
+      val ld = LayoutDefinition(
+        Extent(-2.003750834278925E7, -2.003750834278925E7, 2.003750834278925E7, 2.003750834278925E7),
+        TileLayout(131072, 131072, 256, 256)
+      )
 
       val rs =
         DEMRasterSource(catalog)
           .reproject(WebMercator, DefaultTarget)
           .tileToLayout(ld, NearestNeighbor)
 
-      GeoTiff(Raster(rs.read(key).get, ld.mapTransform(key)), WebMercator).write("/tmp/test-reproject.tiff")
+      val actual = Raster(rs.read(key).get, ld.mapTransform(key))
+
+      val ers = GeoTiffRasterSource("src/test/resources/tiff/dem-reprojection-bug.tiff")
+      val expected = ers.read().get
+
+      // threshold is large, since triangulation mesh can vary a little that may cause
+      // slightly different results during the rasterization process
+      assertRastersEqual(actual, expected, 1e1)
+      ers.crs shouldBe WebMercator
     }
   }
 }
