@@ -55,5 +55,5 @@ object EPTPath {
   }
 
   def parse(path: String, percentEncoder: PercentEncoder = PercentEncoder(PATH_CHARS_TO_ENCODE ++ Set('%', '?', '#'))): EPTPath =
-    parseOption(path, percentEncoder).getOrElse(throw new MalformedURLException(s"Unable to parse GeoTiffDataPath: $path"))
+    parseOption(path, percentEncoder).getOrElse(throw new MalformedURLException(s"Unable to parse EPTPath: $path"))
 }
