@@ -59,10 +59,9 @@ object EPTMetadata {
     val counts = pointsInLevels(new URI(src), "0-0-0-0")
     val maxDepth = counts.keys.max
 
-    val resolutions =
-      Range(0, maxDepth + 1).toList.map { l =>
-        CellSize((raw.extent.width / raw.span) / math.pow(2, l), (raw.extent.height / raw.span) / math.pow(2, l))
-      }
+    val resolutions = (0 to maxDepth).toList.map { l =>
+      CellSize((raw.extent.width / raw.span) / math.pow(2, l), (raw.extent.height / raw.span) / math.pow(2, l))
+    }
 
     EPTMetadata(
       StringName(src),
