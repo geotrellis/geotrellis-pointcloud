@@ -92,7 +92,7 @@ case class DEMReprojectRasterSource(
       )
 
       /** Buffer the targetRegion to generate a buffered raster from a mesh to perform a more precise region reproject */
-      val bufferedTargetRegion = RasterExtent(targetRegion.extent.buffer(10 * targetRegion.cellwidth, 10 * targetRegion.cellheight), targetRegion.cellSize)
+      val bufferedTargetRegion = RasterExtent(targetRegion.extent.buffer(2 * targetRegion.cellwidth, 2 * targetRegion.cellheight), targetRegion.cellSize)
       val bufferedSourceRegion = ReprojectRasterExtent(bufferedTargetRegion, backTransform, Reproject.Options.DEFAULT)
 
       val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
