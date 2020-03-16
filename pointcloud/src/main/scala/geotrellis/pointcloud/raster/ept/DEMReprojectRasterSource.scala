@@ -31,7 +31,6 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
-/** TODO: replace it with io.pdal.pipeline.FilterReproject */
 case class DEMReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
