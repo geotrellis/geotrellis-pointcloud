@@ -49,8 +49,8 @@ case class JavaDEMRasterSource(
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
-    DEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource =
+    JavaDEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMResampleRasterSource =
     JavaDEMResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)

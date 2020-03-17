@@ -17,6 +17,8 @@
 package geotrellis.pointcloud.raster.ept
 
 import geotrellis.raster.{CellSize, GridExtent, MultibandTile, Raster, RasterExtent}
+import geotrellis.proj4.LatLng
+
 import org.openjdk.jmh.annotations._
 import java.util.concurrent.TimeUnit
 
@@ -67,6 +69,12 @@ class DEMRasterSourceBench {
     * [info] DEMRasterSourceBench.JavaDEMRasterSourceReadAll2        avgt   10   13023.915 ±  1695.589  ms/op
     * [info] DEMRasterSourceBench.JavaDEMRasterSourceReadAll4        avgt   10   15685.002 ±  1306.871  ms/op
     * [info] DEMRasterSourceBench.JavaDEMRasterSourceReadAll8        avgt   10   20032.444 ±  9338.665  ms/op
+    *
+    * 03/16/2020 reproject only
+    * // here DEM uses region reproject and Java uses native
+    * [info] Benchmark                                                 Mode  Cnt     Score     Error  Units
+    * [info] DEMRasterSourceBench.DEMReprojectRasterSourceReadAll      avgt   10   976.935 ±  43.521  ms/op
+    * [info] DEMRasterSourceBench.JavaDEMReprojectRasterSourceReadAll  avgt   10  1154.920 ± 334.336  ms/op
     */
 
   @Setup(Level.Invocation)
@@ -101,6 +109,9 @@ class DEMRasterSourceBench {
   def JavaDEMRasterSourceReadAll(): Option[Raster[MultibandTile]] = jrs.read()
 
   @Benchmark
+  def JavaDEMReprojectRasterSourceReadAll(): Option[Raster[MultibandTile]] = jrs.reproject(LatLng).read()
+
+  @Benchmark
   def JavaDEMRasterSourceReadAll2(): Option[Raster[MultibandTile]] = {
     val RasterExtent(extent, cw, ch, _, _) = jrs.gridExtent.toRasterExtent
     jrs.resampleToRegion(GridExtent(extent, CellSize(cw / 2, ch / 2))).read()
@@ -120,6 +131,9 @@ class DEMRasterSourceBench {
 
   @Benchmark
   def DEMRasterSourceReadAll(): Option[Raster[MultibandTile]] = rs.read()
+
+  @Benchmark
+  def DEMReprojectRasterSourceReadAll(): Option[Raster[MultibandTile]] = jrs.reproject(LatLng).read()
 
   @Benchmark
   def DEMRasterSourceReadAll2(): Option[Raster[MultibandTile]] = {

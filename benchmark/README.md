@@ -8,7 +8,7 @@ $ sbt
 > jmh:run -i 10 -wi 5 -f1 -t1 .*DEMRasterSourceBench.*
 ```
 
-### 3/11/2020
+### Read + Resample 3/11/2020
 
 ```
 # VM options: -Xmx4G
@@ -34,3 +34,14 @@ $ sbt
 * PDAL (native rasterizer) - benchmarks a DEMRasterSource that uses PDAL Delaunay and uses native (C++) Rasterizer.
 * PDAL (JVM rasterizer) - benchmarks a DEMRasterSource that uses PDAL Delaunay and uses JVM Rasterizer.
 * GT - benchmarks a DEMRasterSource that uses GeoTrellis Delaunay and uses JVM Rasterizer.
+
+### Reproject 3/15/2020
+
+|                    | Dataset  | Resolution | delaunay + rasterization, ms/op |
+|--------------------|----------|------------|---------------------------------|
+|PDAL reproject      |red-rocks | 6.9375     | 1154.920  ± 334.336             |
+|GT region reproject |red-rocks | 6.9375     | **976.935 ±  43.521**           |
+
+#### Legend:
+* PDAL reproject - benchmarks reprojection done on the PDAL side via [filters.reprojection](https://pdal.io/stages/filters.reprojection.html).
+* GT region reproject - benchmarks reprojection done using GeoTrellis capabilities.

@@ -20,24 +20,25 @@ import geotrellis.pointcloud.raster.rasterize.triangles.PDALTrianglesRasterizer
 import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.raster.io.geotiff.OverviewStrategy
-import geotrellis.raster.reproject.{Reproject, ReprojectRasterExtent}
+import geotrellis.raster.reproject.{RasterRegionReproject, Reproject, ReprojectRasterExtent}
 import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.vector._
 
-import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
+import cats.syntax.option._
 import org.log4s._
 
 import scala.collection.JavaConverters._
 
-/** TODO: replace it with io.pdal.pipeline.FilterReproject */
-case class JavaDEMResampleRasterSource(
+case class JavaDEMReprojectRasterSource(
   path: EPTPath,
+  crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   resampleMethod: ResampleMethod = NearestNeighbor,
+  errorThreshold: Double = 0.125,
   targetCellType: Option[TargetCellType] = None
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
@@ -55,35 +56,31 @@ case class JavaDEMResampleRasterSource(
   def attributesForBand(band: Int): Map[String, String] = metadata.attributesForBand(band)
   def bandCount: Int = metadata.bandCount
   def cellType: CellType = metadata.cellType
-  def crs: CRS = metadata.crs
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
-  lazy val gridExtent: GridExtent[Long] = resampleTarget(metadata.gridExtent)
+  lazy val gridExtent: GridExtent[Long] = {
+    lazy val reprojectedRasterExtent =
+      ReprojectRasterExtent(
+        baseGridExtent,
+        transform,
+        Reproject.Options.DEFAULT.copy(method = resampleMethod, errorThreshold = errorThreshold)
+      )
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource = {
-    new JavaDEMReprojectRasterSource(path.value, targetCRS, resampleTarget, metadata.some, threads, method, targetCellType = targetCellType) {
-      override lazy val gridExtent: GridExtent[Long] = {
-        val reprojectedRasterExtent =
-          ReprojectRasterExtent(
-            baseGridExtent,
-            transform,
-            Reproject.Options.DEFAULT.copy(method = resampleMethod, errorThreshold = errorThreshold)
-          )
-
-        resampleTarget match {
-          case targetRegion: TargetRegion => targetRegion.region.toGridType[Long]
-          case targetAlignment: TargetAlignment => targetAlignment(reprojectedRasterExtent)
-          case targetDimensions: TargetDimensions => targetDimensions(reprojectedRasterExtent)
-          case targetCellSize: TargetCellSize => targetCellSize(reprojectedRasterExtent)
-          case _ => reprojectedRasterExtent
-        }
-      }
+    resampleTarget match {
+      case targetRegion: TargetRegion => targetRegion.region.toGridType[Long]
+      case targetAlignment: TargetAlignment => targetAlignment(reprojectedRasterExtent)
+      case targetDimensions: TargetDimensions => targetDimensions(reprojectedRasterExtent)
+      case targetCellSize: TargetCellSize => targetCellSize(reprojectedRasterExtent)
+      case _ => reprojectedRasterExtent
     }
   }
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMResampleRasterSource =
-    JavaDEMResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource =
+    JavaDEMReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
+
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource =
+    JavaDEMReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -93,14 +90,18 @@ case class JavaDEMResampleRasterSource(
         rows = targetPixelBounds.height.toInt
       )
 
-      val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
+      /** Buffer the targetRegion to generate a buffered raster from a mesh to perform a more precise region reproject */
+      val bufferedTargetRegion = RasterExtent(targetRegion.extent.buffer(2 * targetRegion.cellwidth, 2 * targetRegion.cellheight), targetRegion.cellSize)
+      val bufferedSourceRegion = ReprojectRasterExtent(bufferedTargetRegion, backTransform, Reproject.Options.DEFAULT)
+
+      val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
 
       val expression = ReadEpt(
         filename   = path.value,
-        resolution = targetRegion.cellSize.resolution.some,
+        resolution = bufferedSourceRegion.cellSize.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
-      ) ~ FilterDelaunay()
+      ) ~ FilterReprojection(crs.toProj4String, baseCRS.toProj4String.some) ~ FilterDelaunay()
 
       logger.debug(expression.asJson.spaces4)
 
@@ -114,13 +115,12 @@ case class JavaDEMResampleRasterSource(
           assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
           val pv = pointViews.head
-          val raster =
+          val sourceRaster =
             PDALTrianglesRasterizer
-              .apply(pv, targetRegion)
+              .native(pv, targetRegion)
               .mapTile(MultibandTile(_))
-              .resample(targetRegion.cols, targetRegion.rows, resampleMethod)
 
-          convertRaster(raster).some
+          convertRaster(sourceRaster).some
         } else None
       } finally pipeline.close()
     }
@@ -133,6 +133,6 @@ case class JavaDEMResampleRasterSource(
 
   def convert(targetCellType: TargetCellType): RasterSource =
     throw new UnsupportedOperationException("DEM height fields may only be of floating point type")
-
-
 }
+
+
