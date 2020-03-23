@@ -28,9 +28,10 @@ import java.util.concurrent.TimeUnit
 class DEMRasterSourceBench {
   val catalogPath = "../pointcloud/src/test/resources/red-rocks"
 
-  var rs: DEMRasterSource = _
-  var gtrs: GeoTrellisDEMRasterSource = _
-  var jrs: JavaDEMRasterSource = _
+  /** This bench benchmarks the actual PDAL reads, not the RasterSource initialization time. */
+  val rs   = DEMRasterSource(catalogPath)
+  val gtrs = GeoTrellisDEMRasterSource(catalogPath)
+  val jrs  = JavaDEMRasterSource(catalogPath)
 
   /**
     * jmh:run -i 3 -wi 1 -f1 -t1 .*DEMRasterSourceBench.*
@@ -75,14 +76,24 @@ class DEMRasterSourceBench {
     * [info] Benchmark                                                 Mode  Cnt     Score     Error  Units
     * [info] DEMRasterSourceBench.DEMReprojectRasterSourceReadAll      avgt   10   976.935 ±  43.521  ms/op
     * [info] DEMRasterSourceBench.JavaDEMReprojectRasterSourceReadAll  avgt   10  1154.920 ± 334.336  ms/op
+    *
+    * 03/23/2020
+    * [info] Benchmark                                                 Mode  Cnt       Score       Error  Units
+    * [info] DEMRasterSourceBench.DEMRasterSourceReadAll               avgt   10     382.476 ±    44.347  ms/op
+    * [info] DEMRasterSourceBench.DEMRasterSourceReadAll2              avgt   10    5573.016 ±   493.018  ms/op
+    * [info] DEMRasterSourceBench.DEMRasterSourceReadAll4              avgt   10    8083.490 ±  1786.544  ms/op
+    * [info] DEMRasterSourceBench.DEMRasterSourceReadAll8              avgt   10    7697.157 ±   396.745  ms/op
+    * [info] DEMRasterSourceBench.DEMReprojectRasterSourceReadAll      avgt   10     527.233 ±    15.586  ms/op
+    * [info] DEMRasterSourceBench.GeoTrellisDEMRasterSourceReadAll     avgt   10    2319.073 ±   171.407  ms/op
+    * [info] DEMRasterSourceBench.GeoTrellisDEMRasterSourceReadAll2    avgt   10   88464.543 ± 10692.569  ms/op
+    * [info] DEMRasterSourceBench.GeoTrellisDEMRasterSourceReadAll4    avgt   10  158994.121 ± 23280.155  ms/op
+    * [info] DEMRasterSourceBench.GeoTrellisDEMRasterSourceReadAll8    avgt   10  153764.608 ± 12090.790  ms/op
+    * [info] DEMRasterSourceBench.JavaDEMRasterSourceReadAll           avgt   10     735.026 ±    10.594  ms/op
+    * [info] DEMRasterSourceBench.JavaDEMRasterSourceReadAll2          avgt   10   12579.721 ±  2345.998  ms/op
+    * [info] DEMRasterSourceBench.JavaDEMRasterSourceReadAll4          avgt   10   16152.638 ±  4003.070  ms/op
+    * [info] DEMRasterSourceBench.JavaDEMRasterSourceReadAll8          avgt   10   16710.832 ±  2661.915  ms/op
+    * [info] DEMRasterSourceBench.JavaDEMReprojectRasterSourceReadAll  avgt   10     531.069 ±    47.114  ms/op
     */
-
-  @Setup(Level.Invocation)
-  def setupData(): Unit = {
-    rs   = DEMRasterSource(catalogPath)
-    gtrs = GeoTrellisDEMRasterSource(catalogPath)
-    jrs  = JavaDEMRasterSource(catalogPath)
-  }
 
   @Benchmark
   def GeoTrellisDEMRasterSourceReadAll(): Option[Raster[MultibandTile]] = gtrs.read()
