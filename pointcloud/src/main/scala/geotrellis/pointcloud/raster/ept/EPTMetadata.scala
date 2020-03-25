@@ -53,10 +53,44 @@ object EPTMetadata {
     nested.fold(joined)(_ combine _)
   }
 
-  def apply(source: String): EPTMetadata = {
+  def tree(source: String): EPTMetadata = {
     val src = if (source.endsWith("/")) source else s"$source/"
     val raw = Raw(src)
     val counts = pointsInLevels(new URI(src), "0-0-0-0")
+    val maxDepth = counts.keys.max
+
+    val resolutions = (0 to maxDepth).toList.map { l =>
+      CellSize((raw.extent.width / raw.span) / math.pow(2, l), (raw.extent.height / raw.span) / math.pow(2, l))
+    }
+
+    EPTMetadata(
+      StringName(src),
+      raw.srs.toCRS(),
+      DoubleCellType,
+      GridExtent[Long](raw.extent, raw.span, raw.span),
+      resolutions,
+      Map(
+        "points" -> raw.points.toString,
+        "pointsInLevels" -> counts.toSeq.sorted.map(_._2).mkString(","),
+        "minz" -> raw.boundsConforming(2).toString,
+        "maxz" -> raw.boundsConforming(5).toString
+      )
+    )
+  }
+
+  def pointsInLevel(base: URI, key: String): Map[Int, Long] = {
+    val rr = RangeReader(base.resolve(s"ept-hierarchy/$key.json").toString)
+    val raw = new String(rr.readAll)
+    val Right(json) = parse(raw)
+    val table = json.asObject.get.toList.toMap.mapValues(_.toString.toLong)
+    val recurseKeys = table.filter(_._2 == -1).keys.toList
+    (table -- recurseKeys).groupBy(_._1.split("-").head.toInt).mapValues(_.values.sum)
+  }
+
+  def apply(source: String): EPTMetadata = {
+    val src = if (source.endsWith("/")) source else s"$source/"
+    val raw = Raw(src)
+    val counts = pointsInLevel(new URI(src), "0-0-0-0")
     val maxDepth = counts.keys.max
 
     val resolutions = (0 to maxDepth).toList.map { l =>

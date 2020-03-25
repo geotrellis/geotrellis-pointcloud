@@ -31,7 +31,6 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
-/** TODO: replace it with io.pdal.pipeline.FilterReproject */
 case class DEMResampleRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
@@ -133,6 +132,4 @@ case class DEMResampleRasterSource(
 
   def convert(targetCellType: TargetCellType): RasterSource =
     throw new UnsupportedOperationException("DEM height fields may only be of floating point type")
-
-
 }

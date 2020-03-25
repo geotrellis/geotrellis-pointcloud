@@ -145,7 +145,3 @@ case class DEMReprojectRasterSource(
   def convert(targetCellType: TargetCellType): RasterSource =
     throw new UnsupportedOperationException("DEM height fields may only be of floating point type")
 }
-
-object DEMReprojectRasterSource {
-
-}
