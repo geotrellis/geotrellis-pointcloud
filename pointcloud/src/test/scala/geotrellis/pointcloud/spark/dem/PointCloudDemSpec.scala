@@ -25,12 +25,9 @@ import geotrellis.vector.Extent
 
 import org.scalatest._
 
-class PointCloudDemSpec extends FunSpec
-  with Matchers
-  with PointCloudTestEnvironment {
+class PointCloudDemSpec extends FunSpec with Matchers with PointCloudTestEnvironment {
 
   describe("PointCloud DEM support") {
-
     val min = { (a: Double, b: Double) => math.min(a, b) }
     val max = { (a: Double, b: Double) => math.max(a, b) }
     val rdd = HadoopPointCloudRDD(lasPath).flatMap(_._2)
@@ -44,8 +41,8 @@ class PointCloudDemSpec extends FunSpec
 
     it("should be able to produce a tile") {
       val length = cloud.length
-      val xs = (0 until length).map({ i => cloud.getDouble(i, "X") })
-      val ys = (0 until length).map({ i => cloud.getDouble(i, "Y") })
+      val xs = (0 until length).map { i => cloud.getDouble(i, "X") }
+      val ys = (0 until length).map { i => cloud.getDouble(i, "Y") }
       val xmin = xs.reduce(min)
       val xmax = xs.reduce(max)
       val ymin = ys.reduce(min)
