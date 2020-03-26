@@ -94,7 +94,7 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
         crs         = LatLng,
         cellType    = DoubleCellType,
         gridExtent  = new GridExtent(Extent(-105.21023644880934, 39.661268543413485, -105.19987676348154, 39.669309977479124), 7.244535194267097E-5,7.244535194267097E-5, 143, 111),
-        resolutions = CellSize(6.9375, 6.9375) :: Nil,
+        resolutions = CellSize(7.244535194267097E-5, 7.244535194267097E-5) :: Nil,
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 

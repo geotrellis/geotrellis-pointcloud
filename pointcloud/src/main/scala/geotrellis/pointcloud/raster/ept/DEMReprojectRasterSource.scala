@@ -49,7 +49,7 @@ case class DEMReprojectRasterSource(
   @transient private[this] lazy val logger = getLogger
 
   lazy val baseMetadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
-  lazy val metadata: EPTMetadata = baseMetadata.copy(crs = crs, gridExtent = gridExtent)
+  lazy val metadata: EPTMetadata = baseMetadata.copy(crs = crs, gridExtent = gridExtent, resolutions = resolutions)
 
   protected lazy val baseCRS: CRS = baseMetadata.crs
   protected lazy val baseGridExtent: GridExtent[Long] = baseMetadata.gridExtent
@@ -63,7 +63,13 @@ case class DEMReprojectRasterSource(
   def bandCount: Int = baseMetadata.bandCount
   def cellType: CellType = baseMetadata.cellType
   def name: SourceName = baseMetadata.name
-  def resolutions: List[CellSize] = baseMetadata.resolutions
+  def resolutions: List[CellSize] = baseMetadata.resolutions.map { cz =>
+    ReprojectRasterExtent(
+      GridExtent[Long](baseGridExtent.extent, cz),
+      transform,
+      Reproject.Options.DEFAULT.copy(method = resampleMethod, errorThreshold = errorThreshold)
+    ).cellSize
+  }
 
   lazy val gridExtent: GridExtent[Long] = {
     lazy val reprojectedRasterExtent =
