@@ -59,6 +59,7 @@ object EPTMetadata {
     val counts = pointsInLevels(new URI(src), "0-0-0-0")
     val maxDepth = counts.keys.max
 
+    // https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
     val resolutions = (0 to maxDepth).toList.map { l =>
       CellSize((raw.extent.width / raw.span) / math.pow(2, l), (raw.extent.height / raw.span) / math.pow(2, l))
     }
@@ -93,6 +94,7 @@ object EPTMetadata {
     val counts = pointsInLevel(new URI(src), "0-0-0-0")
     val maxDepth = counts.keys.max
 
+    // https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
     val resolutions = (0 to maxDepth).toList.map { l =>
       CellSize((raw.extent.width / raw.span) / math.pow(2, l), (raw.extent.height / raw.span) / math.pow(2, l))
     }
