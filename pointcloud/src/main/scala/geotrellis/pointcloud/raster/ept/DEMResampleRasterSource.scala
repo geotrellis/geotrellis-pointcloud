@@ -41,10 +41,11 @@ case class DEMResampleRasterSource(
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
 
-  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
+  lazy val baseMetadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
+  lazy val metadata: EPTMetadata = baseMetadata.copy(gridExtent = gridExtent)
 
-  protected lazy val baseCRS: CRS = metadata.crs
-  protected lazy val baseGridExtent: GridExtent[Long] = metadata.gridExtent
+  protected lazy val baseCRS: CRS = baseMetadata.crs
+  protected lazy val baseGridExtent: GridExtent[Long] = baseMetadata.gridExtent
 
   // TODO: remove transient notation with Proj4 1.1 release
   @transient protected lazy val transform = Transform(baseCRS, crs)
@@ -52,16 +53,16 @@ case class DEMResampleRasterSource(
 
   def attributes: Map[String, String] = metadata.attributes
   def attributesForBand(band: Int): Map[String, String] = metadata.attributesForBand(band)
-  def bandCount: Int = metadata.bandCount
-  def cellType: CellType = metadata.cellType
-  def crs: CRS = metadata.crs
-  def name: SourceName = metadata.name
-  def resolutions: List[CellSize] = metadata.resolutions
+  def bandCount: Int = baseMetadata.bandCount
+  def cellType: CellType = baseMetadata.cellType
+  def crs: CRS = baseMetadata.crs
+  def name: SourceName = baseMetadata.name
+  def resolutions: List[CellSize] = baseMetadata.resolutions
 
-  lazy val gridExtent: GridExtent[Long] = resampleTarget(metadata.gridExtent)
+  lazy val gridExtent: GridExtent[Long] = resampleTarget(baseMetadata.gridExtent)
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource = {
-    new DEMReprojectRasterSource(path.value, targetCRS, resampleTarget, metadata.some, threads, method, targetCellType = targetCellType) {
+    new DEMReprojectRasterSource(path.value, targetCRS, resampleTarget, baseMetadata.some, threads, method, targetCellType = targetCellType) {
       override lazy val gridExtent: GridExtent[Long] = {
         val reprojectedRasterExtent =
           ReprojectRasterExtent(
@@ -82,7 +83,7 @@ case class DEMResampleRasterSource(
   }
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMResampleRasterSource =
-    DEMResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
+    DEMResampleRasterSource(path.value, resampleTarget, baseMetadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>

@@ -28,22 +28,23 @@ import org.scalatest._
 
 class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
   val catalog: String = "src/test/resources/red-rocks"
-  val expecedMetadata: EPTMetadata = EPTMetadata(
-    name        = "src/test/resources/red-rocks/",
-    crs         = CRS.fromEpsgCode(26913),
-    cellType    = DoubleCellType,
-    gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 6.9375, 6.9375, 128, 128),
-    resolutions = List(CellSize(6.9375, 6.9375), CellSize(3.46875, 3.46875), CellSize(1.734375, 1.734375), CellSize(0.8671875, 0.8671875), CellSize(0.43359375, 0.43359375)),
-    attributes  = Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
-  )
 
   describe("DEMRasterSourceSpec") {
     it("should read from the EPT catalog") {
+      val expectedMetadata: EPTMetadata = EPTMetadata(
+        name        = "src/test/resources/red-rocks/",
+        crs         = CRS.fromEpsgCode(26913),
+        cellType    = DoubleCellType,
+        gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 6.9375, 6.9375, 128, 128),
+        resolutions = List(CellSize(6.9375, 6.9375), CellSize(3.46875, 3.46875), CellSize(1.734375, 1.734375), CellSize(0.8671875, 0.8671875), CellSize(0.43359375, 0.43359375)),
+        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
+      )
+
       val rs = DEMRasterSource(catalog)
 
-      rs.metadata shouldBe expecedMetadata
-      rs.gridExtent shouldBe expecedMetadata.gridExtent
-      rs.crs shouldBe expecedMetadata.crs
+      rs.metadata shouldBe expectedMetadata
+      rs.gridExtent shouldBe expectedMetadata.gridExtent
+      rs.crs shouldBe expectedMetadata.crs
 
       val res = rs.read()
       res.nonEmpty shouldBe true
@@ -59,11 +60,20 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
     }
 
     it("should resample RasterSource") {
+      val expectedMetadata: EPTMetadata = EPTMetadata(
+        name        = "src/test/resources/red-rocks/",
+        crs         = CRS.fromEpsgCode(26913),
+        cellType    = DoubleCellType,
+        gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0),8.88, 8.88,100, 100),
+        resolutions = List(CellSize(6.9375, 6.9375), CellSize(3.46875, 3.46875), CellSize(1.734375, 1.734375), CellSize(0.8671875, 0.8671875), CellSize(0.43359375, 0.43359375)),
+        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
+      )
+
       val rs = DEMRasterSource(catalog).resample(100, 100)
 
-      rs.metadata shouldBe expecedMetadata
-      rs.gridExtent shouldBe new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0),8.88, 8.88,100, 100)
-      rs.crs shouldBe expecedMetadata.crs
+      rs.metadata shouldBe expectedMetadata
+      rs.gridExtent shouldBe expectedMetadata.gridExtent
+      rs.crs shouldBe expectedMetadata.crs
 
       val res = rs.read()
       res.nonEmpty shouldBe true
@@ -79,10 +89,19 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
     }
 
     it("should reproject RasterSource") {
+      val expectedMetadata: EPTMetadata = EPTMetadata(
+        name        = "src/test/resources/red-rocks/",
+        crs         = CRS.fromEpsgCode(26913),
+        cellType    = DoubleCellType,
+        gridExtent  = new GridExtent(Extent(-105.21023644880934, 39.661268543413485, -105.19987676348154, 39.669309977479124), 7.244535194267097E-5,7.244535194267097E-5, 143, 111),
+        resolutions = List(CellSize(6.9375, 6.9375), CellSize(3.46875, 3.46875), CellSize(1.734375, 1.734375), CellSize(0.8671875, 0.8671875), CellSize(0.43359375, 0.43359375)),
+        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
+      )
+
       val rs = DEMRasterSource(catalog).reproject(LatLng)
 
-      rs.metadata shouldBe expecedMetadata
-      rs.gridExtent shouldBe new GridExtent(Extent(-105.21023644880934, 39.661268543413485, -105.19987676348154, 39.669309977479124), 7.244535194267097E-5,7.244535194267097E-5, 143, 111)
+      rs.metadata shouldBe expectedMetadata
+      rs.gridExtent shouldBe expectedMetadata.gridExtent
       rs.crs shouldBe LatLng
 
       val res = rs.read()
