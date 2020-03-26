@@ -31,6 +31,11 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
+/**
+  * [[DEMReprojectRasterSource]] doesn't use [[OverviewStrategy]].
+  * At this point, it relies on the EPTReader logic:
+  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
+  */
 case class DEMReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
@@ -44,7 +49,7 @@ case class DEMReprojectRasterSource(
   @transient private[this] lazy val logger = getLogger
 
   lazy val baseMetadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
-  lazy val metadata: EPTMetadata = baseMetadata.copy(gridExtent = gridExtent)
+  lazy val metadata: EPTMetadata = baseMetadata.copy(crs = crs, gridExtent = gridExtent)
 
   protected lazy val baseCRS: CRS = baseMetadata.crs
   protected lazy val baseGridExtent: GridExtent[Long] = baseMetadata.gridExtent

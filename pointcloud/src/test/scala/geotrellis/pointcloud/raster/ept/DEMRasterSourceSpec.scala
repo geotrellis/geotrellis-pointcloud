@@ -36,8 +36,8 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
         gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 6.9375, 6.9375, 128, 128),
-        resolutions = List(CellSize(6.9375, 6.9375), CellSize(3.46875, 3.46875), CellSize(1.734375, 1.734375), CellSize(0.8671875, 0.8671875), CellSize(0.43359375, 0.43359375)),
-        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
+        resolutions = CellSize(6.9375, 6.9375) :: Nil,
+        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
       val rs = DEMRasterSource(catalog)
@@ -65,8 +65,8 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
         gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0),8.88, 8.88,100, 100),
-        resolutions = List(CellSize(6.9375, 6.9375), CellSize(3.46875, 3.46875), CellSize(1.734375, 1.734375), CellSize(0.8671875, 0.8671875), CellSize(0.43359375, 0.43359375)),
-        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
+        resolutions = CellSize(6.9375, 6.9375) :: Nil,
+        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
       val rs = DEMRasterSource(catalog).resample(100, 100)
@@ -91,11 +91,11 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
     it("should reproject RasterSource") {
       val expectedMetadata: EPTMetadata = EPTMetadata(
         name        = "src/test/resources/red-rocks/",
-        crs         = CRS.fromEpsgCode(26913),
+        crs         = LatLng,
         cellType    = DoubleCellType,
         gridExtent  = new GridExtent(Extent(-105.21023644880934, 39.661268543413485, -105.19987676348154, 39.669309977479124), 7.244535194267097E-5,7.244535194267097E-5, 143, 111),
-        resolutions = List(CellSize(6.9375, 6.9375), CellSize(3.46875, 3.46875), CellSize(1.734375, 1.734375), CellSize(0.8671875, 0.8671875), CellSize(0.43359375, 0.43359375)),
-        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "15366,186189,465711,2297397,1039663", "minz" -> "1843.0", "maxz" -> "2030.0")
+        resolutions = CellSize(6.9375, 6.9375) :: Nil,
+        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
       val rs = DEMRasterSource(catalog).reproject(LatLng)

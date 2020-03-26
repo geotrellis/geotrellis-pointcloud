@@ -31,6 +31,11 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
+/**
+  * [[DEMResampleRasterSource]] doesn't use [[OverviewStrategy]].
+  * At this point, it relies on the EPTReader logic:
+  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
+  */
 case class DEMResampleRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
