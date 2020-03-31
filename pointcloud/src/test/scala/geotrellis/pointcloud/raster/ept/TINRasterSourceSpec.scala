@@ -26,10 +26,10 @@ import geotrellis.vector.Extent
 
 import org.scalatest._
 
-class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
+class TINRasterSourceSpec extends FunSpec with RasterMatchers {
   val catalog: String = "src/test/resources/red-rocks"
 
-  describe("DEMRasterSourceSpec") {
+  describe("TINRasterSourceSpec") {
     it("should read from the EPT catalog") {
       val expectedMetadata: EPTMetadata = EPTMetadata(
         name        = "src/test/resources/red-rocks/",
@@ -40,7 +40,7 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
-      val rs = DEMRasterSource(catalog)
+      val rs = TINRasterSource(catalog)
 
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent
@@ -69,7 +69,7 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
-      val rs = DEMRasterSource(catalog).resample(100, 100)
+      val rs = TINRasterSource(catalog).resample(100, 100)
 
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent
@@ -98,7 +98,7 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
-      val rs = DEMRasterSource(catalog).reproject(LatLng)
+      val rs = TINRasterSource(catalog).reproject(LatLng)
 
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent
@@ -120,7 +120,7 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
     // https://github.com/geotrellis/geotrellis-pointcloud/issues/47
     it("rasterizer bug") {
       val ge = new GridExtent[Long](Extent(481968.0, 4390186.0, 482718.32558139536, 4390537.069767442), 6.883720930232645, 6.883720930227462, 109, 51)
-      val rs = DEMRasterSource(catalog).resampleToRegion(ge)
+      val rs = TINRasterSource(catalog).resampleToRegion(ge)
 
       val actual = rs.read().get
 
@@ -142,7 +142,7 @@ class DEMRasterSourceSpec extends FunSpec with RasterMatchers {
       )
 
       val rs =
-        DEMRasterSource(catalog)
+        TINRasterSource(catalog)
           .reproject(WebMercator, DefaultTarget)
           .tileToLayout(ld, NearestNeighbor)
 

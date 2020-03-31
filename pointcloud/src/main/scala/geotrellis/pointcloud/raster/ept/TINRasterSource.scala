@@ -30,11 +30,11 @@ import org.log4s._
 import scala.collection.JavaConverters._
 
 /**
-  * [[DEMRasterSource]] doesn't use [[OverviewStrategy]].
+  * [[TINRasterSource]] doesn't use [[OverviewStrategy]].
   * At this point, it relies on the EPTReader logic:
   * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
   */
-case class DEMRasterSource(
+case class TINRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
@@ -50,15 +50,15 @@ case class DEMRasterSource(
   def bandCount: Int = metadata.bandCount
   def cellType: CellType = metadata.cellType
   def crs: CRS = metadata.crs
-  def gridExtent: GridExtent[Long] = metadata.gridExtent
+  def gridExtent: GridExtent[Long] = resampleTarget(metadata.gridExtent)
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
-    DEMReprojectRasterSource(path.value, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINReprojectRasterSource =
+    TINReprojectRasterSource(path.value, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMResampleRasterSource =
-    DEMResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINResampleRasterSource =
+    TINResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
