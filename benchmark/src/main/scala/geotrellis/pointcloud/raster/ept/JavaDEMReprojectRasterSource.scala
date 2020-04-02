@@ -31,7 +31,7 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
-case class JavaDEMReprojectRasterSource(
+case class JavaTINReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
@@ -76,11 +76,11 @@ case class JavaDEMReprojectRasterSource(
     }
   }
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource =
-    JavaDEMReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaTINReprojectRasterSource =
+    JavaTINReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource =
-    JavaDEMReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaTINReprojectRasterSource =
+    JavaTINReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -134,5 +134,3 @@ case class JavaDEMReprojectRasterSource(
   def convert(targetCellType: TargetCellType): RasterSource =
     throw new UnsupportedOperationException("DEM height fields may only be of floating point type")
 }
-
-

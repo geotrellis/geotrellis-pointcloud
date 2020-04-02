@@ -38,7 +38,7 @@ import scala.collection.JavaConverters._
   * Reproject and Resample methods of this RasterSource are not implemented in a correct way.
   * It is used only for the relative read() benchmarks.
   */
-case class GeoTrellisDEMRasterSource(
+case class GeoTrellisTINRasterSource(
   eptSource: String,
   resampleTarget: ResampleTarget = DefaultTarget,
   destCRS: Option[CRS] = None,
@@ -75,11 +75,11 @@ case class GeoTrellisDEMRasterSource(
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): GeoTrellisDEMRasterSource =
-    GeoTrellisDEMRasterSource(eptSource, resampleTarget, targetCRS.some, sourceMetadata = metadata.some, threads = threads)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): GeoTrellisTINRasterSource =
+    GeoTrellisTINRasterSource(eptSource, resampleTarget, targetCRS.some, sourceMetadata = metadata.some, threads = threads)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): GeoTrellisDEMRasterSource =
-    GeoTrellisDEMRasterSource(eptSource, resampleTarget, destCRS, sourceMetadata = metadata.some, threads = threads)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): GeoTrellisTINRasterSource =
+    GeoTrellisTINRasterSource(eptSource, resampleTarget, destCRS, sourceMetadata = metadata.some, threads = threads)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
@@ -112,7 +112,7 @@ case class GeoTrellisDEMRasterSource(
           val coords = Array.ofDim[Coordinate](pv.length)
           val pc = pv.getPointCloud(DimType.X, DimType.Y, DimType.Z)
           cfor(0)(_ < pv.length, _ + 1) { i => coords(i) = pc.getCoordinate(i) }
-          
+
           val dt = DelaunayTriangulation(coords)
           val tile = DelaunayRasterizer.rasterizeDelaunayTriangulation(dt, srcBounds.toRasterExtent)
           Raster(MultibandTile(tile), targetRegion)

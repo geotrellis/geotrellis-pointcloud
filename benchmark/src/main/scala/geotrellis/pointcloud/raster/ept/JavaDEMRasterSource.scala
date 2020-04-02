@@ -29,7 +29,7 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
-case class JavaDEMRasterSource(
+case class JavaTINRasterSource(
   eptSource: String,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
@@ -49,11 +49,11 @@ case class JavaDEMRasterSource(
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource =
-    JavaDEMReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaTINReprojectRasterSource =
+    JavaTINReprojectRasterSource(eptSource, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMResampleRasterSource =
-    JavaDEMResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaTINResampleRasterSource =
+    JavaTINResampleRasterSource(eptSource, resampleTarget, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)

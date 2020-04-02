@@ -32,7 +32,7 @@ import org.log4s._
 import scala.collection.JavaConverters._
 
 /** TODO: replace it with io.pdal.pipeline.FilterReproject */
-case class JavaDEMResampleRasterSource(
+case class JavaTINResampleRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
@@ -61,8 +61,8 @@ case class JavaDEMResampleRasterSource(
 
   lazy val gridExtent: GridExtent[Long] = resampleTarget(metadata.gridExtent)
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource = {
-    new JavaDEMReprojectRasterSource(path.value, targetCRS, resampleTarget, metadata.some, threads, method, targetCellType = targetCellType) {
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaTINReprojectRasterSource = {
+    new JavaTINReprojectRasterSource(path.value, targetCRS, resampleTarget, metadata.some, threads, method, targetCellType = targetCellType) {
       override lazy val gridExtent: GridExtent[Long] = {
         val reprojectedRasterExtent =
           ReprojectRasterExtent(
@@ -82,8 +82,8 @@ case class JavaDEMResampleRasterSource(
     }
   }
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMResampleRasterSource =
-    JavaDEMResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaTINResampleRasterSource =
+    JavaTINResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
