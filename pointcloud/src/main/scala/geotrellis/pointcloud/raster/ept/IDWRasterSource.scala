@@ -52,7 +52,7 @@ case class IDWRasterSource(
   def bandCount: Int = metadata.bandCount
   def cellType: CellType = metadata.cellType
   def crs: CRS = metadata.crs
-  def gridExtent: GridExtent[Long] = metadata.gridExtent
+  def gridExtent: GridExtent[Long] = resampleTarget(metadata.gridExtent)
   def name: SourceName = metadata.name
   def resolutions: List[CellSize] = metadata.resolutions
 
