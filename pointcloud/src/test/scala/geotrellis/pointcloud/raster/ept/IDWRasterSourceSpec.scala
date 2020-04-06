@@ -108,7 +108,7 @@ class IDWRasterSourceSpec extends FunSpec with RasterMatchers {
       res.nonEmpty shouldBe true
 
       val tile = res.map(_.tile.band(0)).get
-      tile.dimensions shouldBe Dimensions(4583, 3542)
+      tile.dimensions shouldBe Dimensions(143, 111)
       val (mi, ma) = tile.findMinMaxDouble
 
       // threshold is large, since triangulation mesh can vary a little that may cause
