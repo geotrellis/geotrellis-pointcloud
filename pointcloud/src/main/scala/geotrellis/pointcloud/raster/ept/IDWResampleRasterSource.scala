@@ -16,7 +16,7 @@
 
 package geotrellis.pointcloud.raster.ept
 
-import geotrellis.pointcloud.raster.rasterize.triangles.PDALTrianglesRasterizer
+import geotrellis.pointcloud.raster.rasterize.points.IDWRasterizer
 import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.raster.interpolation._
@@ -120,35 +120,14 @@ case class IDWResampleRasterSource(
           val pointViews = pipeline.getPointViews().asScala.toList
           assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
-          val pv = pointViews.head
-          val raster = {
-            val pc = pv.getPointCloud
-            val features = Array.ofDim[PointFeature[Double]](pc.length)
-            cfor(0)(_ < pc.length, _ + 1){ i =>
-              features(i) = PointFeature[Double](Point(pc.getX(i), pc.getY(i)), pc.getZ(i))
-            }
-
-            val re = RasterExtent(
+          val raster = IDWRasterizer(
+            pointViews.head,
+            RasterExtent(
               targetRegion.extent,
               bounds.width.toInt,
-              bounds.height.toInt
+              bounds.width.toInt
             )
-
-            features
-              .toTraversable
-              .inverseDistanceWeighted(
-                re,
-                InverseDistanceWeighted.Options(
-                  re.cellwidth,
-                  re.cellheight,
-                  0.0,  // rotation
-                  3.0,  // weighting power
-                  0.0,  // smoothing factor
-                  re.cellSize.resolution/2, //equal weight radius
-                  cellType
-                ))
-              .mapTile(MultibandTile(_))
-          }
+          )
 
           convertRaster(raster).some
         } else None
