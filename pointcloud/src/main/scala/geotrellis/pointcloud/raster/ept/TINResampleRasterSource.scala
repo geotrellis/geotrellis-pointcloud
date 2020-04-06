@@ -31,8 +31,12 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
-/** TODO: replace it with io.pdal.pipeline.FilterReproject */
-case class JavaDEMResampleRasterSource(
+/**
+  * [[TINResampleRasterSource]] doesn't use [[OverviewStrategy]].
+  * At this point, it relies on the EPTReader logic:
+  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
+  */
+case class TINResampleRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
   sourceMetadata: Option[EPTMetadata] = None,
@@ -42,10 +46,11 @@ case class JavaDEMResampleRasterSource(
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
 
-  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
+  lazy val baseMetadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
+  lazy val metadata: EPTMetadata = baseMetadata.copy(gridExtent = gridExtent)
 
-  protected lazy val baseCRS: CRS = metadata.crs
-  protected lazy val baseGridExtent: GridExtent[Long] = metadata.gridExtent
+  protected lazy val baseCRS: CRS = baseMetadata.crs
+  protected lazy val baseGridExtent: GridExtent[Long] = baseMetadata.gridExtent
 
   // TODO: remove transient notation with Proj4 1.1 release
   @transient protected lazy val transform = Transform(baseCRS, crs)
@@ -53,16 +58,16 @@ case class JavaDEMResampleRasterSource(
 
   def attributes: Map[String, String] = metadata.attributes
   def attributesForBand(band: Int): Map[String, String] = metadata.attributesForBand(band)
-  def bandCount: Int = metadata.bandCount
-  def cellType: CellType = metadata.cellType
-  def crs: CRS = metadata.crs
-  def name: SourceName = metadata.name
-  def resolutions: List[CellSize] = metadata.resolutions
+  def bandCount: Int = baseMetadata.bandCount
+  def cellType: CellType = baseMetadata.cellType
+  def crs: CRS = baseMetadata.crs
+  def name: SourceName = baseMetadata.name
+  def resolutions: List[CellSize] = baseMetadata.resolutions
 
-  lazy val gridExtent: GridExtent[Long] = resampleTarget(metadata.gridExtent)
+  lazy val gridExtent: GridExtent[Long] = resampleTarget(baseMetadata.gridExtent)
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource = {
-    new JavaDEMReprojectRasterSource(path.value, targetCRS, resampleTarget, metadata.some, threads, method, targetCellType = targetCellType) {
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINReprojectRasterSource = {
+    new TINReprojectRasterSource(path.value, targetCRS, resampleTarget, baseMetadata.some, threads, method, targetCellType = targetCellType) {
       override lazy val gridExtent: GridExtent[Long] = {
         val reprojectedRasterExtent =
           ReprojectRasterExtent(
@@ -82,8 +87,8 @@ case class JavaDEMResampleRasterSource(
     }
   }
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMResampleRasterSource =
-    JavaDEMResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINResampleRasterSource =
+    TINResampleRasterSource(path.value, resampleTarget, baseMetadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -116,7 +121,7 @@ case class JavaDEMResampleRasterSource(
           val pv = pointViews.head
           val raster =
             PDALTrianglesRasterizer
-              .apply(pv, targetRegion)
+              .native(pv, targetRegion)
               .mapTile(MultibandTile(_))
               .resample(targetRegion.cols, targetRegion.rows, resampleMethod)
 
@@ -133,6 +138,4 @@ case class JavaDEMResampleRasterSource(
 
   def convert(targetCellType: TargetCellType): RasterSource =
     throw new UnsupportedOperationException("DEM height fields may only be of floating point type")
-
-
 }

@@ -32,11 +32,11 @@ import org.log4s._
 import scala.collection.JavaConverters._
 
 /**
-  * [[DEMReprojectRasterSource]] doesn't use [[OverviewStrategy]].
+  * [[TINReprojectRasterSource]] doesn't use [[OverviewStrategy]].
   * At this point, it relies on the EPTReader logic:
   * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
   */
-case class DEMReprojectRasterSource(
+case class TINReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
@@ -88,11 +88,11 @@ case class DEMReprojectRasterSource(
     }
   }
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
-    DEMReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINReprojectRasterSource =
+    TINReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): DEMReprojectRasterSource =
-    DEMReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINReprojectRasterSource =
+    TINReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>

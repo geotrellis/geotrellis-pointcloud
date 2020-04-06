@@ -32,8 +32,7 @@ class EPTRasterSourceProviderSpec extends FunSpec {
     }
 
     it("should produce a GeoTiffRasterSource from a string") {
-      assert(RasterSource("ept+file://dumping-ground/part-2/random").isInstanceOf[DEMRasterSource])
+      assert(RasterSource("ept+file://dumping-ground/part-2/random").isInstanceOf[TINRasterSource])
     }
   }
 }
-

@@ -19,6 +19,8 @@ target
 *.jar
 *.crc
 _SUCCESS
+hs_err_*.log
+core
 
 *.pyc
 .project

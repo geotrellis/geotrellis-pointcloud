@@ -16,22 +16,29 @@
 
 package geotrellis.pointcloud.raster.ept
 
-import geotrellis.pointcloud.raster.rasterize.triangles.PDALTrianglesRasterizer
+import geotrellis.pointcloud.raster.rasterize.points.IDWRasterizer
+import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.proj4._
 import geotrellis.raster._
+import geotrellis.raster.interpolation._
 import geotrellis.raster.io.geotiff.OverviewStrategy
 import geotrellis.raster.reproject.{RasterRegionReproject, Reproject, ReprojectRasterExtent}
-import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.vector._
 
+import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
-import cats.syntax.option._
 import org.log4s._
+import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
 
-case class JavaDEMReprojectRasterSource(
+/**
+  * [[DEMReprojectRasterSource]] doesn't use [[OverviewStrategy]].
+  * At this point, it relies on the EPTReader logic:
+  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
+  */
+case class IDWReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
@@ -43,21 +50,22 @@ case class JavaDEMReprojectRasterSource(
 ) extends RasterSource {
   @transient private[this] lazy val logger = getLogger
 
-  lazy val metadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
+  lazy val baseMetadata: EPTMetadata = sourceMetadata.getOrElse(EPTMetadata(path.value))
+  lazy val metadata: EPTMetadata = baseMetadata.copy(gridExtent = gridExtent)
 
-  protected lazy val baseCRS: CRS = metadata.crs
-  protected lazy val baseGridExtent: GridExtent[Long] = metadata.gridExtent
+  protected lazy val baseCRS: CRS = baseMetadata.crs
+  protected lazy val baseGridExtent: GridExtent[Long] = baseMetadata.gridExtent
 
   // TODO: remove transient notation with Proj4 1.1 release
   @transient protected lazy val transform = Transform(baseCRS, crs)
   @transient protected lazy val backTransform = Transform(crs, baseCRS)
 
-  def attributes: Map[String, String] = metadata.attributes
-  def attributesForBand(band: Int): Map[String, String] = metadata.attributesForBand(band)
-  def bandCount: Int = metadata.bandCount
-  def cellType: CellType = metadata.cellType
-  def name: SourceName = metadata.name
-  def resolutions: List[CellSize] = metadata.resolutions
+  def attributes: Map[String, String] = baseMetadata.attributes
+  def attributesForBand(band: Int): Map[String, String] = baseMetadata.attributesForBand(band)
+  def bandCount: Int = baseMetadata.bandCount
+  def cellType: CellType = baseMetadata.cellType
+  def name: SourceName = baseMetadata.name
+  def resolutions: List[CellSize] = baseMetadata.resolutions
 
   lazy val gridExtent: GridExtent[Long] = {
     lazy val reprojectedRasterExtent =
@@ -76,11 +84,11 @@ case class JavaDEMReprojectRasterSource(
     }
   }
 
-  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource =
-    JavaDEMReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
+  def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
+    IDWReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
-  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): JavaDEMReprojectRasterSource =
-    JavaDEMReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = metadata.some, threads, method, errorThreshold, targetCellType)
+  def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
+    IDWReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -101,7 +109,7 @@ case class JavaDEMReprojectRasterSource(
         resolution = bufferedSourceRegion.cellSize.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
-      ) ~ FilterReprojection(crs.toProj4String, baseCRS.toProj4String.some) ~ FilterDelaunay()
+      )
 
       logger.debug(expression.asJson.spaces4)
 
@@ -114,13 +122,27 @@ case class JavaDEMReprojectRasterSource(
           val pointViews = pipeline.getPointViews().asScala.toList
           assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
-          val pv = pointViews.head
-          val sourceRaster =
-            PDALTrianglesRasterizer
-              .native(pv, targetRegion)
-              .mapTile(MultibandTile(_))
+          val sourceRaster = IDWRasterizer(
+            pointViews.head,
+            RasterExtent(
+              bufferedSourceRegion.extent,
+              bounds.width.toInt,
+              bounds.height.toInt
+            )
+          )
 
-          convertRaster(sourceRaster).some
+          val rr = implicitly[RasterRegionReproject[MultibandTile]]
+          val result = rr.regionReproject(
+            sourceRaster,
+            baseCRS,
+            crs,
+            targetRegion,
+            targetRegion.extent.toPolygon,
+            resampleMethod,
+            errorThreshold
+          )
+
+          convertRaster(result).some
         } else None
       } finally pipeline.close()
     }
@@ -134,5 +156,3 @@ case class JavaDEMReprojectRasterSource(
   def convert(targetCellType: TargetCellType): RasterSource =
     throw new UnsupportedOperationException("DEM height fields may only be of floating point type")
 }
-
-
