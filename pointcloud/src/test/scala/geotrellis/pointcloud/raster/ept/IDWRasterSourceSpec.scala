@@ -93,12 +93,12 @@ class IDWRasterSourceSpec extends FunSpec with RasterMatchers {
         name        = "src/test/resources/red-rocks/",
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
-        gridExtent  = new GridExtent(Extent(-105.21023644880934, 39.66129118258597, -105.1998609160608, 39.669309977479124), 2.263917248208468E-6, 2.263917248208468E-6, 4583, 3542),
+        gridExtent  = new GridExtent(Extent(-105.21023644880934, 39.66129118258597, -105.1998609160608, 39.669309977479124), 7.255617306671465E-5, 7.224139543381823E-5,143, 111),
         resolutions = List(CellSize(6.9375,6.9375), CellSize(3.46875,3.46875), CellSize(1.734375,1.734375), CellSize(0.8671875,0.8671875), CellSize(0.43359375,0.43359375), CellSize(0.216796875,0.216796875)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
-      val rs = IDWRasterSource(catalog).reproject(LatLng)
+      val rs = IDWRasterSource(catalog).reproject(LatLng).resample(143, 111, NearestNeighbor, geotrellis.raster.io.geotiff.Auto(0))
 
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent
@@ -108,7 +108,7 @@ class IDWRasterSourceSpec extends FunSpec with RasterMatchers {
       res.nonEmpty shouldBe true
 
       val tile = res.map(_.tile.band(0)).get
-      tile.dimensions shouldBe Dimensions(4583, 3542)
+      tile.dimensions shouldBe Dimensions(143, 111)
       val (mi, ma) = tile.findMinMaxDouble
 
       // threshold is large, since triangulation mesh can vary a little that may cause
