@@ -84,6 +84,7 @@ case class IDWRasterSource(
         val pointViews = pipeline.getPointViews().asScala.toList
         assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
+
         pointViews.headOption.map { pv =>
           try {
             IDWRasterizer(
