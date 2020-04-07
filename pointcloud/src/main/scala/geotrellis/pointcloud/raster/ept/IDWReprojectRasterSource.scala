@@ -84,6 +84,8 @@ case class IDWReprojectRasterSource(
     }
   }
 
+  logger.debug(s"Created new IDWReprojectRasterSource with $gridExtent")
+
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
     IDWReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
 

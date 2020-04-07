@@ -54,18 +54,39 @@ object EPTMetadata {
     nested.fold(joined)(_ combine _)
   }
 
+  private def approxPointsPerTile(base: URI): Long = {
+    val rr = RangeReader(base.resolve(s"ept-hierarchy/0-0-0-0.json").toString)
+    val raw = new String(rr.readAll)
+    val json = parse(raw).valueOr(throw _)
+    val table = json.asObject.get.toList.toMap.mapValues(_.toString.toLong)
+
+    val nontrivials = table.filterNot(_._2 == -1)
+    val avgCnt = nontrivials.map(_._2).sum / nontrivials.size
+
+    avgCnt
+  }
+
   def apply(source: String, withHierarchy: Boolean = false): EPTMetadata = {
     val src = if (source.endsWith("/")) source else s"$source/"
     val raw = Raw(src)
+    val uri = new URI(src)
     val (counts, maxDepth) = {
       if(withHierarchy) {
-        val cnts = pointsInLevels(new URI(src), "0-0-0-0").toList.sorted
+        val cnts = pointsInLevels(uri, "0-0-0-0").toList.sorted
         cnts -> cnts.last._1
-      } else Map.empty[Int, Long] -> 0
+      } else {
+        val appt = approxPointsPerTile(uri)
+        val approxTileCount = raw.points / appt
+
+        // Assume that geometry is "flat", tree is more quad-tree like
+        val fullLevels = math.log(approxTileCount) / math.log(4)
+
+        (Map.empty[Int, Long], (1.5 * fullLevels).toInt)
+      }
     }
 
     // https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
-    val resolutions = (0 to maxDepth).toList.map { l =>
+    val resolutions = (maxDepth to 0).by(-1).toList.map { l =>
       CellSize((raw.extent.width / raw.span) / math.pow(2, l), (raw.extent.height / raw.span) / math.pow(2, l))
     }
 
@@ -73,7 +94,7 @@ object EPTMetadata {
       StringName(src),
       raw.srs.toCRS(),
       DoubleCellType,
-      GridExtent[Long](raw.extent, raw.span, raw.span),
+      GridExtent[Long](raw.extent, resolutions.head),
       resolutions,
       Map(
         "points" -> raw.points.toString,
