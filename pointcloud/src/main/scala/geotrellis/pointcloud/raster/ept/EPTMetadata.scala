@@ -94,7 +94,7 @@ object EPTMetadata {
       StringName(src),
       raw.srs.toCRS(),
       DoubleCellType,
-      GridExtent[Long](raw.extent, resolutions.last),
+      GridExtent[Long](raw.extent, resolutions.head),
       resolutions,
       Map(
         "points" -> raw.points.toString,

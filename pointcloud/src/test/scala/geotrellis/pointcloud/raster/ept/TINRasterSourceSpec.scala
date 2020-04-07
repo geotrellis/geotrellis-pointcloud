@@ -36,7 +36,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
         gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 0.216796875, 0.216796875, 4096, 4096),
-        resolutions = List(CellSize(6.9375,6.9375), CellSize(3.46875,3.46875), CellSize(1.734375,1.734375), CellSize(0.8671875,0.8671875), CellSize(0.43359375,0.43359375), CellSize(0.216796875,0.216796875)),
+        resolutions = List(CellSize(0.216796875,0.216796875), CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
@@ -68,7 +68,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
         gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0),8.88, 8.88,100, 100),
-        resolutions = List(CellSize(6.9375,6.9375), CellSize(3.46875,3.46875), CellSize(1.734375,1.734375), CellSize(0.8671875,0.8671875), CellSize(0.43359375,0.43359375), CellSize(0.216796875,0.216796875)),
+        resolutions = List(CellSize(0.216796875,0.216796875), CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
@@ -97,7 +97,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         crs         = LatLng,
         cellType    = DoubleCellType,
         gridExtent  = new GridExtent(Extent(-105.21023644880934, 39.66129118258597, -105.1998609160608, 39.669309977479124), 2.263917248208468E-6, 2.263917248208468E-6,4583, 3542),
-        resolutions = List(CellSize(7.244535194267097E-5,7.244535194267097E-5), CellSize(3.6222675971335486E-5,3.6222675971335486E-5), CellSize(1.8111337985667743E-5,1.8111337985667743E-5), CellSize(9.055668992833871E-6,9.055668992833871E-6), CellSize(4.527834496416936E-6,4.527834496416936E-6), CellSize(2.263917248208468E-6,2.263917248208468E-6)),
+        resolutions = List(CellSize(2.263917248208468E-6,2.263917248208468E-6), CellSize(4.527834496416936E-6,4.527834496416936E-6), CellSize(9.055668992833871E-6,9.055668992833871E-6), CellSize(1.8111337985667743E-5,1.8111337985667743E-5), CellSize(3.6222675971335486E-5,3.6222675971335486E-5), CellSize(7.244535194267097E-5,7.244535194267097E-5)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
