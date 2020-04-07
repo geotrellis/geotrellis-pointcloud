@@ -40,8 +40,10 @@ import java.net.MalformedURLException
 case class EPTPath(value: String) extends SourcePath
 
 object EPTPath {
-  val PREFIX = "ept+"
-  val SCHEME = "ept://"
+  val PREFIX     = "ept+"
+  val PREFIX_TIN = "tin+"
+  val PREFIX_IDW = "idw+"
+  val SCHEME     = "ept://"
 
   implicit def toEPTPath(path: String): EPTPath = parse(path)
 

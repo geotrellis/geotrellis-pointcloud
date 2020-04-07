@@ -19,6 +19,12 @@ package geotrellis.pointcloud.raster.ept
 import geotrellis.raster.{RasterSource, RasterSourceProvider}
 
 class EPTRasterSourceProvider extends RasterSourceProvider {
-  def canProcess(path: String): Boolean = path.nonEmpty && (path.startsWith(EPTPath.PREFIX) || path.startsWith(EPTPath.SCHEME))
-  def rasterSource(path: String): RasterSource = TINRasterSource(path)
+  // TIN is a default fallback
+  def isTin(path: String): Boolean =
+    path.nonEmpty && (path.startsWith(EPTPath.PREFIX_TIN) || path.startsWith(EPTPath.PREFIX) || path.startsWith(EPTPath.SCHEME))
+  def isIdw(path: String): Boolean =
+    path.nonEmpty && path.startsWith(EPTPath.PREFIX_IDW) && (path.contains(EPTPath.PREFIX) || path.contains(EPTPath.SCHEME))
+
+  def canProcess(path: String): Boolean = isTin(path) || isIdw(path)
+  def rasterSource(path: String): RasterSource = if(isIdw(path)) IDWRasterSource(path) else TINRasterSource(path)
 }
