@@ -119,11 +119,12 @@ case class TINResampleRasterSource(
           assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
           val pv = pointViews.head
-          val raster =
+          val raster = try {
             PDALTrianglesRasterizer
               .native(pv, targetRegion)
               .mapTile(MultibandTile(_))
               .resample(targetRegion.cols, targetRegion.rows, resampleMethod)
+          } finally pv.close()
 
           convertRaster(raster).some
         } else None

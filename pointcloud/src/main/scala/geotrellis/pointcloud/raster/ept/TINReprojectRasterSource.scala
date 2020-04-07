@@ -127,10 +127,11 @@ case class TINReprojectRasterSource(
           assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
           val pv = pointViews.head
-          val sourceRaster =
+          val sourceRaster = try {
             PDALTrianglesRasterizer
               .native(pv, bufferedSourceRegion)
               .mapTile(MultibandTile(_))
+          } finally pv.close()
 
           val rr = implicitly[RasterRegionReproject[MultibandTile]]
           val result = rr.regionReproject(
