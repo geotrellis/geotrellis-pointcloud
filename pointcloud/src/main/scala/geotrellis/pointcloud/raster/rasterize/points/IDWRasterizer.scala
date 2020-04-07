@@ -18,16 +18,16 @@ package geotrellis.pointcloud.raster.rasterize.points
 
 import geotrellis.raster._
 import geotrellis.raster.interpolation._
-import geotrellis.vector.{Extent, Point, PointFeature}
-import _root_.io.pdal.{DimType, PointView}
+import geotrellis.vector.{Point, PointFeature}
 
+import _root_.io.pdal.{DimType, PointView}
 import spire.syntax.cfor._
 
 object IDWRasterizer {
-  def apply(pv: PointView, re: RasterExtent, radiusMultiplier: Double = 1.5, cellType: CellType = DoubleConstantNoDataCellType): Raster[MultibandTile] = {
+  def apply(pv: PointView, re: RasterExtent, radiusMultiplier: Double = 1.5, cellType: CellType = DoubleConstantNoDataCellType): Raster[Tile] = {
     val pc = pv.getPointCloud(Array(DimType.X, DimType.Y, DimType.Z))
     val features = Array.ofDim[PointFeature[Double]](pc.length)
-    cfor(0)(_ < pc.length, _ + 1){ i =>
+    cfor(0)(_ < pc.length, _ + 1) { i =>
       features(i) = PointFeature[Double](Point(pc.getX(i), pc.getY(i)), pc.getZ(i))
     }
 
@@ -41,13 +41,11 @@ object IDWRasterizer {
         InverseDistanceWeighted.Options(
           radius,
           radius,
-          0.0,  // rotation
-          3.0,  // weighting power
-          0.0,  // smoothing factor
-          re.cellSize.resolution/2, //equal weight radius
+          0.0, // rotation
+          3.0, // weighting power
+          0.0, // smoothing factor
+          re.cellSize.resolution / 2, //equal weight radius
           cellType
         ))
-    .mapTile(MultibandTile(_))
   }
-
 }

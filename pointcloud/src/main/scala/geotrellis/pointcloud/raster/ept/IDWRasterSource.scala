@@ -84,16 +84,17 @@ case class IDWRasterSource(
         val pointViews = pipeline.getPointViews().asScala.toList
         assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
-
         pointViews.headOption.map { pv =>
-          IDWRasterizer(
-            pv,
-            RasterExtent(
-              targetRegion,
-              bounds.width.toInt,
-              bounds.height.toInt
-            )
-          )
+          try {
+            IDWRasterizer(
+              pv,
+              RasterExtent(
+                targetRegion,
+                bounds.width.toInt,
+                bounds.height.toInt
+              )
+            ).mapTile(MultibandTile(_))
+          } finally pv.close()
         }
       } else None
     } finally pipeline.close()

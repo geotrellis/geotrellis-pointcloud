@@ -122,14 +122,17 @@ case class IDWReprojectRasterSource(
           val pointViews = pipeline.getPointViews().asScala.toList
           assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
-          val sourceRaster = IDWRasterizer(
-            pointViews.head,
-            RasterExtent(
-              bufferedSourceRegion.extent,
-              bounds.width.toInt,
-              bounds.height.toInt
-            )
-          )
+          val pv = pointViews.head
+          val sourceRaster = try {
+            IDWRasterizer(
+              pv,
+              RasterExtent(
+                bufferedSourceRegion.extent,
+                bounds.width.toInt,
+                bounds.height.toInt
+              )
+            ).mapTile(MultibandTile(_))
+          } finally pv.close()
 
           val rr = implicitly[RasterRegionReproject[MultibandTile]]
           val result = rr.regionReproject(
