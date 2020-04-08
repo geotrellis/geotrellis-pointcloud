@@ -103,11 +103,19 @@ case class IDWResampleRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
+      val requestRE = RasterExtent(
+                targetRegion.extent,
+                bounds.width.toInt,
+                bounds.width.toInt
+              )
+
       val res = OverviewStrategy.selectOverview(
         resolutions,
-        gridExtent.cellSize,
+        requestRE.cellSize,
         strategy
       )
+
+      logger.debug(s"[IDWResampleRasterSource] Rendering IDW for ${requestRE} with EPT resolution ${resolutions(res)} and strategy $strategy")
 
       val expression = ReadEpt(
         filename   = path.value,
@@ -129,14 +137,7 @@ case class IDWResampleRasterSource(
 
           val pv = pointViews.head
           val raster = try {
-            IDWRasterizer(
-              pv,
-              RasterExtent(
-                targetRegion.extent,
-                bounds.width.toInt,
-                bounds.width.toInt
-              )
-            ).mapTile(MultibandTile(_))
+            IDWRasterizer(pv, requestRE).mapTile(MultibandTile(_))
           } finally pv.close()
 
           convertRaster(raster).some

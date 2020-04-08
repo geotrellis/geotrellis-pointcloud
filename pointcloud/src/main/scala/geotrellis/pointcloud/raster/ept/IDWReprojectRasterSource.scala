@@ -114,15 +114,24 @@ case class IDWReprojectRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
 
+      val requestRE = RasterExtent(
+        bufferedSourceRegion.extent,
+        bounds.width.toInt,
+        bounds.height.toInt
+      )
+
       val res = OverviewStrategy.selectOverview(
-        resolutions,
-        gridExtent.cellSize,
+        baseMetadata.resolutions,
+        requestRE.cellSize,
         strategy
       )
+      val selectedRes = baseMetadata.resolutions(res)
+
+      logger.debug(s"[IDWReprojectRasterSource] Rendering IDW for ${requestRE} with EPT resolution ${selectedRes} and strategy $strategy")
 
       val expression = ReadEpt(
         filename   = path.value,
-        resolution = resolutions(res).resolution.some,
+        resolution = selectedRes.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       )
@@ -140,14 +149,7 @@ case class IDWReprojectRasterSource(
 
           val pv = pointViews.head
           val sourceRaster = try {
-            IDWRasterizer(
-              pv,
-              RasterExtent(
-                bufferedSourceRegion.extent,
-                bounds.width.toInt,
-                bounds.height.toInt
-              )
-            ).mapTile(MultibandTile(_))
+            IDWRasterizer(pv, requestRE).mapTile(MultibandTile(_))
           } finally pv.close()
 
           val rr = implicitly[RasterRegionReproject[MultibandTile]]

@@ -98,7 +98,7 @@ class IDWRasterSourceSpec extends FunSpec with RasterMatchers {
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
-      val rs = IDWRasterSource(catalog).reproject(LatLng).resample(143, 111, NearestNeighbor, geotrellis.raster.io.geotiff.Auto(0))
+      val rs = IDWRasterSource(catalog).reproject(LatLng).resample(143, 111, NearestNeighbor, geotrellis.raster.io.geotiff.Auto(2))
 
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent

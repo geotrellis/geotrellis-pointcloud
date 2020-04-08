@@ -72,7 +72,8 @@ case class IDWRasterSource(
       gridExtent.cellSize,
       strategy
     )
-    logger.warn(s"Rendering IDW for ${targetRegion.extent} at resolution ${resolutions(res)}")
+
+    logger.debug(s"[IDWRasterSource] Rendering IDW for ${RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt)} with EPT resolution ${resolutions(res)} and strategy $strategy")
 
     val expression = ReadEpt(
       filename   = path.value,
