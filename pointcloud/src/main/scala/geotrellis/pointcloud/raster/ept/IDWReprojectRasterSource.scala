@@ -42,6 +42,7 @@ case class IDWReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
+  strategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   resampleMethod: ResampleMethod = NearestNeighbor,
@@ -65,7 +66,14 @@ case class IDWReprojectRasterSource(
   def bandCount: Int = baseMetadata.bandCount
   def cellType: CellType = baseMetadata.cellType
   def name: SourceName = baseMetadata.name
-  def resolutions: List[CellSize] = baseMetadata.resolutions
+  def resolutions: List[CellSize] =
+    baseMetadata.resolutions.map{ cs =>
+      ReprojectRasterExtent(
+        RasterExtent(baseMetadata.gridExtent.extent, cs),
+        transform,
+        Reproject.Options.DEFAULT.copy(method = resampleMethod, errorThreshold = errorThreshold)
+      ).cellSize
+    }
 
   lazy val gridExtent: GridExtent[Long] = {
     lazy val reprojectedRasterExtent =
@@ -87,10 +95,10 @@ case class IDWReprojectRasterSource(
   logger.debug(s"Created new IDWReprojectRasterSource with $gridExtent")
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
-    IDWReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
+    IDWReprojectRasterSource(path, targetCRS, resampleTarget, strategy, baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
-    IDWReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
+    IDWReprojectRasterSource(path, crs, resampleTarget, strategy, baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -106,9 +114,15 @@ case class IDWReprojectRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
 
+      val res = OverviewStrategy.selectOverview(
+        resolutions,
+        gridExtent.cellSize,
+        strategy
+      )
+
       val expression = ReadEpt(
         filename   = path.value,
-        resolution = bufferedSourceRegion.cellSize.resolution.some,
+        resolution = resolutions(res).resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       )

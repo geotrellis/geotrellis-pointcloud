@@ -39,6 +39,7 @@ import scala.collection.JavaConverters._
 case class IDWRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
+  strategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   targetCellType: Option[TargetCellType] = None
@@ -57,18 +58,25 @@ case class IDWRasterSource(
   def resolutions: List[CellSize] = metadata.resolutions
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
-    IDWReprojectRasterSource(path.value, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
+    IDWReprojectRasterSource(path.value, targetCRS, resampleTarget, strategy, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWResampleRasterSource =
-    IDWResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
+    IDWResampleRasterSource(path.value, resampleTarget, strategy, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
     val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
+    val res = OverviewStrategy.selectOverview(
+      resolutions,
+      gridExtent.cellSize,
+      strategy
+    )
+    logger.warn(s"Rendering IDW for ${targetRegion.extent} at resolution ${resolutions(res)}")
+
     val expression = ReadEpt(
       filename   = path.value,
-      resolution = gridExtent.cellSize.resolution.some,
+      resolution = resolutions(res).resolution.some,
       bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
       threads    = threads
     )
