@@ -21,7 +21,7 @@ import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.proj4._
 import geotrellis.raster._
 import geotrellis.raster.interpolation._
-import geotrellis.raster.io.geotiff.OverviewStrategy
+import geotrellis.raster.io.geotiff.{Auto, OverviewStrategy}
 import geotrellis.raster.reproject.{RasterRegionReproject, Reproject, ReprojectRasterExtent}
 import geotrellis.vector._
 
