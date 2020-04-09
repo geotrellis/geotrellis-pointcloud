@@ -33,11 +33,6 @@ import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
 
-/**
-  * [[DEMReprojectRasterSource]] doesn't use [[OverviewStrategy]].
-  * At this point, it relies on the EPTReader logic:
-  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
-  */
 case class IDWReprojectRasterSource(
   path: EPTPath,
   crs: CRS,

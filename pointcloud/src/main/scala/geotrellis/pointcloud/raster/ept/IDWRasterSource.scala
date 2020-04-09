@@ -31,11 +31,6 @@ import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
 
-/**
-  * [[DEMRasterSource]] doesn't use [[OverviewStrategy]].
-  * At this point, it relies on the EPTReader logic:
-  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
-  */
 case class IDWRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
