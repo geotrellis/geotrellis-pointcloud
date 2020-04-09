@@ -31,8 +31,28 @@ class EPTRasterSourceProviderSpec extends FunSpec {
       assert(provider.canProcess("ept+s3://bucket/key"))
     }
 
-    it("should produce a GeoTiffRasterSource from a string") {
+    it("should process a relative string") {
+      assert(provider.canProcess("ept://tmp/path/to/random"))
+    }
+
+    it("should produce a TINRasterSource from a string") {
       assert(RasterSource("ept+file://dumping-ground/part-2/random").isInstanceOf[TINRasterSource])
+    }
+
+    it("should produce a TINRasterSource from an extra string") {
+      assert(RasterSource("tin+ept+file://dumping-ground/part-2/random").isInstanceOf[TINRasterSource])
+    }
+
+    it("should produce a TINRasterSource from a relative string") {
+      assert(RasterSource("ept://dumping-ground/part-2/random").isInstanceOf[TINRasterSource])
+    }
+
+    it("should produce a IDWRasterSource from a string") {
+      assert(RasterSource("idw+ept://dumping-ground/part-2/random").isInstanceOf[IDWRasterSource])
+    }
+
+    it("should produce a IDWRasterSource from an s3 prefixed string") {
+      assert(RasterSource("idw+ept+s3://dumping-ground/part-2/random").isInstanceOf[IDWRasterSource])
     }
   }
 }
