@@ -31,15 +31,11 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
-/**
-  * [[TINReprojectRasterSource]] doesn't use [[OverviewStrategy]].
-  * At this point, it relies on the EPTReader logic:
-  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
-  */
 case class TINReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
+  strategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   resampleMethod: ResampleMethod = NearestNeighbor,
@@ -89,10 +85,10 @@ case class TINReprojectRasterSource(
   }
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINReprojectRasterSource =
-    TINReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
+    TINReprojectRasterSource(path, targetCRS, resampleTarget, strategy, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINReprojectRasterSource =
-    TINReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
+    TINReprojectRasterSource(path, crs, resampleTarget, strategy, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -108,9 +104,24 @@ case class TINReprojectRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
 
+      val requestRE = RasterExtent(
+        bufferedSourceRegion.extent,
+        bounds.width.toInt,
+        bounds.height.toInt
+      )
+
+      val res = OverviewStrategy.selectOverview(
+        baseMetadata.resolutions,
+        requestRE.cellSize,
+        strategy
+      )
+      val selectedRes = baseMetadata.resolutions(res)
+
+      logger.debug(s"[TINReprojectRasterSource] Rendering TIN for ${requestRE} with EPT resolution ${selectedRes} and strategy $strategy")
+
       val expression = ReadEpt(
         filename   = path.value,
-        resolution = bufferedSourceRegion.cellSize.resolution.some,
+        resolution = selectedRes.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       ) ~ FilterDelaunay()
