@@ -20,8 +20,7 @@ import geotrellis.pointcloud.raster.rasterize.points.IDWRasterizer
 import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.proj4._
 import geotrellis.raster._
-import geotrellis.raster.interpolation._
-import geotrellis.raster.io.geotiff.{Auto, OverviewStrategy}
+import geotrellis.raster.io.geotiff.OverviewStrategy
 import geotrellis.raster.reproject.{RasterRegionReproject, Reproject, ReprojectRasterExtent}
 import geotrellis.vector._
 
@@ -29,7 +28,6 @@ import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
 import org.log4s._
-import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
 
@@ -37,7 +35,7 @@ case class IDWReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
-  strategy: OverviewStrategy = OverviewStrategy.DEFAULT,
+  overviewStrategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   resampleMethod: ResampleMethod = NearestNeighbor,
@@ -109,20 +107,11 @@ case class IDWReprojectRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
 
-      val requestRE = RasterExtent(
-        bufferedSourceRegion.extent,
-        bounds.width.toInt,
-        bounds.height.toInt
-      )
-
-      val res = OverviewStrategy.selectOverview(
-        baseMetadata.resolutions,
-        requestRE.cellSize,
-        strategy
-      )
+      val requestRE = RasterExtent(bufferedSourceRegion.extent, bounds.width.toInt, bounds.height.toInt)
+      val res = OverviewStrategy.selectOverview(baseMetadata.resolutions, requestRE.cellSize, overviewStrategy)
       val selectedRes = baseMetadata.resolutions(res)
 
-      logger.debug(s"[IDWReprojectRasterSource] Rendering IDW for ${requestRE} with EPT resolution ${selectedRes} and strategy $strategy")
+      logger.debug(s"[IDWReprojectRasterSource] Rendering IDW for $requestRE with EPT resolution $selectedRes and strategy $overviewStrategy")
 
       val expression = ReadEpt(
         filename   = path.value,

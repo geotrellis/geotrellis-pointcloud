@@ -26,24 +26,25 @@ import java.util.concurrent.TimeUnit
 @BenchmarkMode(Array(Mode.AverageTime))
 @State(Scope.Benchmark)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-class IDWRasterSourceResolutionBench {
+class IDWRasterSourceBench {
   val catalogPath = "../pointcloud/src/test/resources/red-rocks"
 
   /** This bench benchmarks the actual PDAL reads, not the RasterSource initialization time. */
-  val rs   = IDWRasterSource(catalogPath)
-  val rsAuto2 = IDWRasterSource(catalogPath)
+  val tin = TINRasterSource(catalogPath, overviewStrategy = Auto(6))
+  val idw = IDWRasterSource(catalogPath, overviewStrategy = Auto(6))
 
   /**
-    * jmh:run -i 3 -wi 1 -f1 -t1 .*IDWRasterSourceResolutionBench.*
+    * jmh:run -i 10 -wi 5 -f1 -t1 .*IDWRasterSourceBench.*
     *
-    * jmh:run -i 10 -wi 5 -f1 -t1 .*IDWRasterSourceResolutionBench.*
-    *
+    * [info] Benchmark                                    Mode  Cnt     Score      Error  Units
+    * [info] IDWRasterSourceBench.IDWRasterSourceReadAll  avgt   10  7923.583 ± 2071.873  ms/op
+    * [info] IDWRasterSourceBench.TINRasterSourceReadAll  avgt   10   734.133 ±  237.725  ms/op
     */
 
   @Benchmark
-  def IDWRasterSourceNaturalRead(): Option[Raster[MultibandTile]] = rs.read()
+  def TINRasterSourceReadAll(): Option[Raster[MultibandTile]] = tin.read()
 
   @Benchmark
-  def IDWRasterSourceAuto2Read(): Option[Raster[MultibandTile]] = rsAuto2.read()
+  def IDWRasterSourceReadAll(): Option[Raster[MultibandTile]] = idw.read()
 
 }

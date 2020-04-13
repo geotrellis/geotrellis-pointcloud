@@ -29,14 +29,13 @@ import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
 import org.log4s._
-import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
 
 case class IDWResampleRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
-  strategy: OverviewStrategy = OverviewStrategy.DEFAULT,
+  overviewStrategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   resampleMethod: ResampleMethod = NearestNeighbor,
@@ -98,19 +97,9 @@ case class IDWResampleRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
-      val requestRE = RasterExtent(
-                targetRegion.extent,
-                bounds.width.toInt,
-                bounds.width.toInt
-              )
-
-      val res = OverviewStrategy.selectOverview(
-        resolutions,
-        requestRE.cellSize,
-        strategy
-      )
-
-      logger.debug(s"[IDWResampleRasterSource] Rendering IDW for ${requestRE} with EPT resolution ${resolutions(res)} and strategy $strategy")
+      val requestRE = RasterExtent(targetRegion.extent, bounds.width.toInt, bounds.width.toInt)
+      val res = OverviewStrategy.selectOverview(resolutions, requestRE.cellSize, overviewStrategy)
+      logger.debug(s"[IDWResampleRasterSource] Rendering IDW for $requestRE with EPT resolution ${resolutions(res)} and strategy $overviewStrategy")
 
       val expression = ReadEpt(
         filename   = path.value,

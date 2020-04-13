@@ -35,7 +35,7 @@ case class TINReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
-  strategy: OverviewStrategy = OverviewStrategy.DEFAULT,
+  overviewStrategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   resampleMethod: ResampleMethod = NearestNeighbor,
@@ -104,20 +104,11 @@ case class TINReprojectRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
 
-      val requestRE = RasterExtent(
-        bufferedSourceRegion.extent,
-        bounds.width.toInt,
-        bounds.height.toInt
-      )
-
-      val res = OverviewStrategy.selectOverview(
-        baseMetadata.resolutions,
-        requestRE.cellSize,
-        strategy
-      )
+      val requestRE = RasterExtent(bufferedSourceRegion.extent, bounds.width.toInt, bounds.height.toInt)
+      val res = OverviewStrategy.selectOverview(baseMetadata.resolutions, requestRE.cellSize, overviewStrategy)
       val selectedRes = baseMetadata.resolutions(res)
 
-      logger.debug(s"[TINReprojectRasterSource] Rendering TIN for ${requestRE} with EPT resolution ${selectedRes} and strategy $strategy")
+      logger.debug(s"[TINReprojectRasterSource] Rendering TIN for $requestRE with EPT resolution $selectedRes and strategy $overviewStrategy")
 
       val expression = ReadEpt(
         filename   = path.value,

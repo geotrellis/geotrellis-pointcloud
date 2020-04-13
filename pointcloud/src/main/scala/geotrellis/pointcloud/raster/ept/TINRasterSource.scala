@@ -32,7 +32,7 @@ import scala.collection.JavaConverters._
 case class TINRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
-  strategy: OverviewStrategy = OverviewStrategy.DEFAULT,
+  overviewStrategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   targetCellType: Option[TargetCellType] = None
@@ -60,13 +60,9 @@ case class TINRasterSource(
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
     val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
-    val res = OverviewStrategy.selectOverview(
-      resolutions,
-      gridExtent.cellSize,
-      strategy
-    )
+    val res = OverviewStrategy.selectOverview(resolutions, gridExtent.cellSize, overviewStrategy)
 
-    logger.debug(s"[TINRasterSource] Rendering TIN for ${RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt)} with EPT resolution ${resolutions(res)} and strategy $strategy")
+    logger.debug(s"[TINRasterSource] Rendering TIN for ${RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt)} with EPT resolution ${resolutions(res)} and strategy $overviewStrategy")
 
     val expression = ReadEpt(
       filename   = path.value,
