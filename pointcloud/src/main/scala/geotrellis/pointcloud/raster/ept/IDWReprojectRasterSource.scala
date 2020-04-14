@@ -20,7 +20,6 @@ import geotrellis.pointcloud.raster.rasterize.points.IDWRasterizer
 import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.proj4._
 import geotrellis.raster._
-import geotrellis.raster.interpolation._
 import geotrellis.raster.io.geotiff.OverviewStrategy
 import geotrellis.raster.reproject.{RasterRegionReproject, Reproject, ReprojectRasterExtent}
 import geotrellis.vector._
@@ -29,19 +28,14 @@ import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
 import org.log4s._
-import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
 
-/**
-  * [[DEMReprojectRasterSource]] doesn't use [[OverviewStrategy]].
-  * At this point, it relies on the EPTReader logic:
-  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
-  */
 case class IDWReprojectRasterSource(
   path: EPTPath,
   crs: CRS,
   resampleTarget: ResampleTarget = DefaultTarget,
+  overviewStrategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   resampleMethod: ResampleMethod = NearestNeighbor,
@@ -65,7 +59,14 @@ case class IDWReprojectRasterSource(
   def bandCount: Int = baseMetadata.bandCount
   def cellType: CellType = baseMetadata.cellType
   def name: SourceName = baseMetadata.name
-  def resolutions: List[CellSize] = baseMetadata.resolutions
+  def resolutions: List[CellSize] =
+    baseMetadata.resolutions.map{ cs =>
+      ReprojectRasterExtent(
+        RasterExtent(baseMetadata.gridExtent.extent, cs),
+        transform,
+        Reproject.Options.DEFAULT.copy(method = resampleMethod, errorThreshold = errorThreshold)
+      ).cellSize
+    }
 
   lazy val gridExtent: GridExtent[Long] = {
     lazy val reprojectedRasterExtent =
@@ -87,10 +88,10 @@ case class IDWReprojectRasterSource(
   logger.debug(s"Created new IDWReprojectRasterSource with $gridExtent")
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
-    IDWReprojectRasterSource(path, targetCRS, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
+    IDWReprojectRasterSource(path, targetCRS, resampleTarget, strategy, baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
-    IDWReprojectRasterSource(path, crs, resampleTarget, sourceMetadata = baseMetadata.some, threads, method, errorThreshold, targetCellType)
+    IDWReprojectRasterSource(path, crs, resampleTarget, strategy, baseMetadata.some, threads, method, errorThreshold, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -106,9 +107,15 @@ case class IDWReprojectRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = bufferedSourceRegion.extent
 
+      val requestRE = RasterExtent(bufferedSourceRegion.extent, bounds.width.toInt, bounds.height.toInt)
+      val res = OverviewStrategy.selectOverview(baseMetadata.resolutions, requestRE.cellSize, overviewStrategy)
+      val selectedRes = baseMetadata.resolutions(res)
+
+      logger.debug(s"[IDWReprojectRasterSource] Rendering IDW for $requestRE with EPT resolution $selectedRes and strategy $overviewStrategy")
+
       val expression = ReadEpt(
         filename   = path.value,
-        resolution = bufferedSourceRegion.cellSize.resolution.some,
+        resolution = selectedRes.resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       )
@@ -126,14 +133,7 @@ case class IDWReprojectRasterSource(
 
           val pv = pointViews.head
           val sourceRaster = try {
-            IDWRasterizer(
-              pv,
-              RasterExtent(
-                bufferedSourceRegion.extent,
-                bounds.width.toInt,
-                bounds.height.toInt
-              )
-            ).mapTile(MultibandTile(_))
+            IDWRasterizer(pv, requestRE).mapTile(MultibandTile(_))
           } finally pv.close()
 
           val rr = implicitly[RasterRegionReproject[MultibandTile]]

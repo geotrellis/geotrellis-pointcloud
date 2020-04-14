@@ -29,14 +29,10 @@ import org.log4s._
 
 import scala.collection.JavaConverters._
 
-/**
-  * [[TINRasterSource]] doesn't use [[OverviewStrategy]].
-  * At this point, it relies on the EPTReader logic:
-  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
-  */
 case class TINRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
+  overviewStrategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   targetCellType: Option[TargetCellType] = None
@@ -55,18 +51,22 @@ case class TINRasterSource(
   def resolutions: List[CellSize] = metadata.resolutions
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINReprojectRasterSource =
-    TINReprojectRasterSource(path.value, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
+    TINReprojectRasterSource(path.value, targetCRS, resampleTarget, strategy, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): TINResampleRasterSource =
-    TINResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
+    TINResampleRasterSource(path.value, resampleTarget, strategy, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
     val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
+    val res = OverviewStrategy.selectOverview(resolutions, gridExtent.cellSize, overviewStrategy)
+
+    logger.debug(s"[TINRasterSource] Rendering TIN for ${RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt)} with EPT resolution ${resolutions(res)} and strategy $overviewStrategy")
+
     val expression = ReadEpt(
       filename   = path.value,
-      resolution = gridExtent.cellSize.resolution.some,
+      resolution = resolutions(res).resolution.some,
       bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
       threads    = threads
     ) ~ FilterDelaunay()

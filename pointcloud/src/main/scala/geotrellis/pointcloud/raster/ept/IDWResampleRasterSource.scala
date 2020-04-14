@@ -29,18 +29,13 @@ import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
 import org.log4s._
-import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
 
-/**
-  * [[IDWResampleRasterSource]] doesn't use [[OverviewStrategy]].
-  * At this point, it relies on the EPTReader logic:
-  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
-  */
 case class IDWResampleRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
+  overviewStrategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   resampleMethod: ResampleMethod = NearestNeighbor,
@@ -69,7 +64,7 @@ case class IDWResampleRasterSource(
   lazy val gridExtent: GridExtent[Long] = resampleTarget(baseMetadata.gridExtent)
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource = {
-    new IDWReprojectRasterSource(path.value, targetCRS, resampleTarget, baseMetadata.some, threads, method, targetCellType = targetCellType) {
+    new IDWReprojectRasterSource(path.value, targetCRS, resampleTarget, strategy, baseMetadata.some, threads, method, targetCellType = targetCellType) {
       override lazy val gridExtent: GridExtent[Long] = {
         val reprojectedRasterExtent =
           ReprojectRasterExtent(
@@ -90,7 +85,7 @@ case class IDWResampleRasterSource(
   }
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWResampleRasterSource =
-    IDWResampleRasterSource(path.value, resampleTarget, baseMetadata.some, threads, method, targetCellType)
+    IDWResampleRasterSource(path.value, resampleTarget, strategy, baseMetadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     bounds.intersection(dimensions).flatMap { targetPixelBounds =>
@@ -102,9 +97,13 @@ case class IDWResampleRasterSource(
 
       val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
+      val requestRE = RasterExtent(targetRegion.extent, bounds.width.toInt, bounds.width.toInt)
+      val res = OverviewStrategy.selectOverview(resolutions, requestRE.cellSize, overviewStrategy)
+      logger.debug(s"[IDWResampleRasterSource] Rendering IDW for $requestRE with EPT resolution ${resolutions(res)} and strategy $overviewStrategy")
+
       val expression = ReadEpt(
         filename   = path.value,
-        resolution = targetRegion.cellSize.resolution.some,
+        resolution = resolutions(res).resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads
       )
@@ -122,14 +121,7 @@ case class IDWResampleRasterSource(
 
           val pv = pointViews.head
           val raster = try {
-            IDWRasterizer(
-              pv,
-              RasterExtent(
-                targetRegion.extent,
-                bounds.width.toInt,
-                bounds.width.toInt
-              )
-            ).mapTile(MultibandTile(_))
+            IDWRasterizer(pv, requestRE).mapTile(MultibandTile(_))
           } finally pv.close()
 
           convertRaster(raster).some

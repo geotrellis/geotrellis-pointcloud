@@ -27,18 +27,13 @@ import cats.syntax.option._
 import _root_.io.circe.syntax._
 import _root_.io.pdal.pipeline._
 import org.log4s._
-import spire.syntax.cfor._
 
 import scala.collection.JavaConverters._
 
-/**
-  * [[DEMRasterSource]] doesn't use [[OverviewStrategy]].
-  * At this point, it relies on the EPTReader logic:
-  * https://github.com/PDAL/PDAL/blob/2.1.0/io/EptReader.cpp#L293-L318
-  */
 case class IDWRasterSource(
   path: EPTPath,
   resampleTarget: ResampleTarget = DefaultTarget,
+  overviewStrategy: OverviewStrategy = OverviewStrategy.DEFAULT,
   sourceMetadata: Option[EPTMetadata] = None,
   threads: Option[Int] = None,
   targetCellType: Option[TargetCellType] = None
@@ -57,18 +52,22 @@ case class IDWRasterSource(
   def resolutions: List[CellSize] = metadata.resolutions
 
   def reprojection(targetCRS: CRS, resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWReprojectRasterSource =
-    IDWReprojectRasterSource(path.value, targetCRS, resampleTarget, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
+    IDWReprojectRasterSource(path.value, targetCRS, resampleTarget, strategy, sourceMetadata = metadata.some, threads = threads, method, targetCellType = targetCellType)
 
   def resample(resampleTarget: ResampleTarget, method: ResampleMethod, strategy: OverviewStrategy): IDWResampleRasterSource =
-    IDWResampleRasterSource(path.value, resampleTarget, metadata.some, threads, method, targetCellType)
+    IDWResampleRasterSource(path.value, resampleTarget, strategy, metadata.some, threads, method, targetCellType)
 
   def read(bounds: GridBounds[Long], bands: Seq[Int]): Option[Raster[MultibandTile]] = {
     val targetRegion = gridExtent.extentFor(bounds, clamp = false)
     val Extent(exmin, eymin, exmax, eymax) = targetRegion.extent
 
+    val res = OverviewStrategy.selectOverview(resolutions, gridExtent.cellSize, overviewStrategy)
+
+    logger.debug(s"[IDWRasterSource] Rendering IDW for ${RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt)} with EPT resolution ${resolutions(res)} and strategy $overviewStrategy")
+
     val expression = ReadEpt(
       filename   = path.value,
-      resolution = gridExtent.cellSize.resolution.some,
+      resolution = resolutions(res).resolution.some,
       bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
       threads    = threads
     )
@@ -84,16 +83,10 @@ case class IDWRasterSource(
         val pointViews = pipeline.getPointViews().asScala.toList
         assert(pointViews.length == 1, "Triangulation pipeline should have single resulting point view")
 
+
         pointViews.headOption.map { pv =>
           try {
-            IDWRasterizer(
-              pv,
-              RasterExtent(
-                targetRegion,
-                bounds.width.toInt,
-                bounds.height.toInt
-              )
-            ).mapTile(MultibandTile(_))
+            IDWRasterizer(pv, RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt)).mapTile(MultibandTile(_))
           } finally pv.close()
         }
       } else None

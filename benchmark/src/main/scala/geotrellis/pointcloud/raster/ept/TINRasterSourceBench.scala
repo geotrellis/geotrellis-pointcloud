@@ -18,6 +18,7 @@ package geotrellis.pointcloud.raster.ept
 
 import geotrellis.raster.{CellSize, GridExtent, MultibandTile, Raster, RasterExtent}
 import geotrellis.proj4.LatLng
+import geotrellis.raster.io.geotiff.Auto
 
 import org.openjdk.jmh.annotations._
 import java.util.concurrent.TimeUnit
@@ -29,7 +30,7 @@ class TINRasterSourceBench {
   val catalogPath = "../pointcloud/src/test/resources/red-rocks"
 
   /** This bench benchmarks the actual PDAL reads, not the RasterSource initialization time. */
-  val rs   = TINRasterSource(catalogPath)
+  val rs   = TINRasterSource(catalogPath, overviewStrategy = Auto(6))
   val gtrs = GeoTrellisTINRasterSource(catalogPath)
   val jrs  = JavaTINRasterSource(catalogPath)
 

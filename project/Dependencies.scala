@@ -33,10 +33,10 @@ object Dependencies {
   val sparkSQL     = "org.apache.spark" %% "spark-sql"     % Version.spark
   val hadoopClient = "org.apache.hadoop" % "hadoop-client" % Version.hadoop
   val hadoopAWS    = "org.apache.hadoop" % "hadoop-aws" % Version.hadoop
-  
+
   val pdalScala    = "io.pdal" %% "pdal-scala" % Version.pdal
   val pdalNative   = "io.pdal" % "pdal-native" % Version.pdal
-  
+
   val geotrellisSparkTestkit = "org.locationtech.geotrellis" %% "geotrellis-spark-testkit" % Version.geotrellis
   val geotrellisSpark        = "org.locationtech.geotrellis" %% "geotrellis-spark" % Version.geotrellis
   val geotrellisRaster       = "org.locationtech.geotrellis" %% "geotrellis-raster" % Version.geotrellis

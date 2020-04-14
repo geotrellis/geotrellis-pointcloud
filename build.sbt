@@ -81,10 +81,10 @@ lazy val commonSettings = Seq(
   sources in (Compile, doc) ~= (_ filterNot (_.getAbsolutePath contains "geotrellis/vector")),
 
   resolvers ++= Seq(
-    Resolver.sonatypeRepo("releases"),
-    Resolver.sonatypeRepo("snapshots"),
     "eclipse-releases" at "https://repo.eclipse.org/content/groups/releases",
-    "eclipse-snapshots" at "https://repo.eclipse.org/content/groups/snapshots"
+    "eclipse-snapshots" at "https://repo.eclipse.org/content/groups/snapshots",
+    Resolver.sonatypeRepo("releases"),
+    Resolver.sonatypeRepo("snapshots")
   ),
   Global / cancelable := true,
   Test / fork := true,

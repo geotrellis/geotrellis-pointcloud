@@ -19,11 +19,11 @@ package geotrellis.pointcloud.raster.ept
 import geotrellis.layer._
 import geotrellis.proj4.{CRS, LatLng, WebMercator}
 import geotrellis.raster.geotiff.GeoTiffRasterSource
+import geotrellis.raster.io.geotiff.Auto
 import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{CellSize, DefaultTarget, Dimensions, DoubleCellType, GridExtent, Raster, TileLayout}
 import geotrellis.vector.Extent
-
 import org.scalatest._
 
 class TINRasterSourceSpec extends FunSpec with RasterMatchers {
@@ -45,6 +45,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent
       rs.crs shouldBe expectedMetadata.crs
+      rs.resolutions shouldBe expectedMetadata.resolutions
 
       val res = rs.read()
       res.nonEmpty shouldBe true
@@ -53,8 +54,41 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
       tile.dimensions shouldBe Dimensions(4096, 4096)
       val (mi, ma) = tile.findMinMaxDouble
 
-      // // threshold is large, since triangulation mesh can vary a little that may cause
-      // // slightly different results during the rasterization process
+      // threshold is large, since triangulation mesh can vary a little that may cause
+      // slightly different results during the rasterization process
+      // mi shouldBe 1845.9 +- 1e-1
+      // ma shouldBe 2028.9 +- 1e-1
+
+      (mi >= rs.metadata.attributes("minz").toDouble) shouldBe true
+      (ma <= rs.metadata.attributes("maxz").toDouble) shouldBe true
+    }
+
+    it("should read from the EPT catalog at a less resolute level of detail") {
+      val expectedMetadata: EPTMetadata = EPTMetadata(
+        name        = "src/test/resources/red-rocks/",
+        crs         = CRS.fromEpsgCode(26913),
+        cellType    = DoubleCellType,
+        gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 0.216796875, 0.216796875, 4096, 4096),
+        resolutions = List(CellSize(0.216796875,0.216796875), CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
+        attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
+      )
+
+      val rs = TINRasterSource(catalog, overviewStrategy = Auto(6))
+
+      rs.metadata shouldBe expectedMetadata
+      rs.gridExtent shouldBe expectedMetadata.gridExtent
+      rs.crs shouldBe expectedMetadata.crs
+      rs.resolutions shouldBe expectedMetadata.resolutions
+
+      val res = rs.read()
+      res.nonEmpty shouldBe true
+
+      val tile = res.map(_.tile.band(0)).get
+      tile.dimensions shouldBe Dimensions(4096, 4096)
+      val (mi, ma) = tile.findMinMaxDouble
+
+      // threshold is large, since triangulation mesh can vary a little that may cause
+      // slightly different results during the rasterization process
       // mi shouldBe 1845.9 +- 1e-1
       // ma shouldBe 2028.9 +- 1e-1
 
