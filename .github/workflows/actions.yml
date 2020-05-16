@@ -12,7 +12,7 @@ jobs:
         scala: [2.12.10, 2.11.12]
 
     container:
-      image: daunnc/pdal-ubuntu:2.1.0
+      image: daunnc/pdal-debian:2.1.0
 
     services:
       minio:
