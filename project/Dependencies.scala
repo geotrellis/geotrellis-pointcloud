@@ -21,7 +21,7 @@ object Version {
   val geotrellis           = "3.3.0"
   val crossScala           = List("2.12.10", "2.11.12")
   val scala                = crossScala.head
-  val pdal                 = "2.1.5"
+  val pdal                 = "2.1.6"
   val scalaTest            = "3.0.8"
   lazy val hadoop          = Environment.hadoopVersion
   lazy val spark           = Environment.sparkVersion

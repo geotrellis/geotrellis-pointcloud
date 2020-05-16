@@ -40,7 +40,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
-      val rs = TINRasterSource(catalog)
+      val rs = TINRasterSource(catalog, overviewStrategy = Auto(6))
 
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent
@@ -106,7 +106,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
-      val rs = TINRasterSource(catalog).resample(100, 100)
+      val rs = TINRasterSource(catalog, overviewStrategy = Auto(6)).resample(100, 100)
 
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent
@@ -135,7 +135,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
-      val rs = TINRasterSource(catalog).reproject(LatLng)
+      val rs = TINRasterSource(catalog, overviewStrategy = Auto(6)).reproject(LatLng)
 
       rs.metadata shouldBe expectedMetadata
       rs.gridExtent shouldBe expectedMetadata.gridExtent
@@ -160,7 +160,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
     // https://github.com/geotrellis/geotrellis-pointcloud/issues/47
     it("rasterizer bug") {
       val ge = new GridExtent[Long](Extent(481968.0, 4390186.0, 482718.32558139536, 4390537.069767442), 6.883720930232645, 6.883720930227462, 109, 51)
-      val rs = TINRasterSource(catalog).resampleToRegion(ge)
+      val rs = TINRasterSource(catalog, overviewStrategy = Auto(6)).resampleToRegion(ge)
 
       val actual = rs.read().get
 
