@@ -19,9 +19,10 @@ package geotrellis.pointcloud.raster.rasterize.triangles
 import geotrellis.raster._
 import geotrellis.vector._
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class TrianglesRasterizerSpec extends FunSpec with Matchers {
+class TrianglesRasterizerSpec extends AnyFunSpec with Matchers {
 
   describe("TrianglesRasterizer") {
 

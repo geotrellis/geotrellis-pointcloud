@@ -23,9 +23,10 @@ import geotrellis.pointcloud.spark.{PointCloudTestEnvironment, _}
 import geotrellis.layer._
 import geotrellis.vector.Extent
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class PointCloudDemSpec extends FunSpec with Matchers with PointCloudTestEnvironment {
+class PointCloudDemSpec extends AnyFunSpec with Matchers with PointCloudTestEnvironment {
 
   describe("PointCloud DEM support") {
     val min = { (a: Double, b: Double) => math.min(a, b) }

@@ -25,9 +25,10 @@ import geotrellis.vector._
 
 import org.locationtech.jts.geom.Coordinate
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class PyramidSpec extends FunSpec with Matchers with PointCloudTestEnvironment with PointCloudSpatialTestFiles {
+class PyramidSpec extends AnyFunSpec with Matchers with PointCloudTestEnvironment with PointCloudSpatialTestFiles {
   describe("Pyramid") {
     it("should pyramid Bounds[SpatialKey]") {
       val md = TileLayerMetadata(

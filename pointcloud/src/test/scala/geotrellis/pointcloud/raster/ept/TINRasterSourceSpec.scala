@@ -24,9 +24,10 @@ import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{CellSize, DefaultTarget, Dimensions, DoubleCellType, GridExtent, Raster, TileLayout}
 import geotrellis.vector.Extent
-import org.scalatest._
 
-class TINRasterSourceSpec extends FunSpec with RasterMatchers {
+import org.scalatest.funspec.AnyFunSpec
+
+class TINRasterSourceSpec extends AnyFunSpec with RasterMatchers {
   val catalog: String = "src/test/resources/red-rocks"
 
   describe("TINRasterSourceSpec") {

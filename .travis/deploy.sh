@@ -11,4 +11,4 @@ docker run -it --net=host \
            -e BINTRAY_USER=$BINTRAY_USER \
            -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
            -e BINTRAY_PASS=$BINTRAY_API_KEY \
-           -e VERSION_SUFFIX=$VERSION_SUFFIX daunnc/pdal-debian:2.1.0 /bin/bash -c "cd /geotrellis-pointcloud; .travis/publish.sh"
+           -e VERSION_SUFFIX=$VERSION_SUFFIX daunnc/pdal-ubuntu:2.2.0 /bin/bash -c "cd /geotrellis-pointcloud; .travis/publish.sh"

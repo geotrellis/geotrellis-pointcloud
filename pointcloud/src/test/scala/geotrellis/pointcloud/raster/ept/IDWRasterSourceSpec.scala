@@ -16,17 +16,15 @@
 
 package geotrellis.pointcloud.raster.ept
 
-import geotrellis.layer._
-import geotrellis.proj4.{CRS, LatLng, WebMercator}
-import geotrellis.raster.geotiff.GeoTiffRasterSource
+import geotrellis.proj4.{CRS, LatLng}
 import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.raster.testkit.RasterMatchers
-import geotrellis.raster.{CellSize, DefaultTarget, Dimensions, DoubleCellType, GridExtent, Raster, TileLayout, TargetDimensions}
+import geotrellis.raster.{CellSize, Dimensions, DoubleCellType, GridExtent, TargetDimensions}
 import geotrellis.vector.Extent
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
 
-class IDWRasterSourceSpec extends FunSpec with RasterMatchers {
+class IDWRasterSourceSpec extends AnyFunSpec with RasterMatchers {
   val catalog: String = "src/test/resources/red-rocks"
 
   describe("IDWRasterSourceSpec") {

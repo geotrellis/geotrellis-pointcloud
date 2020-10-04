@@ -17,12 +17,12 @@
 import sbt._
 
 object Version {
-  val geotrellisPointCloud = "0.3.4" + Environment.versionSuffix
-  val geotrellis           = "3.3.0"
+  val geotrellisPointCloud = "0.4.0" + Environment.versionSuffix
+  val geotrellis           = "3.5.0"
   val crossScala           = List("2.12.10", "2.11.12")
   val scala                = crossScala.head
-  val pdal                 = "2.1.6"
-  val scalaTest            = "3.0.8"
+  val pdal                 = "2.2.0"
+  val scalaTest            = "3.2.2"
   lazy val hadoop          = Environment.hadoopVersion
   lazy val spark           = Environment.sparkVersion
 }

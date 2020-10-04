@@ -23,11 +23,10 @@ import geotrellis.layer.LayoutDefinition
 import geotrellis.pointcloud.spark.store.hadoop.HadoopPointCloudRDD
 import geotrellis.vector.Extent
 
-import org.scalatest._
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class PointCloudTilingSpec extends FunSpec
-  with Matchers
-  with PointCloudTestEnvironment {
+class PointCloudTilingSpec extends AnyFunSpec with Matchers with PointCloudTestEnvironment {
   describe("PointCloud RDD tiling") {
     it("should tile RDD of packed points") {
       //Pipeline.loadNativeLibrary()

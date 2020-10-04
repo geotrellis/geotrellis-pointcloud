@@ -16,9 +16,9 @@
 
 package geotrellis.pointcloud.raster.ept
 
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 
-class EPTMetadataSpec extends FunSpec {
+class EPTMetadataSpec extends AnyFunSpec {
   val catalog: String = "src/test/resources/red-rocks"
 
   describe("EPTMetadata") {

@@ -16,9 +16,9 @@
 
 package geotrellis.pointcloud.raster.ept
 
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 
-class EPTPathSpec extends FunSpec {
+class EPTPathSpec extends AnyFunSpec {
   describe("EPTPathSpec") {
     it("relative path") {
       assert(EPTPath.parse("data/my-data.tiff").value == "data/my-data.tiff")

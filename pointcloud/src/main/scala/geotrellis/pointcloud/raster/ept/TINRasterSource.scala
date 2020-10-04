@@ -71,7 +71,7 @@ case class TINRasterSource(
       threads    = threads
     ) ~ FilterDelaunay()
 
-    println(expression.asJson.spaces4)
+    logger.debug(expression.asJson.spaces4)
 
     val pipeline = expression toPipeline
 
