@@ -22,9 +22,10 @@ import geotrellis.proj4._
 
 import org.apache.spark.sql.{DataFrame, Row}
 
-import org.scalatest.{FunSpec, Matchers}
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class PointCloudDatasourceSpec extends FunSpec with Matchers with PointCloudTestEnvironment with PointCloudSpatialTestFiles {
+class PointCloudDatasourceSpec extends AnyFunSpec with Matchers with PointCloudTestEnvironment with PointCloudSpatialTestFiles {
   override def beforeAll(): Unit = {
     super.beforeAll()
     setS3Credentials

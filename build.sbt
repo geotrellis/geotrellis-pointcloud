@@ -10,8 +10,8 @@ lazy val commonSettings = Seq(
   crossScalaVersions := Version.crossScala,
   description := "GeoTrellis PointCloud library",
   organization := "com.azavea.geotrellis",
-  licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-  homepage := Some(url("http://geotrellis.github.io")),
+  licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.html")),
+  homepage := Some(url("https://geotrellis.github.io")),
   scalacOptions ++= Seq(
     "-deprecation",
     "-unchecked",
@@ -46,17 +46,17 @@ lazy val commonSettings = Seq(
         <developer>
           <id>echeipesh</id>
           <name>Eugene Cheipesh</name>
-          <url>http://github.com/echeipesh/</url>
+          <url>https://github.com/echeipesh/</url>
         </developer>
         <developer>
           <id>lossyrob</id>
           <name>Rob Emanuele</name>
-          <url>http://github.com/lossyrob/</url>
+          <url>https://github.com/lossyrob/</url>
         </developer>
         <developer>
           <id>pomadchin</id>
           <name>Grigory Pomadchin</name>
-          <url>http://github.com/pomadchin/</url>
+          <url>https://github.com/pomadchin/</url>
         </developer>
       </developers>
     ),
@@ -64,17 +64,10 @@ lazy val commonSettings = Seq(
   shellPrompt := { s => Project.extract(s).currentProject.id + " > " },
   headerLicense := Some(HeaderLicense.ALv2(java.time.Year.now.getValue.toString, "Azavea")),
   headerMappings := Map(
-    FileType.scala -> CommentStyle.cStyleBlockComment.copy(commentCreator = new CommentCreator() {
-      val Pattern = "(?s).*?(\\d{4}(-\\d{4})?).*".r
-      def findYear(header: String): Option[String] = header match {
-        case Pattern(years, _) => Some(years)
-        case _                 => None
-      }
-      def apply(text: String, existingText: Option[String]): String = {
-        // preserve year of old headers
-        val newText = CommentStyle.cStyleBlockComment.commentCreator.apply(text, existingText)
-        existingText.flatMap(_ => existingText.map(_.trim)).getOrElse(newText)
-      }
+    FileType.scala -> CommentStyle.cStyleBlockComment.copy(commentCreator = { (text, existingText) =>
+      // preserve year of old headers
+      val newText = CommentStyle.cStyleBlockComment.commentCreator.apply(text, existingText)
+      existingText.flatMap(_ => existingText.map(_.trim)).getOrElse(newText)
     })
   ),
 

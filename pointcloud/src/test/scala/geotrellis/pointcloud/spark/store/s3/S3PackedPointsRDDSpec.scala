@@ -26,9 +26,11 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 
 import java.nio.file.{Files, Paths}
 
-import org.scalatest._
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.funspec.AnyFunSpec
+import org.scalatest.matchers.should.Matchers
 
-class S3PackedPointsRDDSpec extends FunSpec with Matchers with PointCloudTestEnvironment with BeforeAndAfterAll {
+class S3PackedPointsRDDSpec extends AnyFunSpec with Matchers with PointCloudTestEnvironment with BeforeAndAfterAll {
   val bucket = this.getClass.getSimpleName.toLowerCase
   val bucketKey = "las/1.2-with-color.las"
   val keyFiles = "las/files/"

@@ -21,7 +21,7 @@ import geotrellis.util._
 
 import geotrellis.spark.testkit._
 
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 
 object Stuff {
   case class UnionableThing(n: Int) {
@@ -34,7 +34,7 @@ object Stuff {
   }
 }
 
-class BufferUnionableSpec extends FunSpec with TestEnvironment {
+class BufferUnionableSpec extends AnyFunSpec with TestEnvironment {
 
   import Stuff.UnionableThing
 

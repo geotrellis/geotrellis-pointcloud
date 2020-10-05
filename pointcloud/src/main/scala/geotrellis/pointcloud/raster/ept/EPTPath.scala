@@ -37,7 +37,9 @@ import java.net.MalformedURLException
   *
   *  @note Capitalization of the extension is not regarded.
   */
-case class EPTPath(value: String) extends SourcePath
+case class EPTPath(value: String) extends SourcePath {
+  def ept: String = s"$value/ept.json"
+}
 
 object EPTPath {
   val PREFIX     = "ept+"

@@ -24,9 +24,10 @@ import geotrellis.raster.resample.NearestNeighbor
 import geotrellis.raster.testkit.RasterMatchers
 import geotrellis.raster.{CellSize, DefaultTarget, Dimensions, DoubleCellType, GridExtent, Raster, TileLayout}
 import geotrellis.vector.Extent
-import org.scalatest._
 
-class TINRasterSourceSpec extends FunSpec with RasterMatchers {
+import org.scalatest.funspec.AnyFunSpec
+
+class TINRasterSourceSpec extends AnyFunSpec with RasterMatchers {
   val catalog: String = "src/test/resources/red-rocks"
 
   describe("TINRasterSourceSpec") {
@@ -35,8 +36,8 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         name        = "src/test/resources/red-rocks/",
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
-        gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 0.216796875, 0.216796875, 4096, 4096),
-        resolutions = List(CellSize(0.216796875,0.216796875), CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
+        gridExtent  = new GridExtent(Extent(481969.0, 4390186.0, 482855.0, 4391072.0), 0.21630859375,0.21630859375, 4096, 4096),
+        resolutions = List(CellSize(0.21630859375,0.21630859375), CellSize(0.4326171875,0.4326171875), CellSize(0.865234375,0.865234375), CellSize(1.73046875,1.73046875), CellSize(3.4609375,3.4609375), CellSize(6.921875,6.921875)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
@@ -68,8 +69,8 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         name        = "src/test/resources/red-rocks/",
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
-        gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 0.216796875, 0.216796875, 4096, 4096),
-        resolutions = List(CellSize(0.216796875,0.216796875), CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
+        gridExtent  = new GridExtent(Extent(481969.0, 4390186.0, 482855.0, 4391072.0), 0.21630859375, 0.21630859375, 4096, 4096),
+        resolutions = List(CellSize(0.21630859375,0.21630859375), CellSize(0.4326171875,0.4326171875), CellSize(0.865234375,0.865234375), CellSize(1.73046875,1.73046875), CellSize(3.4609375,3.4609375), CellSize(6.921875,6.921875)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
@@ -101,8 +102,8 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         name        = "src/test/resources/red-rocks/",
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
-        gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0),8.88, 8.88,100, 100),
-        resolutions = List(CellSize(0.216796875,0.216796875), CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
+        gridExtent  = new GridExtent(Extent(481969.0, 4390186.0, 482855.0, 4391072.0),8.86, 8.86,100, 100),
+        resolutions = List(CellSize(0.21630859375,0.21630859375), CellSize(0.4326171875,0.4326171875), CellSize(0.865234375,0.865234375), CellSize(1.73046875,1.73046875), CellSize(3.4609375,3.4609375), CellSize(6.921875,6.921875)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
@@ -121,8 +122,8 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
 
       // threshold is large, since triangulation mesh can vary a little that may cause
       // slightly different results during the rasterization process
-      mi shouldBe 1846.6 +- 1e-1
-      ma shouldBe 2027.6 +- 1e-1
+      mi shouldBe 1846.6 +- 3e-1
+      ma shouldBe 2027.6 +- 3e-1
     }
 
     it("should reproject RasterSource") {
@@ -130,8 +131,8 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
         name        = "src/test/resources/red-rocks/",
         crs         = LatLng,
         cellType    = DoubleCellType,
-        gridExtent  = new GridExtent(Extent(-105.21023644880934, 39.66129118258597, -105.1998609160608, 39.669309977479124), 2.263917248208468E-6, 2.263917248208468E-6,4583, 3542),
-        resolutions = List(CellSize(2.263917248208468E-6,2.263917248208468E-6), CellSize(4.527834496416936E-6,4.527834496416936E-6), CellSize(9.055668992833871E-6,9.055668992833871E-6), CellSize(1.8111337985667743E-5,1.8111337985667743E-5), CellSize(3.6222675971335486E-5,3.6222675971335486E-5), CellSize(7.244535194267097E-5,7.244535194267097E-5)),
+        gridExtent  = new GridExtent(Extent(-105.21022473519201, 39.66129120299395, -105.19987257160376, 39.66929193688651), 2.258818151484163E-6, 2.258818151484163E-6,4583, 3542),
+        resolutions = List(CellSize(2.258818151484163E-6,2.258818151484163E-6), CellSize(4.517636302968326E-6,4.517636302968326E-6), CellSize(9.035272605936652E-6,9.035272605936652E-6), CellSize(1.8070545211873303E-5,1.8070545211873303E-5), CellSize(3.614109042374661E-5,3.614109042374661E-5), CellSize(7.228218084749321E-5,7.228218084749321E-5)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
@@ -174,7 +175,7 @@ class TINRasterSourceSpec extends FunSpec with RasterMatchers {
     }
 
     // https://github.com/geotrellis/geotrellis-pointcloud/issues/47
-    ignore("reprojection bug") {
+    it("reprojection bug") {
       // NOTE: This test fails because of a small number (2–4) of pixels
       // around the boundary that are NODATA in one image, but have a value
       // in the other.  Visual inspection confirms that the images match

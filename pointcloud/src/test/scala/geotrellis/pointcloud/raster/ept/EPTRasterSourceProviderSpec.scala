@@ -17,9 +17,9 @@
 package geotrellis.pointcloud.raster.ept
 
 import geotrellis.raster.RasterSource
-import org.scalatest.FunSpec
+import org.scalatest.funspec.AnyFunSpec
 
-class EPTRasterSourceProviderSpec extends FunSpec {
+class EPTRasterSourceProviderSpec extends AnyFunSpec {
   describe("EPTRasterSourceProvider") {
     val provider = new EPTRasterSourceProvider()
 

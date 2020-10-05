@@ -1,11 +1,11 @@
 {
   "bounds": [
-    481968.0,
-    4390186.0,
-    1493.0,
-    482856.0,
-    4391074.0,
-    2381.0
+    481969,
+    4390186,
+    1494,
+    482855,
+    4391072,
+    2380
   ],
   "boundsConforming": [
     482060.0,
@@ -21,21 +21,21 @@
   "schema": [
     {
       "name": "X",
-      "offset": 482412.0,
+      "offset": 482412,
       "scale": 0.01,
       "size": 4,
       "type": "signed"
     },
     {
       "name": "Y",
-      "offset": 4390629.0,
+      "offset": 4390629,
       "scale": 0.01,
       "size": 4,
       "type": "signed"
     },
     {
       "name": "Z",
-      "offset": 1937.0,
+      "offset": 1937,
       "scale": 0.01,
       "size": 4,
       "type": "signed"
@@ -103,11 +103,6 @@
     {
       "name": "Blue",
       "size": 2,
-      "type": "unsigned"
-    },
-    {
-      "name": "OriginId",
-      "size": 4,
       "type": "unsigned"
     }
   ],
