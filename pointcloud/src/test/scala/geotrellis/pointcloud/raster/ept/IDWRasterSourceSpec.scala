@@ -33,15 +33,15 @@ class IDWRasterSourceSpec extends AnyFunSpec with RasterMatchers {
         name        = "src/test/resources/red-rocks/",
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
-        gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 0.216796875, 0.216796875, 4096, 4096),
-        resolutions = List(CellSize(0.216796875,0.216796875),CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
+        gridExtent  = new GridExtent(Extent(481969.0, 4390186.0, 482855.0, 4391072.0), 0.21630859375,0.21630859375, 4096, 4096),
+        resolutions = List(CellSize(0.21630859375,0.21630859375), CellSize(0.4326171875,0.4326171875), CellSize(0.865234375,0.865234375), CellSize(1.73046875,1.73046875), CellSize(3.4609375,3.4609375), CellSize(6.921875,6.921875)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
       val rs = IDWRasterSource(catalog, TargetDimensions(128, 128))
 
       rs.metadata shouldBe expectedMetadata
-      rs.gridExtent shouldBe new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0), 6.9375, 6.9375, 128, 128) // expectedMetadata.gridExtent
+      rs.gridExtent shouldBe new GridExtent(Extent(481969.0, 4390186.0, 482855.0, 4391072.0), 6.921875, 6.921875, 128, 128) // expectedMetadata.gridExtent
       rs.crs shouldBe expectedMetadata.crs
 
       val res = rs.read()
@@ -62,8 +62,8 @@ class IDWRasterSourceSpec extends AnyFunSpec with RasterMatchers {
         name        = "src/test/resources/red-rocks/",
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
-        gridExtent  = new GridExtent(Extent(481968.0, 4390186.0, 482856.0, 4391074.0),8.88, 8.88, 100, 100),
-        resolutions = List(CellSize(0.216796875,0.216796875), CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
+        gridExtent  = new GridExtent(Extent(481969.0, 4390186.0, 482855.0, 4391072.0),8.86, 8.86, 100, 100),
+        resolutions = List(CellSize(0.21630859375,0.21630859375), CellSize(0.4326171875,0.4326171875), CellSize(0.865234375,0.865234375), CellSize(1.73046875,1.73046875), CellSize(3.4609375,3.4609375), CellSize(6.921875,6.921875)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 
@@ -91,8 +91,8 @@ class IDWRasterSourceSpec extends AnyFunSpec with RasterMatchers {
         name        = "src/test/resources/red-rocks/",
         crs         = CRS.fromEpsgCode(26913),
         cellType    = DoubleCellType,
-        gridExtent  = new GridExtent(Extent(-105.21023644880934, 39.66129118258597, -105.1998609160608, 39.669309977479124), 7.255617306671465E-5, 7.224139543381823E-5,143, 111),
-        resolutions = List(CellSize(0.216796875,0.216796875), CellSize(0.43359375,0.43359375), CellSize(0.8671875,0.8671875), CellSize(1.734375,1.734375), CellSize(3.46875,3.46875), CellSize(6.9375,6.9375)),
+        gridExtent  = new GridExtent(Extent(-105.21022473519201, 39.66129120299395, -105.19987257160376, 39.66929193688651), 7.23927523653953E-5, 7.207868371674133E-5,143, 111),
+        resolutions = List(CellSize(0.21630859375,0.21630859375), CellSize(0.4326171875,0.4326171875), CellSize(0.865234375,0.865234375), CellSize(1.73046875,1.73046875), CellSize(3.4609375,3.4609375), CellSize(6.921875,6.921875)),
         attributes  = Map("points" -> "4004326", "pointsInLevels" -> "", "minz" -> "1843.0", "maxz" -> "2030.0")
       )
 

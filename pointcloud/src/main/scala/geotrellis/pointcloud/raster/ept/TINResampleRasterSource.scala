@@ -102,7 +102,7 @@ case class TINResampleRasterSource(
       logger.debug(s"[TINResampleRasterSource] Rendering TIN for $requestRE with EPT resolution ${resolutions(res)} and strategy $overviewStrategy")
 
       val expression = ReadEpt(
-        filename   = path.value,
+        filename   = path.ept,
         resolution = resolutions(res).resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads

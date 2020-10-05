@@ -102,7 +102,7 @@ case class IDWResampleRasterSource(
       logger.debug(s"[IDWResampleRasterSource] Rendering IDW for $requestRE with EPT resolution ${resolutions(res)} and strategy $overviewStrategy")
 
       val expression = ReadEpt(
-        filename   = path.value,
+        filename   = path.ept,
         resolution = resolutions(res).resolution.some,
         bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
         threads    = threads

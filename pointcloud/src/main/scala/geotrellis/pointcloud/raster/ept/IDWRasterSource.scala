@@ -66,7 +66,7 @@ case class IDWRasterSource(
     logger.debug(s"[IDWRasterSource] Rendering IDW for ${RasterExtent(targetRegion, bounds.width.toInt, bounds.height.toInt)} with EPT resolution ${resolutions(res)} and strategy $overviewStrategy")
 
     val expression = ReadEpt(
-      filename   = path.value,
+      filename   = path.ept,
       resolution = resolutions(res).resolution.some,
       bounds     = s"([$exmin, $eymin], [$exmax, $eymax])".some,
       threads    = threads

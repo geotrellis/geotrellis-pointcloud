@@ -1,73 +1,14 @@
 {
-  "1.2-with-color.las": {
-    "bounds": [
-      635619.85,
-      848899.7000000001,
-      406.59000000000003,
-      638982.55,
-      853535.43,
-      586.38
-    ],
-    "metadata": {
-      "comp_spatialreference": "",
-      "compressed": false,
-      "count": 1065,
-      "creation_doy": 0,
-      "creation_year": 0,
-      "dataformat_id": 3,
-      "dataoffset": 229,
-      "filesource_id": 0,
-      "global_encoding": 0,
-      "global_encoding_base64": "AAA=",
-      "header_size": 227,
-      "major_version": 1,
-      "maxx": 638982.55,
-      "maxy": 853535.43,
-      "maxz": 586.38,
-      "minor_version": 2,
-      "minx": 635619.85,
-      "miny": 848899.7,
-      "minz": 406.59,
-      "offset_x": 0,
-      "offset_y": 0,
-      "offset_z": 0,
-      "point_length": 34,
-      "project_id": "00000000-0000-0000-0000-000000000000",
-      "scale_x": 0.01,
-      "scale_y": 0.01,
-      "scale_z": 0.01,
-      "software_id": "TerraScan",
-      "spatialreference": "",
-      "srs": {
-        "compoundwkt": "",
-        "horizontal": "",
-        "isgeocentric": false,
-        "isgeographic": false,
-        "prettycompoundwkt": "",
-        "prettywkt": "",
-        "proj4": "",
-        "units": {
-          "horizontal": "unknown",
-          "vertical": ""
-        },
-        "vertical": "",
-        "wkt": ""
-      },
-      "system_id": ""
-    },
-    "origin": 1,
-    "points": 1065
-  },
-  "red-rocks.laz": {
-    "bounds": [
-      482060.5,
-      4390187.5,
-      1843.98,
-      482763.78,
-      4391071.0,
-      2029.41
-    ],
-    "metadata": {
+  "bounds": [
+    482060.5,
+    4390187.5,
+    1843.98,
+    482763.78,
+    4391071.0,
+    2029.41
+  ],
+  "metadata": {
+    "readers.las": {
       "comp_spatialreference": "PROJCS[\"NAD83 / UTM zone 13N\",GEOGCS[\"NAD83\",DATUM[\"North_American_Datum_1983\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6269\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4269\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",-105],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"EPSG\",\"26913\"]]",
       "compressed": true,
       "count": 4004326,
@@ -136,14 +77,128 @@
         "description": "http://laszip.org",
         "record_id": 22204,
         "user_id": "laszip encoded"
+      },
+      "vlr_4": {
+        "data": "AQABAAAACAAABAAAAQABAAEEAAABAAEAAgSxhxUAAAABCLGHBgAVAAYIAAABAI4jDgiwhwMAAAAADAAAAQAhaQQMAAABACkj",
+        "description": "GeoTiff GeoKeyDirectoryTag",
+        "record_id": 34735,
+        "user_id": "LASF_Projection"
+      },
+      "vlr_5": {
+        "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "description": "GeoTiff GeoDoubleParamsTag",
+        "record_id": 34736,
+        "user_id": "LASF_Projection"
+      },
+      "vlr_6": {
+        "data": "TkFEODMgLyBVVE0gem9uZSAxM058TkFEODN8AA==",
+        "description": "GeoTiff GeoAsciiParamsTag",
+        "record_id": 34737,
+        "user_id": "LASF_Projection"
+      },
+      "vlr_7": {
+        "data": "AgAAAAICAAAAAAAAUMMAAP////////////////////8DAAYAFAACAAcACAACAAgABgACAA==",
+        "description": "http://laszip.org",
+        "record_id": 22204,
+        "user_id": "laszip encoded"
       }
-    },
-    "origin": 0,
-    "points": 4004326,
-    "srs": {
-      "authority": "EPSG",
-      "horizontal": "26913",
-      "wkt": "PROJCS[\"NAD83 / UTM zone 13N\",GEOGCS[\"NAD83\",DATUM[\"North_American_Datum_1983\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6269\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4269\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",-105],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"EPSG\",\"26913\"]]"
     }
+  },
+  "path": "https://data.entwine.io/red-rocks.laz",
+  "pipeline": [
+    {
+      "filename": "/tmp/14177406940076786205.laz"
+    }
+  ],
+  "points": 4004326,
+  "schema": [
+    {
+      "name": "X",
+      "scale": 0.01,
+      "size": 4,
+      "type": "signed"
+    },
+    {
+      "name": "Y",
+      "scale": 0.01,
+      "size": 4,
+      "type": "signed"
+    },
+    {
+      "name": "Z",
+      "scale": 0.01,
+      "size": 4,
+      "type": "signed"
+    },
+    {
+      "name": "Intensity",
+      "size": 2,
+      "type": "unsigned"
+    },
+    {
+      "name": "ReturnNumber",
+      "size": 1,
+      "type": "unsigned"
+    },
+    {
+      "name": "NumberOfReturns",
+      "size": 1,
+      "type": "unsigned"
+    },
+    {
+      "name": "ScanDirectionFlag",
+      "size": 1,
+      "type": "unsigned"
+    },
+    {
+      "name": "EdgeOfFlightLine",
+      "size": 1,
+      "type": "unsigned"
+    },
+    {
+      "name": "Classification",
+      "size": 1,
+      "type": "unsigned"
+    },
+    {
+      "name": "ScanAngleRank",
+      "size": 4,
+      "type": "float"
+    },
+    {
+      "name": "UserData",
+      "size": 1,
+      "type": "unsigned"
+    },
+    {
+      "name": "PointSourceId",
+      "size": 2,
+      "type": "unsigned"
+    },
+    {
+      "name": "GpsTime",
+      "size": 8,
+      "type": "float"
+    },
+    {
+      "name": "Red",
+      "size": 2,
+      "type": "unsigned"
+    },
+    {
+      "name": "Green",
+      "size": 2,
+      "type": "unsigned"
+    },
+    {
+      "name": "Blue",
+      "size": 2,
+      "type": "unsigned"
+    }
+  ],
+  "srs": {
+    "authority": "EPSG",
+    "horizontal": "26913",
+    "wkt": "PROJCS[\"NAD83 / UTM zone 13N\",GEOGCS[\"NAD83\",DATUM[\"North_American_Datum_1983\",SPHEROID[\"GRS 1980\",6378137,298.257222101,AUTHORITY[\"EPSG\",\"7019\"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY[\"EPSG\",\"6269\"]],PRIMEM[\"Greenwich\",0,AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]],AUTHORITY[\"EPSG\",\"4269\"]],PROJECTION[\"Transverse_Mercator\"],PARAMETER[\"latitude_of_origin\",0],PARAMETER[\"central_meridian\",-105],PARAMETER[\"scale_factor\",0.9996],PARAMETER[\"false_easting\",500000],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1,AUTHORITY[\"EPSG\",\"9001\"]],AXIS[\"Easting\",EAST],AXIS[\"Northing\",NORTH],AUTHORITY[\"EPSG\",\"26913\"]]"
   }
 }
