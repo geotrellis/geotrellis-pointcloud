@@ -18,7 +18,7 @@ without rasterizing, this feature allows to rasterize data on demand.
 ## GeoTrellis PointCloud with SBT
 
 ```scala
-scalaVersion := "2.12.10"
+scalaVersion := "2.12.12"
 
 libraryDependencies ++= Seq(
   "com.azavea.geotrellis" %% "geotrellis-pointcloud" % "<latest version>"
